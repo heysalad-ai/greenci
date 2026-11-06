@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GreenCI onboarding</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/greenci/tokens.css">
+<link rel="stylesheet" href="ds/greenci/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0b7a55}a:hover{color:#23272e}
+</style>
+</helmet>
+<div style="width: 1600px; height: 920px; box-sizing: border-box; padding: 48px 56px; background: var(--surface); color: var(--ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 28px">
+
+<header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+<div><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-ink)">Onboarding · target: first green in 5 minutes</span><h1 style="margin: 6px 0 0; font: 700 40px/44px var(--font-display); letter-spacing: -.02em">Unbox to first fix in four screens</h1></div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; font: 600 13px var(--font-sans)">
+<li style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 99px; background: var(--brand-tint); color: var(--brand-ink)">✔ Plug in</li>
+<li style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 99px; background: var(--brand-tint); color: var(--brand-ink)">✔ GitHub</li>
+<li style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 99px; background: var(--brand-tint); color: var(--brand-ink)">✔ Repos</li>
+<li style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 99px; background: var(--action); color: var(--on-action)">4 First fix</li>
+</ol>
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; flex: 1">
+
+<section style="background: var(--deck); color: var(--on-deck); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+<span style="font: 600 12px/16px var(--font-mono); color: #a8b3ae">STEP 1 OF 4</span>
+<h2 style="margin: 0; font: 650 28px/32px var(--font-display)">Plug in your deck, then press any key.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: #c3ccc8">USB-C to your laptop. No driver to install.</p>
+<div style="margin-top: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 16px; border-radius: 18px; background: #1b1e23">
+<div style="grid-column: 1 / -1; height: 56px; border-radius: 12px; background: #3a4048; box-shadow: inset 0 -6px 0 #15181c"></div>
+<div style="aspect-ratio: 1; border-radius: 14px; background: var(--brand); box-shadow: inset 0 -6px 0 rgba(0,0,0,.3); display: grid; place-items: center"><img src="../../design-system/assets/logos/greenci-symbol-white.svg" alt="" style="width: 40px; opacity: .9"></div>
+<div style="aspect-ratio: 1; border-radius: 14px; background: var(--brand); box-shadow: inset 0 -6px 0 rgba(0,0,0,.3)"></div>
+<div style="aspect-ratio: 1; border-radius: 14px; background: var(--brand); box-shadow: inset 0 -6px 0 rgba(0,0,0,.3)"></div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="width: 10px; height: 10px; border-radius: 50%; background: var(--brand)"></span>Deck found · GC-1 · fw 1.4.2</div>
+</section>
+
+<section style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+<span style="font: 600 12px/16px var(--font-mono); color: var(--ink-muted)">STEP 2 OF 4</span>
+<h2 style="margin: 0; font: 650 28px/32px var(--font-display)">Let GreenCI read your checks.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: var(--ink-muted)">Installs the GreenCI GitHub App on the account you choose.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--radius-lg); background: var(--surface-sunken)">
+<span style="font: 600 13px var(--font-sans)">GreenCI can</span>
+<span style="display: flex; gap: 8px; font-size: 14px"><span style="color: var(--brand-ink)">✔</span>Read checks, logs and code</span>
+<span style="display: flex; gap: 8px; font-size: 14px"><span style="color: var(--brand-ink)">✔</span>Push to <code style="font: 13px var(--font-mono)">greenci/*</code> branches only</span>
+<span style="display: flex; gap: 8px; font-size: 14px"><span style="color: var(--brand-ink)">✔</span>Open pull requests</span>
+<span style="font: 600 13px var(--font-sans); margin-top: 6px">GreenCI never</span>
+<span style="display: flex; gap: 8px; font-size: 14px"><span style="color: var(--fail)">✕</span>Pushes to main or merges by itself</span>
+<span style="display: flex; gap: 8px; font-size: 14px"><span style="color: var(--fail)">✕</span>Reads or changes secrets</span>
+</div>
+<button class="gc-btn gc-btn--primary" style="margin-top: auto; justify-content: center">Connect GitHub</button>
+</section>
+
+<section style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+<span style="font: 600 12px/16px var(--font-mono); color: var(--ink-muted)">STEP 3 OF 4</span>
+<h2 style="margin: 0; font: 650 28px/32px var(--font-display)">Pick the repos to watch.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: var(--ink-muted)">Start small. You can add more any time.</p>
+<div style="display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden">
+<label style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; background: var(--brand-tint); font-size: 14px"><input type="checkbox" checked style="accent-color: #0b7a55; width: 18px; height: 18px"><span style="flex: 1"><b style="font-weight: 600">greenci/practice</b><br><span style="font-size: 12px; color: var(--ink-muted)">Has one failing test, on purpose</span></span></label>
+<label style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); font-size: 14px"><input type="checkbox" checked style="accent-color: #0b7a55; width: 18px; height: 18px"><span style="flex: 1">acme/payments</span><span class="gc-chip gc-chip--fail">1 failing</span></label>
+<label style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); font-size: 14px"><input type="checkbox" checked style="accent-color: #0b7a55; width: 18px; height: 18px"><span style="flex: 1">acme/web</span><span class="gc-chip gc-chip--pass">Passing</span></label>
+<label style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); font-size: 14px"><input type="checkbox" style="width: 18px; height: 18px"><span style="flex: 1">acme/ledger</span><span class="gc-chip gc-chip--idle">No CI</span></label>
+</div>
+<button class="gc-btn gc-btn--primary" style="margin-top: auto; justify-content: center">Watch 3 repos</button>
+</section>
+
+<section style="background: var(--surface-raised); border: 2px solid var(--action); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+<span style="font: 600 12px/16px var(--font-mono); color: var(--brand-ink)">STEP 4 OF 4</span>
+<h2 style="margin: 0; font: 650 28px/32px var(--font-display)">Your practice repo is red. Press Diagnose.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: var(--ink-muted)">On your deck, or right here. Then Repair, then Verify.</p>
+<div style="display: flex; gap: 10px; align-items: center; padding: 14px; border-radius: var(--radius-lg); background: var(--fail-tint)"><img src="../../design-system/assets/moods/key-failing.svg" alt="" style="width: 44px; height: 44px"><div style="font-size: 14px; line-height: 20px"><b style="font-weight: 600; color: var(--fail)">Failing</b> · greenci/practice<br><code style="font: 12px var(--font-mono)">test: adds tax correctly</code></div></div>
+<div class="gc-deck" style="padding: 10px; gap: 8px; align-self: flex-start">
+<button class="gc-key" style="width: 84px; box-shadow: 0 0 0 4px var(--fail)"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 24px; height: 24px"><circle cx="10.5" cy="10.5" r="6"></circle><path d="M15 15l5 5"></path></svg>Diagnose</span></button>
+<button class="gc-key" style="width: 84px; opacity: .45"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 24px; height: 24px"><path d="M14.5 4.5a4.5 4.5 0 0 0-5.8 5.8L4 15l5 5 4.7-4.7a4.5 4.5 0 0 0 5.8-5.8l-2.8 2.8-2.5-.5-.5-2.5z"></path></svg>Repair</span></button>
+<button class="gc-key" style="width: 84px; opacity: .45"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 24px; height: 24px"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"></path></svg>Verify</span></button>
+</div>
+<p style="margin: auto 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted)">Rather use the terminal? <code style="font: 12px var(--font-mono); color: var(--ink)">npx greenci diagnose</code> does the same.</p>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":920}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

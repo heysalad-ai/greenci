@@ -1,0 +1,39 @@
+<!-- @dsCard height=300 -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>GreenCI</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--surface); color:var(--ink); overflow:hidden; }
+  .cover { position:relative; height:300px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:300px; }
+  .art svg { display:block; width:480px; height:300px; }
+  .deck { fill:var(--deck); } .lip { fill:var(--deck-lip); } .brand { fill:var(--brand); } .tint { fill:var(--brand-tint); } .cmd { fill:#3a4048; }
+  .key { rx:var(--radius-lg); }
+  .words { position:absolute; left:var(--space-6); bottom:var(--space-6); max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-size:104px; line-height:.92; font-weight:700; letter-spacing:-.035em; }
+  .name em { font-style:normal; color:var(--brand-ink); }
+  .tag { margin:var(--space-2) 0 0 4px; font: 14px/20px var(--font-sans); color:var(--ink-muted); }
+</style></head>
+<body><div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 300">
+<!--
+  blocks   deck 400×268 slab bled off the top/right (radius-lg), brand-tint 96×96 relief, brand keys ×3, command key in deck grey
+  arrange  the real deck layout from above: one wide command key over three action keys, the slab bleeding off the edge
+  pattern  keycaps (literal motif) — each key a face rect over its lip, corners radius-lg; three green keys = Diagnose, Repair, Verify
+  scales   gaps space-4 (16) and space-5 (24); keys 104×104; lips 8; radius-lg 14
+-->
+<rect class="tint key" x="-8" y="196" width="96" height="96"/>
+<rect class="deck key" x="104" y="-14" width="400" height="290"/>
+<rect class="lip key" x="128" y="18" width="352" height="104"/>
+<rect class="cmd key" x="128" y="18" width="352" height="96"/>
+<rect class="lip key" x="128" y="146" width="104" height="104"/>
+<rect class="brand key" x="128" y="146" width="104" height="96"/>
+<rect class="lip key" x="252" y="146" width="104" height="104"/>
+<rect class="brand key" x="252" y="146" width="104" height="96"/>
+<rect class="lip key" x="376" y="146" width="104" height="104"/>
+<rect class="brand key" x="376" y="146" width="104" height="96"/>
+</svg></div>
+<div class="words"><h1 class="name">Green<em>CI</em></h1><p class="tag">Red to green, one key at a time.</p></div>
+</div></body></html>
