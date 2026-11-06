@@ -2,6 +2,8 @@
 
 Paste everything below the line into Codex, run from the root of this repository.
 
+> **Platform update:** GreenCI runs on Cloudflare. `docs/CODEX_PROMPT_CLOUDFLARE.md` overrides §2, the infra parts of §6, §7's transport and §10 of this brief. Read both.
+
 ---
 
 You are building **GreenCI** from scratch in this repository: a physical command deck for AI coding agents. The deck has one command key and three green action keys, **Diagnose**, **Repair** and **Verify**. When a GitHub CI check fails, the person presses Diagnose. GreenCI finds the cause, writes a fix on its own branch, re-runs every check on that fix, and only then opens a pull request for a human to review.
