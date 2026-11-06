@@ -14,6 +14,8 @@
 
 The sandbox remains a disabled stub and integrations remain off in the explicit health-only dev profile. Next: dev deployment automation, then M1. The M0.5 notes below describe its earlier checkpoint and are superseded where they say no remote resources existed.
 
+Synced the upstream OpenAI/deckless brief and AGENTS update after deployment. Its implementation is scheduled for M4.5, after M1–M4. Supplied CODEX_PROMPT briefs are excluded from formatting so CI preserves their original text. Local lint/typecheck and all 22 tests pass after the sync; runtime code is unchanged.
+
 ## Previous checkpoint — M0.5 Cloudflare
 
 The design system and both briefs are now present. Their files are preserved byte-for-byte from upstream. The original Docker and missing-design notes below are historical evidence from M0.

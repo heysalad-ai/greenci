@@ -12,8 +12,7 @@ test-results
 # Supplied reference artifacts: preserve byte-for-byte.
 design/
 design-system/
-docs/CODEX_PROMPT.md
-docs/CODEX_PROMPT_CLOUDFLARE.md
+docs/CODEX_PROMPT*.md
 
 .wrangler/
 .open-next/
