@@ -34,6 +34,44 @@ pnpm dev
 - The logo is the smiling keycap: two check-mark eyes and a smile. Always keep the charcoal base lip.
 
 Logo and brand are concept work; no trademark search has been done yet.
+
+## Current runtime — Cloudflare M0.5
+
+This section supersedes the Docker quick start and historical M0 notes below. Node 22 with Corepack/pnpm is sufficient. No Docker, Cloudflare account, login, or API key is needed for local development.
+
+```sh
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+The launcher applies D1 migrations **locally**, builds Next.js through OpenNext, and starts three `wrangler dev` processes plus the Node mock GitHub:
+
+- Web: http://localhost:3000 — scaffold shell, served by Workers Static Assets/OpenNext.
+- API: http://localhost:8787/healthz and `/openapi.json` — Hono on Workers.
+- Deck simulator: http://localhost:3000/deck — keys 1–4 and button presses connect to DeckSession. Hold Command for 800ms or use Shift+1 to send a long press. This checks transport only; it does not run an agent.
+- Local email viewer: http://localhost:3000/app/_emails — D1 outbox, disabled outside local.
+- Sandbox stub: http://localhost:8788/healthz — reports execution disabled; no Docker process starts.
+- Mock GitHub: http://localhost:4001/health — Node shell, repository fixtures follow in M3.
+
+The web server calls the API through the `API` Worker service binding. `/api/health` proves that binding; `/__local/bindings` on the API tests D1, KV, R2 and the sandbox service. Local state persists in `.data/wrangler/`. Ctrl-C stops all local processes. Re-run `pnpm dev` after source edits to rebuild the Workers web bundle; `dev:next` is an optional frontend-only workflow, not the verified full-stack runtime.
+
+Safe local defaults are in `wrangler.jsonc`. Optional secret overrides belong in `apps/api/.dev.vars`, using `.dev.vars.example` as the template. No copy step is necessary for mock/fake defaults. `.env` is no longer read by the launcher. Never commit `.dev.vars` or credentials.
+
+```sh
+pnpm lint
+pnpm typecheck
+pnpm test            # unit + real Miniflare integration
+pnpm build          # package and Worker dry-run bundles; never deploys
+pnpm build:workers  # also builds the OpenNext Worker
+pnpm exec playwright install chromium
+pnpm e2e            # starts the same pnpm dev command; browser + service bindings
+```
+
+M0.5 implements platform transport and storage scaffolding. It does **not** implement the M1 product screens or the M3/M4 agent journey. `RunWorkflow` records transport probes and waits for key/approval events; it never claims a diagnosis, test pass or fix PR. The local sandbox rejects command execution. The optional Cloudflare Sandbox SDK container profile is reserved for M7 and remains unverified here. Seed/reset remain deliberately disabled until M3.
+
+All three Workers declare isolated `dev`, `staging`, and `production` profiles, with resource IDs marked TODO. No remote infrastructure has been created or deployed. Staging and production remain manual gates. See [the migration evidence](docs/acceptance-m05.md) and [decisions](docs/decisions.md).
+
 ---
 
 ## Local M0 scaffold notes (before Cloudflare migration)

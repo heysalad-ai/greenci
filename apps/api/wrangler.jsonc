@@ -1,0 +1,309 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "send_metrics": false,
+  "name": "greenci-api",
+  "main": "src/index.ts",
+  "dev": {
+    "port": 8787,
+    "inspector_port": 9230,
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["OrgRoom", "DeckSession"],
+    },
+  ],
+  "triggers": {
+    "crons": ["0 8 * * *", "0 8 * * MON"],
+  },
+  "vars": {
+    "APP_ENV": "local",
+    "GITHUB_MODE": "mock",
+    "AGENT_PROVIDER": "fake",
+    "SANDBOX": "none",
+    "EMAIL_PROVIDER": "local",
+    "WEB_URL": "http://localhost:3000",
+    "API_URL": "http://localhost:8787",
+    "MOCK_GITHUB_URL": "http://localhost:4001",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "greenci-local",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "../../packages/db/migrations",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "ARTIFACTS",
+      "bucket_name": "greenci-artifacts-local",
+    },
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS",
+      "id": "local-greenci-sessions",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ORG_ROOMS",
+        "class_name": "OrgRoom",
+      },
+      {
+        "name": "DECK_SESSIONS",
+        "class_name": "DeckSession",
+      },
+    ],
+  },
+  "workflows": [
+    {
+      "binding": "RUN_WORKFLOW",
+      "name": "greenci-runs-local",
+      "class_name": "RunWorkflow",
+    },
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "EVENTS",
+        "queue": "greenci-events-local",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "greenci-events-local",
+        "max_batch_timeout": 1,
+      },
+    ],
+  },
+  "services": [
+    {
+      "binding": "SANDBOX_SERVICE",
+      "service": "greenci-sandbox",
+    },
+  ],
+  "env": {
+    "dev": {
+      "name": "greenci-api-dev",
+      "vars": {
+        "APP_ENV": "dev",
+        "GITHUB_MODE": "app",
+        "AGENT_PROVIDER": "fake",
+        "SANDBOX": "cloudflare",
+        "EMAIL_PROVIDER": "resend",
+        "WEB_URL": "https://TODO-dev.workers.dev",
+        "API_URL": "https://TODO-api-dev.workers.dev",
+        "MOCK_GITHUB_URL": "http://localhost:4001",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "greenci-dev",
+          "database_id": "TODO(dev)",
+          "migrations_dir": "../../packages/db/migrations",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "ARTIFACTS",
+          "bucket_name": "greenci-artifacts-dev",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "SESSIONS",
+          "id": "TODO(dev)",
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ORG_ROOMS",
+            "class_name": "OrgRoom",
+          },
+          {
+            "name": "DECK_SESSIONS",
+            "class_name": "DeckSession",
+          },
+        ],
+      },
+      "workflows": [
+        {
+          "binding": "RUN_WORKFLOW",
+          "name": "greenci-runs-dev",
+          "class_name": "RunWorkflow",
+        },
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "EVENTS",
+            "queue": "greenci-events-dev",
+          },
+        ],
+        "consumers": [
+          {
+            "queue": "greenci-events-dev",
+            "max_batch_timeout": 1,
+          },
+        ],
+      },
+      "services": [
+        {
+          "binding": "SANDBOX_SERVICE",
+          "service": "greenci-sandbox-dev",
+        },
+      ],
+    },
+    "staging": {
+      "name": "greenci-api-staging",
+      "vars": {
+        "APP_ENV": "staging",
+        "GITHUB_MODE": "app",
+        "AGENT_PROVIDER": "fake",
+        "SANDBOX": "cloudflare",
+        "EMAIL_PROVIDER": "resend",
+        "WEB_URL": "https://TODO-staging.workers.dev",
+        "API_URL": "https://TODO-api-staging.workers.dev",
+        "MOCK_GITHUB_URL": "http://localhost:4001",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "greenci-staging",
+          "database_id": "TODO(staging)",
+          "migrations_dir": "../../packages/db/migrations",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "ARTIFACTS",
+          "bucket_name": "greenci-artifacts-staging",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "SESSIONS",
+          "id": "TODO(staging)",
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ORG_ROOMS",
+            "class_name": "OrgRoom",
+          },
+          {
+            "name": "DECK_SESSIONS",
+            "class_name": "DeckSession",
+          },
+        ],
+      },
+      "workflows": [
+        {
+          "binding": "RUN_WORKFLOW",
+          "name": "greenci-runs-staging",
+          "class_name": "RunWorkflow",
+        },
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "EVENTS",
+            "queue": "greenci-events-staging",
+          },
+        ],
+        "consumers": [
+          {
+            "queue": "greenci-events-staging",
+            "max_batch_timeout": 1,
+          },
+        ],
+      },
+      "services": [
+        {
+          "binding": "SANDBOX_SERVICE",
+          "service": "greenci-sandbox-staging",
+        },
+      ],
+    },
+    "production": {
+      "name": "greenci-api-prod",
+      "vars": {
+        "APP_ENV": "prod",
+        "GITHUB_MODE": "app",
+        "AGENT_PROVIDER": "fake",
+        "SANDBOX": "cloudflare",
+        "EMAIL_PROVIDER": "resend",
+        "WEB_URL": "https://TODO-prod.workers.dev",
+        "API_URL": "https://TODO-api-prod.workers.dev",
+        "MOCK_GITHUB_URL": "http://localhost:4001",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "greenci-prod",
+          "database_id": "TODO(prod)",
+          "migrations_dir": "../../packages/db/migrations",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "ARTIFACTS",
+          "bucket_name": "greenci-artifacts-prod",
+        },
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "SESSIONS",
+          "id": "TODO(prod)",
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ORG_ROOMS",
+            "class_name": "OrgRoom",
+          },
+          {
+            "name": "DECK_SESSIONS",
+            "class_name": "DeckSession",
+          },
+        ],
+      },
+      "workflows": [
+        {
+          "binding": "RUN_WORKFLOW",
+          "name": "greenci-runs-prod",
+          "class_name": "RunWorkflow",
+        },
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "EVENTS",
+            "queue": "greenci-events-prod",
+          },
+        ],
+        "consumers": [
+          {
+            "queue": "greenci-events-prod",
+            "max_batch_timeout": 1,
+          },
+        ],
+      },
+      "services": [
+        {
+          "binding": "SANDBOX_SERVICE",
+          "service": "greenci-sandbox-prod",
+        },
+      ],
+    },
+  },
+}

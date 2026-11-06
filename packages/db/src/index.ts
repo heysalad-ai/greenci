@@ -1,2 +1,2 @@
-/** db: implementation follows in its assigned milestone. */
-export {};
+export * from './schema.js';
+export { drizzle } from 'drizzle-orm/d1';

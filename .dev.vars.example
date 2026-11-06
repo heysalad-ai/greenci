@@ -1,0 +1,7 @@
+# Optional overrides: copy to apps/api/.dev.vars. Safe defaults already live in wrangler.jsonc.
+APP_ENV=local
+GITHUB_MODE=mock
+AGENT_PROVIDER=fake
+SANDBOX=none
+EMAIL_PROVIDER=local
+# Real provider secrets are unnecessary for M0.5. Never commit .dev.vars.

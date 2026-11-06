@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "dev:host": "node scripts/dev.mjs --host-only",
+    "dev:host": "node scripts/dev.mjs",
     "build": "turbo run build",
     "lint": "eslint . --max-warnings=0 && prettier --check .",
     "format": "prettier --write .",
@@ -18,23 +18,32 @@
     "e2e": "playwright test",
     "seed": "node scripts/not-ready.mjs seed M3",
     "reset": "node scripts/reset.mjs",
-    "deck:sim": "node scripts/not-ready.mjs deck:sim M5",
-    "github:verify": "node scripts/not-ready.mjs github:verify M7"
+    "deck:sim": "node scripts/deck-sim.mjs",
+    "github:verify": "node scripts/not-ready.mjs github:verify M7",
+    "build:workers": "pnpm --filter @greenci/web build:worker && pnpm --filter @greenci/api build && pnpm --filter @greenci/sandbox build",
+    "db:migrate": "wrangler d1 migrations apply greenci-local --local --config apps/api/wrangler.jsonc --persist-to .data/wrangler"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20261106.1",
     "@eslint/js": "^9.39.0",
     "@next/eslint-plugin-next": "15.5.29",
     "@playwright/test": "^1.56.0",
     "@types/node": "^22.19.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/ws": "^8.18.1",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.0",
     "eslint-config-prettier": "^10.1.8",
+    "jsonc-parser": "^3.3.1",
+    "miniflare": "5.20261104.0-beta",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
     "turbo": "^2.6.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "4.158.0",
+    "ws": "^8.18.3"
   }
 }

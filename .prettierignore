@@ -14,3 +14,11 @@ design/
 design-system/
 docs/CODEX_PROMPT.md
 docs/CODEX_PROMPT_CLOUDFLARE.md
+
+.wrangler/
+.open-next/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+apps/web/public/brand/

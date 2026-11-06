@@ -15,6 +15,8 @@ export default tseslint.config(
       '**/test-results/**',
       '**/.turbo/**',
       '**/.data/**',
+      '**/.wrangler/**',
+      '**/.open-next/**',
     ],
   },
   js.configs.recommended,

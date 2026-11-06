@@ -1,0 +1,102 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "send_metrics": false,
+  "name": "greenci-sandbox",
+  "main": "src/index.ts",
+  "dev": {
+    "port": 8788,
+    "inspector_port": 9232,
+  },
+  "vars": {
+    "SANDBOX": "none",
+  },
+  "env": {
+    "dev": {
+      "name": "greenci-sandbox-dev",
+      "main": "src/container.ts",
+      "vars": {
+        "SANDBOX": "cloudflare",
+      },
+      "containers": [
+        {
+          "class_name": "Sandbox",
+          "image": "./Dockerfile",
+          "max_instances": 2,
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "SANDBOX",
+            "class_name": "Sandbox",
+          },
+        ],
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": ["Sandbox"],
+        },
+      ],
+    },
+    "staging": {
+      "name": "greenci-sandbox-staging",
+      "main": "src/container.ts",
+      "vars": {
+        "SANDBOX": "cloudflare",
+      },
+      "containers": [
+        {
+          "class_name": "Sandbox",
+          "image": "./Dockerfile",
+          "max_instances": 2,
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "SANDBOX",
+            "class_name": "Sandbox",
+          },
+        ],
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": ["Sandbox"],
+        },
+      ],
+    },
+    "production": {
+      "name": "greenci-sandbox-prod",
+      "main": "src/container.ts",
+      "vars": {
+        "SANDBOX": "cloudflare",
+      },
+      "containers": [
+        {
+          "class_name": "Sandbox",
+          "image": "./Dockerfile",
+          "max_instances": 2,
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "SANDBOX",
+            "class_name": "Sandbox",
+          },
+        ],
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": ["Sandbox"],
+        },
+      ],
+    },
+  },
+}

@@ -1,0 +1,20 @@
+.page {
+  padding: var(--space-6);
+}
+.page p {
+  max-width: 65ch;
+}
+.deck {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: fit-content;
+}
+.deck button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+@media (min-width: 640px) {
+  .deck {
+    display: inline-flex;
+  }
+}

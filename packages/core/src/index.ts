@@ -1,1 +1,7 @@
-export { loadConfig, configSchema, type Config } from './config.js';
+export {
+  loadConfig,
+  configSchema,
+  validateBindings,
+  type Config,
+} from './config.js';
+export { copy } from './copy.js';

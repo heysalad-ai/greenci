@@ -8,10 +8,10 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'pnpm dev:host',
+    command: 'pnpm dev',
     url: 'http://localhost:3000/api/health',
     reuseExistingServer: false,
     gracefulShutdown: { signal: 'SIGTERM', timeout: 10_000 },
-    timeout: 120_000,
+    timeout: 240_000,
   },
 });

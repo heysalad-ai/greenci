@@ -1,7 +1,22 @@
 # Progress
 
 - [x] Design system, screens and build brief committed
-- [ ] M0 Scaffold
+- [x] M0 Scaffold
+
+## Current milestone — M0.5 Cloudflare
+
+The design system and both briefs are now present. Their files are preserved byte-for-byte from upstream. The original Docker and missing-design notes below are historical evidence from M0.
+
+- [x] Add origin, fetch, merge unrelated histories; retain upstream and local text in all conflicts.
+- [x] Push codex/greenci-m0 and open draft PR #1 into main.
+- [x] Replace Fastify API/BullMQ/Compose with Hono, Workflows, Queues, OrgRoom/DeckSession and local D1/KV/R2.
+- [x] Next.js 15 OpenNext Worker, Static Assets, API service binding, Docker-free local sandbox stub.
+- [x] Drizzle SQLite infrastructure schema/migration and D1 local email outbox/viewer.
+- [x] Local deck transport tester with reference ActionKey markup and keyboard/button input.
+- [x] Environment-isolated config stubs, runtime configuration validation, local-only probe routes.
+- [x] Final checks: lint/typecheck, 20 tests, all 16 package builds, clean-checkout install and 3 browser tests pass. Evidence in docs/acceptance-m05.md. M0.5 commit updates PR #1.
+
+No remote deployments or resources were created. Dev provisioning and deployment/CD remain a later step. M1–M9 remain open; M4 must replace transport probes with actual domain orchestration before any fix is claimed.
 
 ---
 

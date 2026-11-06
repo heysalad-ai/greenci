@@ -3,7 +3,8 @@
   "compilerOptions": {
     "declaration": true,
     "jsx": "react-jsx",
-    "lib": ["ES2022", "DOM"]
+    "lib": ["ES2022", "DOM"],
+    "types": ["@cloudflare/workers-types", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

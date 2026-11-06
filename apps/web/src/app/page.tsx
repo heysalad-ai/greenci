@@ -1,12 +1,17 @@
+import Link from 'next/link';
+import { copy } from '@greenci/core';
 export default function Home() {
   return (
     <main>
-      <h1>GreenCI</h1>
-      <p>
-        M0 scaffold. Product screens follow after the approved design files are
-        supplied.
-      </p>
-      <a href="/api/health">Service health</a>
+      <h1>{copy.name}</h1>
+      <p>{copy.scaffold}</p>
+      <nav>
+        <Link href="/api/health">{copy.health}</Link>
+        {' · '}
+        <Link href="/deck">{copy.deck}</Link>
+        {' · '}
+        <Link href="/app/_emails">{copy.emails}</Link>
+      </nav>
     </main>
   );
 }

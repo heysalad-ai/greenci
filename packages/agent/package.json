@@ -10,5 +10,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --outDir dist"
   },
-  "dependencies": {}
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
 }

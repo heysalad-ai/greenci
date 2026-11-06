@@ -4,15 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1 --port 3000",
-    "build": "next build",
-    "start": "next start --hostname 0.0.0.0 --port 3000",
-    "typecheck": "tsc --noEmit"
+    "dev": "wrangler dev --ip 127.0.0.1 --port 3000",
+    "build": "node ../../scripts/assets.mjs && next build",
+    "start": "wrangler dev --ip 127.0.0.1 --port 3000",
+    "typecheck": "tsc --noEmit",
+    "dev:next": "next dev --hostname 127.0.0.1 --port 3000",
+    "build:worker": "opennextjs-cloudflare build"
   },
   "dependencies": {
     "@greenci/core": "workspace:*",
     "next": "15.5.29",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "@opennextjs/cloudflare": "1.20.16",
+    "rclone.js": "^0.6.6",
+    "@greenci/deck-protocol": "workspace:*",
+    "@greenci/db": "workspace:*"
   }
 }
