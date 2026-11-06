@@ -1,6 +1,6 @@
 # AGENTS.md: rules for coding agents in this repo
 
-GreenCI is a physical command deck for AI coding agents: one command key and three action keys, Diagnose, Repair and Verify. The build brief is `docs/CODEX_PROMPT.md`, and the platform is Cloudflare (`docs/CODEX_PROMPT_CLOUDFLARE.md` overrides its stack and environment sections). Read both before writing code.
+GreenCI is a physical command deck for AI coding agents: one command key and three action keys, Diagnose, Repair and Verify. The build brief is `docs/CODEX_PROMPT.md`, and the platform is Cloudflare (`docs/CODEX_PROMPT_CLOUDFLARE.md` overrides its stack and environment sections). `docs/CODEX_PROMPT_OPENAI.md` overrides its agent section (OpenAI Agents SDK, Decisions API) and makes the deck optional. Read all three before writing code.
 
 ## Source of truth
 
