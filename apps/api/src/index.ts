@@ -14,13 +14,19 @@ const healthSchema = z.object({
   status: z.literal('ok'),
   service: z.literal('api'),
   milestone: z.literal('M0.5'),
+  mode: z.literal('scaffold').optional(),
+  integrations: z.literal('disabled').optional(),
 });
 app.use('*', async (c, next) => {
   try {
-    loadConfig(c.env);
     validateBindings(c.env);
     const origin = c.req.header('Origin');
     const config = loadConfig(c.env);
+    if (
+      config.SCAFFOLD_ONLY === 'true' &&
+      (c.req.method !== 'GET' || !['/healthz', '/health'].includes(c.req.path))
+    )
+      return c.notFound();
     if (
       origin &&
       ![
@@ -55,10 +61,33 @@ for (const path of ['/healthz', '/health'])
       path,
       responses: { 200: json(healthSchema) },
     }),
-    (c) =>
-      c.json(
+    async (c) => {
+      const config = loadConfig(c.env);
+      if (config.SCAFFOLD_ONLY === 'true') {
+        const [, , , sandbox] = await Promise.all([
+          c.env.DB.prepare('SELECT 1').first(),
+          c.env.SESSIONS.get('__greenci_healthcheck'),
+          c.env.ARTIFACTS.head('__greenci_healthcheck'),
+          c.env.SANDBOX_SERVICE.fetch('https://sandbox/healthz'),
+        ]);
+        if (!sandbox.ok) throw new Error('Sandbox service unavailable');
+        z.object({ executionEnabled: z.literal(false) }).parse(
+          await sandbox.json(),
+        );
+        return c.json(
+          healthSchema.parse({
+            status: 'ok',
+            service: 'api',
+            milestone: 'M0.5',
+            mode: 'scaffold',
+            integrations: 'disabled',
+          }),
+        );
+      }
+      return c.json(
         healthSchema.parse({ status: 'ok', service: 'api', milestone: 'M0.5' }),
-      ),
+      );
+    },
   );
 // All infrastructure probe routes are disabled outside local. Authentication arrives in M4.
 app.use('/__local/*', async (c, next) => {

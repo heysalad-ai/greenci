@@ -16,31 +16,12 @@
   "env": {
     "dev": {
       "name": "greenci-sandbox-dev",
-      "main": "src/container.ts",
+      "main": "src/index.ts",
       "vars": {
-        "SANDBOX": "cloudflare",
+        "SANDBOX": "disabled",
       },
-      "containers": [
-        {
-          "class_name": "Sandbox",
-          "image": "./Dockerfile",
-          "max_instances": 2,
-        },
-      ],
-      "durable_objects": {
-        "bindings": [
-          {
-            "name": "SANDBOX",
-            "class_name": "Sandbox",
-          },
-        ],
-      },
-      "migrations": [
-        {
-          "tag": "v1",
-          "new_sqlite_classes": ["Sandbox"],
-        },
-      ],
+      "preview_urls": false,
+      "workers_dev": false,
     },
     "staging": {
       "name": "greenci-sandbox-staging",
@@ -99,4 +80,5 @@
       ],
     },
   },
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
 }

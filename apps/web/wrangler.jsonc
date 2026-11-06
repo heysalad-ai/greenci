@@ -43,6 +43,8 @@
           "service": "greenci-web-dev",
         },
       ],
+      "preview_urls": false,
+      "workers_dev": true,
     },
     "staging": {
       "name": "greenci-web-staging",
@@ -77,4 +79,5 @@
       ],
     },
   },
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
 }

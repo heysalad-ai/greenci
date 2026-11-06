@@ -3,7 +3,18 @@
 - [x] Design system, screens and build brief committed
 - [x] M0 Scaffold
 
-## Current milestone — M0.5 Cloudflare
+## Current milestone — first Cloudflare dev deployment
+
+- [x] Dev scaffold deployed to https://greenci-web-dev.heysalad-o.workers.dev/.
+- [x] API /healthz and web→API health verified live; root page inspected in authenticated Chrome.
+- [x] Cloudflare Access restricts both URLs to Cloudflare account members; anonymous requests redirect to sign-in.
+- [x] Dev D1/KV/R2/Queue resources created and dev migration applied; Workflows/DO bindings deployed.
+- [x] No staging/production resource, deployment, migration or route change. No PR merged.
+- [x] Lint/typecheck, 22 tests, 16 builds and 3 local browser tests pass. Commands, versions and results: docs/deploy.md.
+
+The sandbox remains a disabled stub and integrations remain off in the explicit health-only dev profile. Next: dev deployment automation, then M1. The M0.5 notes below describe its earlier checkpoint and are superseded where they say no remote resources existed.
+
+## Previous checkpoint — M0.5 Cloudflare
 
 The design system and both briefs are now present. Their files are preserved byte-for-byte from upstream. The original Docker and missing-design notes below are historical evidence from M0.
 

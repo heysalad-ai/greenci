@@ -1,5 +1,6 @@
 import { z } from 'zod';
 export const configSchema = z.object({
+  SCAFFOLD_ONLY: z.enum(['true', 'false']).default('false'),
   APP_ENV: z.enum(['local', 'dev', 'staging', 'prod']).default('local'),
   GITHUB_MODE: z.enum(['mock', 'app']).default('mock'),
   AGENT_PROVIDER: z.enum(['fake', 'openai', 'anthropic']).default('fake'),
@@ -34,6 +35,13 @@ export function loadConfig(env: Record<string, unknown>): Config {
     throw new Error('GITHUB_MODE must be app outside local');
   if (config.APP_ENV !== 'local' && config.EMAIL_PROVIDER !== 'resend')
     throw new Error('EMAIL_PROVIDER must be resend outside local');
+  if (config.SCAFFOLD_ONLY === 'true') {
+    if (config.APP_ENV !== 'dev')
+      throw new Error('SCAFFOLD_ONLY is permitted only in dev');
+    if (config.AGENT_PROVIDER !== 'fake')
+      throw new Error('SCAFFOLD_ONLY requires AGENT_PROVIDER=fake');
+    return config;
+  }
   if (
     config.GITHUB_MODE === 'app' &&
     (!config.GITHUB_APP_ID || !config.GITHUB_PRIVATE_KEY)

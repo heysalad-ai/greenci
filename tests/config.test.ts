@@ -44,3 +44,22 @@ describe('Cloudflare configuration', () => {
     ).toThrow('EMAIL_PROVIDER');
   });
 });
+
+it('allows a health-only dev scaffold without manufacturing provider credentials', () => {
+  const env = {
+    APP_ENV: 'dev',
+    GITHUB_MODE: 'app',
+    EMAIL_PROVIDER: 'resend',
+    SANDBOX: 'cloudflare',
+    SCAFFOLD_ONLY: 'true',
+  };
+  expect(loadConfig(env).SCAFFOLD_ONLY).toBe('true');
+  expect(() => loadConfig({ ...env, SCAFFOLD_ONLY: 'false' })).toThrow(
+    'GITHUB_APP_ID',
+  );
+  for (const APP_ENV of ['staging', 'prod'])
+    expect(() => loadConfig({ ...env, APP_ENV })).toThrow('only in dev');
+  expect(() => loadConfig({ ...env, AGENT_PROVIDER: 'openai' })).toThrow(
+    'AGENT_PROVIDER=fake',
+  );
+});

@@ -35,6 +35,10 @@ pnpm dev
 
 Logo and brand are concept work; no trademark search has been done yet.
 
+## Dev deployment
+
+The scaffold is live at [greenci-web-dev.heysalad-o.workers.dev](https://greenci-web-dev.heysalad-o.workers.dev/), behind Cloudflare Access for HeySalad Cloudflare account members. [API health](https://greenci-api-dev.heysalad-o.workers.dev/healthz) is protected the same way. It is a health-only scaffold with integrations and command execution disabled. See [deployment commands and evidence](docs/deploy.md). Staging and production have not been deployed.
+
 ## Current runtime — Cloudflare M0.5
 
 This section supersedes the Docker quick start and historical M0 notes below. Node 22 with Corepack/pnpm is sufficient. No Docker, Cloudflare account, login, or API key is needed for local development.

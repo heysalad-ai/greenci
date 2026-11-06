@@ -97,15 +97,16 @@
         "AGENT_PROVIDER": "fake",
         "SANDBOX": "cloudflare",
         "EMAIL_PROVIDER": "resend",
-        "WEB_URL": "https://TODO-dev.workers.dev",
-        "API_URL": "https://TODO-api-dev.workers.dev",
+        "WEB_URL": "https://greenci-web-dev.heysalad-o.workers.dev",
+        "API_URL": "https://greenci-api-dev.heysalad-o.workers.dev",
         "MOCK_GITHUB_URL": "http://localhost:4001",
+        "SCAFFOLD_ONLY": "true",
       },
       "d1_databases": [
         {
           "binding": "DB",
           "database_name": "greenci-dev",
-          "database_id": "TODO(dev)",
+          "database_id": "0a86beee-5572-4196-a05a-f48506639f38",
           "migrations_dir": "../../packages/db/migrations",
         },
       ],
@@ -118,7 +119,7 @@
       "kv_namespaces": [
         {
           "binding": "SESSIONS",
-          "id": "TODO(dev)",
+          "id": "076867b570c94b75a40324e3c2b1b912",
         },
       ],
       "durable_objects": {
@@ -160,6 +161,11 @@
           "service": "greenci-sandbox-dev",
         },
       ],
+      "preview_urls": false,
+      "workers_dev": true,
+      "triggers": {
+        "crons": [],
+      },
     },
     "staging": {
       "name": "greenci-api-staging",
@@ -306,4 +312,5 @@
       ],
     },
   },
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
 }

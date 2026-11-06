@@ -7,6 +7,9 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 let mf: Miniflare;
 let temporary: string;
+let makeRuntime: (
+  overrides: Record<string, string>,
+) => ConstructorParameters<typeof Miniflare>[0];
 const url = 'http://localhost';
 async function request(route: string, body?: unknown) {
   return mf.dispatchFetch(
@@ -36,7 +39,7 @@ beforeAll(async () => {
   const config = parse(await readFile('apps/api/wrangler.jsonc', 'utf8')) as {
     vars: Record<string, string>;
   };
-  mf = new Miniflare(
+  makeRuntime = (overrides) =>
     convertV4MiniflareOptions({
       workers: [
         {
@@ -46,7 +49,7 @@ beforeAll(async () => {
           scriptPath: path.join(temporary, 'api.mjs'),
           compatibilityDate: '2026-11-06',
           compatibilityFlags: ['nodejs_compat'],
-          bindings: config.vars,
+          bindings: { ...config.vars, ...overrides },
           d1Databases: { DB: 'greenci-local' },
           kvNamespaces: ['SESSIONS'],
           r2Buckets: ['ARTIFACTS'],
@@ -72,8 +75,8 @@ beforeAll(async () => {
           compatibilityDate: '2026-11-06',
         },
       ],
-    }),
-  );
+    });
+  mf = new Miniflare(makeRuntime({}));
   const db = await mf.getD1Database('DB', 'api');
   const sql = (
     await readFile('packages/db/migrations/0001_platform.sql', 'utf8')
@@ -287,4 +290,47 @@ describe('real local Workers bindings', () => {
       approvalsRequired: true,
     });
   }, 30_000);
+});
+
+it('dev scaffold health is operational without integration credentials, while every action stays disabled', async () => {
+  const dev = new Miniflare(
+    makeRuntime({
+      APP_ENV: 'dev',
+      GITHUB_MODE: 'app',
+      EMAIL_PROVIDER: 'resend',
+      SANDBOX: 'cloudflare',
+      SCAFFOLD_ONLY: 'true',
+    }),
+  );
+  try {
+    const response = await dev.dispatchFetch(url + '/healthz');
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      status: 'ok',
+      mode: 'scaffold',
+      integrations: 'disabled',
+    });
+    expect(
+      (
+        await dev.dispatchFetch(url + '/__local/workflows', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requiresApproval: true }),
+        })
+      ).status,
+    ).toBe(404);
+    expect(
+      (await dev.dispatchFetch(url + '/healthz', { method: 'POST' })).status,
+    ).toBe(404);
+    for (const route of [
+      '/__local/emails',
+      '/deck?serial=GC-test',
+      '/events',
+      '/live',
+      '/openapi.json',
+    ])
+      expect((await dev.dispatchFetch(url + route)).status).toBe(404);
+  } finally {
+    await dev.dispose();
+  }
 });
