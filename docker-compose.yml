@@ -1,0 +1,35 @@
+name: greenci
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: greenci
+      POSTGRES_PASSWORD: greenci
+      POSTGRES_DB: greenci
+    ports: ['127.0.0.1:5432:5432']
+    volumes: ['postgres:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U greenci -d greenci']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    ports: ['127.0.0.1:6379:6379']
+    volumes: ['redis:/data']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports: ['127.0.0.1:1025:1025', '127.0.0.1:8025:8025']
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+volumes:
+  postgres:
+  redis:
