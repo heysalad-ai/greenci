@@ -2,7 +2,7 @@
 
 Paste everything below the line into Codex, run from the root of this repository.
 
-> **Platform update:** GreenCI runs on Cloudflare. `docs/CODEX_PROMPT_CLOUDFLARE.md` overrides §2, the infra parts of §6, §7's transport and §10 of this brief. Read both.
+> **Platform update:** GreenCI runs on Cloudflare. `docs/CODEX_PROMPT_CLOUDFLARE.md` overrides §2, the infra parts of §6, §7's transport and §10 of this brief, and `docs/CODEX_PROMPT_OPENAI.md` overrides §5 (agent) and makes the deck optional. Read all three.
 
 ---
 
