@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GreenCI run detail</title>
+
+<link rel="stylesheet" href="../../design-system/tokens.css">
+<link rel="stylesheet" href="../../design-system/components.css">
+</head>
+<body>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0b7a55;text-decoration:none}a:hover{color:#23272e}
+</style>
+
+<div style="min-height: 1180px; background: var(--surface); color: var(--ink); font-family: var(--font-sans)">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 12px 24px; border-bottom: 1px solid var(--line); background: var(--surface-raised)">
+<img src="../../design-system/assets/logos/greenci-symbol.svg" alt="GreenCI" style="height: 30px">
+<nav aria-label="Breadcrumb" style="display: flex; gap: 8px; font-size: 14px; color: var(--ink-muted); flex-wrap: wrap"><a href="#">Runs</a><span>/</span><a href="#">acme/payments</a><span>/</span><span style="color: var(--ink); font-family: var(--font-mono); font-size: 13px">run 4182</span></nav>
+<label class="gc-cmd" style="margin-left: auto; flex: 0 1 360px"><span class="p">›</span><input placeholder="Ask about this run" aria-label="Ask about this run"><span class="gc-kbd">⌘K</span></label>
+</header>
+
+<div style="max-width: 1440px; margin: 0 auto; padding: 28px 24px 48px; display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between">
+<div style="display: flex; gap: 16px; align-items: center; min-width: 0">
+<img src="../../design-system/assets/moods/key-verifying.svg" alt="" style="width: 64px; height: 64px">
+<div style="min-width: 0"><div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap"><h1 style="margin: 0; font: 650 30px/34px var(--font-display); letter-spacing: -.015em">test (ubuntu) failed on main</h1><span class="gc-chip gc-chip--work"><svg class="gc-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 1-8.5 8.5"></path></svg>Verifying 7/12</span></div>
+<div style="display: flex; gap: 8px; font-size: 13px; color: var(--ink-muted); margin-top: 6px; flex-wrap: wrap"><span>acme/payments</span>·<code style="font: 12px var(--font-mono); background: var(--surface-sunken); padding: 1px 6px; border-radius: 6px">a3f9c21</code>·<span>failed 09:14 · Diagnose pressed 09:16 on deck</span></div></div>
+</div>
+<div class="gc-deck" style="padding: 10px; gap: 8px; border-radius: 18px">
+<button class="gc-key gc-key--command" style="width: 72px" aria-label="Command"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 22px; height: 22px"><path d="M7 9l3 3-3 3M12.5 15H17"></path></svg>Cmd</span></button>
+<button class="gc-key" style="width: 72px; opacity: .55"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 22px; height: 22px"><circle cx="10.5" cy="10.5" r="6"></circle><path d="M15 15l5 5"></path></svg>Diagnose</span></button>
+<button class="gc-key" style="width: 72px; opacity: .55"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 22px; height: 22px"><path d="M14.5 4.5a4.5 4.5 0 0 0-5.8 5.8L4 15l5 5 4.7-4.7a4.5 4.5 0 0 0 5.8-5.8l-2.8 2.8-2.5-.5-.5-2.5z"></path></svg>Repair</span></button>
+<button class="gc-key is-busy is-pressed" style="width: 72px"><span style="font-size: 10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 22px; height: 22px"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"></path></svg>Verify</span></button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start">
+
+<section style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .07em; text-transform: uppercase; color: var(--brand-ink)">1 · Diagnose</span><span class="gc-chip gc-chip--pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Done · 41s</span></div>
+<h2 style="margin: 0; font: 600 18px/26px var(--font-sans)">A test fixture expired on 1 November</h2>
+<p style="margin: 0; font-size: 14px; line-height: 21px; color: var(--ink-muted)"><code style="font: 13px var(--font-mono); color: var(--ink)">tests/billing.spec.ts:41</code> builds an invoice dated <code style="font: 13px var(--font-mono); color: var(--ink)">2026-10-31</code> and expects it to be “not yet due”. Since 1 November it's overdue, so 3 assertions fail. Not a product bug.</p>
+<pre class="gc-term" style="margin: 0; font-size: 12px; line-height: 19px; padding: 14px 16px"><span class="dim">  39 │</span> const invoice = makeInvoice({
+<span class="dim">  40 │</span>   amount: 4200,
+<span class="bad">  41 │   dueDate: '2026-10-31',</span>
+<span class="dim">  42 │</span> });
+<span class="bad">✕ expected "pending", received "overdue"</span></pre>
+<div style="display: flex; gap: 8px; font-size: 13px; color: var(--ink-muted)"><span>Confidence: high</span>·<span>1,284 log lines read</span>·<span>Same failure on 2 branches</span></div>
+</section>
+
+<section style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .07em; text-transform: uppercase; color: var(--brand-ink)">2 · Repair</span><span class="gc-chip gc-chip--pass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Done · 1m 20s</span></div>
+<h2 style="margin: 0; font: 600 18px/26px var(--font-sans)">Make the fixture date relative to today</h2>
+<p style="margin: 0; font-size: 14px; line-height: 21px; color: var(--ink-muted)">Branch <code style="font: 13px var(--font-mono); color: var(--ink)">greenci/fix-4182</code> · 1 file · +3 −1</p>
+<pre class="gc-term" style="margin: 0; font-size: 12px; line-height: 19px; padding: 14px 16px"><span class="dim">@@ tests/billing.spec.ts @@</span>
+<span class="dim"> </span>const invoice = makeInvoice({
+<span class="dim"> </span>  amount: 4200,
+<span class="bad">-  dueDate: '2026-10-31',</span>
+<span class="ok">+  dueDate: addDays(today(), 14),</span>
+<span class="dim"> </span>});
+<span class="ok">+import { addDays, today } from './helpers/dates';</span></pre>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="gc-btn gc-btn--secondary gc-btn--sm">View full diff</button><button class="gc-btn gc-btn--ghost gc-btn--sm">Ask for a different fix</button></div>
+</section>
+
+<section style="background: var(--surface-raised); border: 1px solid var(--work); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .07em; text-transform: uppercase; color: var(--work)">3 · Verify</span><span class="gc-chip gc-chip--work"><svg class="gc-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 1-8.5 8.5"></path></svg>Running</span></div>
+<h2 style="margin: 0; font: 600 18px/26px var(--font-sans)">Re-running all 12 checks on the fix</h2>
+<div style="height: 8px; border-radius: 4px; background: var(--surface-sunken); overflow: hidden"><div style="width: 58%; height: 100%; background: var(--brand)"></div></div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; font: 13px/20px var(--font-mono)">
+<li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line)"><span><span style="color: var(--brand-ink)">✔</span> test (ubuntu)</span><span style="color: var(--ink-muted)">3m 02s</span></li>
+<li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line)"><span><span style="color: var(--brand-ink)">✔</span> test (macos)</span><span style="color: var(--ink-muted)">3m 40s</span></li>
+<li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line)"><span><span style="color: var(--brand-ink)">✔</span> lint</span><span style="color: var(--ink-muted)">48s</span></li>
+<li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line)"><span><span style="color: var(--brand-ink)">✔</span> typecheck</span><span style="color: var(--ink-muted)">1m 05s</span></li>
+<li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line)"><span><span style="color: var(--work)">◐</span> e2e (chrome)</span><span style="color: var(--ink-muted)">running</span></li>
+<li style="display: flex; justify-content: space-between; padding: 6px 0"><span style="color: var(--ink-muted)">+ 3 passed · 4 queued</span><span></span></li>
+</ul>
+</section>
+</div>
+
+<section style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--brand-ink)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="5.5" r="2"></circle><circle cx="6" cy="18.5" r="2"></circle><circle cx="18" cy="18.5" r="2"></circle><path d="M6 7.5v9M18 16.5V10a3 3 0 0 0-3-3h-4"></path><path d="M13 4.5L10.5 7 13 9.5"></path></svg>
+<div style="flex: 1 1 420px; min-width: 0"><div style="font: 600 16px/22px var(--font-sans)">Fix PR opens when all 12 checks pass</div><p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: var(--ink-muted)">Draft title: <span style="color: var(--ink)">“test: make billing fixture date relative (fixes run 4182)”</span>. Reviewers from CODEOWNERS: @sam, @priya.</p></div>
+<div style="display: flex; gap: 8px"><button class="gc-btn gc-btn--secondary">Edit PR text</button><button class="gc-btn gc-btn--primary" disabled>Open fix PR</button></div>
+</section>
+</div>
+</div>
+
+
+</body>
+</html>

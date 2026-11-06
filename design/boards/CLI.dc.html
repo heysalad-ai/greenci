@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GreenCI CLI</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/greenci/tokens.css">
+<link rel="stylesheet" href="ds/greenci/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#34d399}a:hover{color:#ffffff}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1100px; box-sizing: border-box; padding: 48px 56px; background: #0c0f0e; color: #e7ecea; font-family: var(--font-sans); display: flex; flex-direction: column; gap: 24px">
+
+<header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px">
+<div><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: #34d399">CLI · npx greenci</span><h1 style="margin: 6px 0 0; font: 700 40px/44px var(--font-display); letter-spacing: -.02em">The deck, in your terminal</h1><p style="margin: 8px 0 0; font-size: 15px; line-height: 22px; color: #97a39d; max-width: 640px">Same three verbs as the keys. Four glyphs, one “Next:” line, no emoji, under 80 columns.</p></div>
+<img src="../../design-system/assets/logos/greenci-logo-on-dark.svg" alt="GreenCI" style="height: 44px">
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font: 600 12px var(--font-mono); color: #97a39d">install &amp; sign in</span>
+<pre class="gc-term" style="margin: 0; min-height: 250px; box-sizing: border-box"><span class="dim">$</span> <span class="hl">npm i -g greenci</span>
+<span class="dim">$</span> <span class="hl">greenci login</span>
+<span class="run">●</span> Opening github.com to approve GreenCI…
+<span class="ok">✔</span> Signed in as <span class="hl">chilu</span> · org acme
+<span class="ok">✔</span> Deck found on USB · GC-1 · fw 1.4.2
+<span class="ok">✔</span> Watching 3 repos
+
+  Next: press any key on your deck,
+        or run <span class="hl">greenci status</span></pre></div>
+
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font: 600 12px var(--font-mono); color: #97a39d">status</span>
+<pre class="gc-term" style="margin: 0; min-height: 250px; box-sizing: border-box"><span class="dim">$</span> <span class="hl">greenci status</span>
+
+  REPO            BRANCH        STATE
+  acme/payments   main          <span class="bad">✕ failing</span>   test (ubuntu)
+  acme/ledger     release/2.4   <span class="run">? needs you</span> migration
+  acme/web        feat/co-v2    <span class="run">◐ verifying</span> 7/12
+  acme/agent      main          <span class="ok">✔ passing</span>
+
+  <span class="hl">1 failing · 1 needs you</span>
+  Next: <span class="hl">greenci diagnose acme/payments</span></pre></div>
+
+<div style="display: flex; flex-direction: column; gap: 8px; grid-column: 1 / -1"><span style="font: 600 12px var(--font-mono); color: #97a39d">the full loop · diagnose → repair → verify</span>
+<pre class="gc-term" style="margin: 0"><span class="dim">$</span> <span class="hl">greenci diagnose acme/payments</span>
+<span class="bad">✕</span> test (ubuntu) failed on main · a3f9c21 · 3m12s
+<span class="run">◐</span> Reading 1,284 log lines…
+<span class="ok">✔</span> Cause  <span class="hl">fixture date 2026-10-31 is now in the past</span>
+         tests/billing.spec.ts:41 · not a product bug · confidence high
+  Next: press <span class="ok">Repair</span>, or run <span class="hl">greenci repair</span>
+
+<span class="dim">$</span> <span class="hl">greenci repair</span>
+<span class="run">◐</span> Writing a fix on greenci/fix-4182
+<span class="ok">✔</span> 1 file changed  <span class="ok">+3</span> <span class="bad">−1</span>   <span class="dim">(greenci diff to review)</span>
+  Next: press <span class="ok">Verify</span>, or run <span class="hl">greenci verify</span>
+
+<span class="dim">$</span> <span class="hl">greenci verify</span>
+<span class="run">◐</span> Re-running 12 checks  <span class="ok">████████████</span><span class="dim">░░░░░░░░</span> 7/12
+<span class="ok">✔</span> <span class="hl">12/12 passing</span> · opened PR #418 → github.com/acme/payments/pull/418
+  Green again.</pre></div>
+
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font: 600 12px var(--font-mono); color: #97a39d">an honest miss</span>
+<pre class="gc-term" style="margin: 0; min-height: 200px; box-sizing: border-box"><span class="dim">$</span> <span class="hl">greenci verify</span>
+<span class="bad">✕</span> 11/12 passing · e2e (chrome) still fails
+  Same failure on main yesterday: likely flaky,
+  not caused by this fix.
+  Next: <span class="hl">greenci repair --retry</span> for another fix,
+        or <span class="hl">greenci handoff</span> to send it to a person</pre></div>
+
+<div style="display: flex; flex-direction: column; gap: 8px"><span style="font: 600 12px var(--font-mono); color: #97a39d">our error, said plainly</span>
+<pre class="gc-term" style="margin: 0; min-height: 200px; box-sizing: border-box"><span class="dim">$</span> <span class="hl">greenci diagnose</span>
+<span class="bad">✕</span> GitHub didn't answer (HTTP 502)
+  This is on GitHub's side, not your repo.
+  Retrying in 30s · ctrl-c to stop
+  Next: nothing to do. Check <span class="hl">greenci doctor</span> if it
+        keeps happening.</pre></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

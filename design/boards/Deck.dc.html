@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GreenCI hardware and packaging</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/greenci/tokens.css">
+<link rel="stylesheet" href="ds/greenci/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1600px; height: 1000px; box-sizing: border-box; padding: 48px 56px; background: #e9edeb; color: var(--ink); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 28px">
+<header style="display: flex; justify-content: space-between; align-items: flex-end"><div><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-ink)">Hardware · GC-1</span><h1 style="margin: 6px 0 0; font: 700 40px/44px var(--font-display); letter-spacing: -.02em">The deck, the box, and what's printed on them</h1></div><span style="font: 13px var(--font-mono); color: var(--ink-muted)">Concept renders · not to scale</span></header>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; flex: 1">
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div style="background: #d8deda; border-radius: 28px; padding: 40px; display: grid; place-items: center; flex: 1">
+<div style="width: 560px; background: #23272e; border-radius: 34px; padding: 22px; box-shadow: 0 30px 50px rgba(20,24,22,.28), inset 0 -10px 0 #15181c; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 6px"><img src="../../design-system/assets/logos/greenci-logo-white.svg" alt="GreenCI" style="height: 26px; opacity: .78"><span style="display: flex; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a4048"></span><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a4048"></span></span></div>
+<div style="height: 92px; border-radius: 20px; background: #15181c; padding-bottom: 9px"><div style="height: 100%; border-radius: 20px; background: #3a4048; display: flex; align-items: center; gap: 14px; padding: 0 22px; color: #e7ecea; font: 600 13px var(--font-sans); letter-spacing: .08em"><img src="../../design-system/assets/logos/greenci-symbol-white.svg" alt="" style="width: 34px; opacity: .9">COMMAND</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="aspect-ratio: 1; border-radius: 22px; background: #0a5c40; padding-bottom: 10px"><div style="height: 100%; border-radius: 22px; background: #0e9f6e; display: grid; place-content: center; justify-items: center; gap: 8px; color: #ffffff; font: 600 12px var(--font-sans); letter-spacing: .08em"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="M15 15l5 5"></path></svg>DIAGNOSE</div></div>
+<div style="aspect-ratio: 1; border-radius: 22px; background: #0a5c40; padding-bottom: 10px"><div style="height: 100%; border-radius: 22px; background: #0e9f6e; display: grid; place-content: center; justify-items: center; gap: 8px; color: #ffffff; font: 600 12px var(--font-sans); letter-spacing: .08em"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14.5 4.5a4.5 4.5 0 0 0-5.8 5.8L4 15l5 5 4.7-4.7a4.5 4.5 0 0 0 5.8-5.8l-2.8 2.8-2.5-.5-.5-2.5z"></path></svg>REPAIR</div></div>
+<div style="aspect-ratio: 1; border-radius: 22px; background: #0a5c40; padding-bottom: 10px"><div style="height: 100%; border-radius: 22px; background: #0e9f6e; display: grid; place-content: center; justify-items: center; gap: 8px; color: #ffffff; font: 600 12px var(--font-sans); letter-spacing: .08em"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"></path></svg>VERIFY</div></div>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; font-size: 13px; line-height: 18px">
+<div style="background: #ffffff; border-radius: var(--radius-lg); padding: 14px"><b style="font-weight: 600">Enclosure</b><br><span style="color: var(--ink-muted)">Charcoal #23272E anodised aluminium. White one-colour logo, laser-etched, top-left.</span></div>
+<div style="background: #ffffff; border-radius: var(--radius-lg); padding: 14px"><b style="font-weight: 600">Keycaps</b><br><span style="color: var(--ink-muted)">Emerald #0E9F6E PBT, deep emerald skirt. Legends pad-printed white; command key gets the single check.</span></div>
+<div style="background: #ffffff; border-radius: var(--radius-lg); padding: 14px"><b style="font-weight: 600">Light</b><br><span style="color: var(--ink-muted)">Per-key ring under each cap: orange breathe = failing, blue sweep = working, amber = needs you, green flash = passed.</span></div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; flex: 1">
+<div style="background: #23272e; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; color: #e7ecea; box-shadow: 0 20px 36px rgba(20,24,22,.22)">
+<span style="font: 600 11px var(--font-mono); color: #a8b3ae">BOX LID</span>
+<img src="../../design-system/assets/logos/greenci-logo-stacked-on-dark.svg" alt="GreenCI" style="width: 72%; align-self: center">
+<span style="font: 600 15px/20px var(--font-display); align-self: center">Red to green, one key at a time.</span>
+</div>
+<div style="background: #0e9f6e; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; color: #06281c">
+<span style="font: 600 11px var(--font-mono)">INSIDE THE LID</span>
+<span style="font: 700 44px/44px var(--font-display); letter-spacing: -.02em">Press any key.</span>
+<span style="font-size: 14px; line-height: 20px">Plug the deck into your laptop. Then go to [YOUR DOMAIN]/start. Your first green run takes about five minutes.</span>
+</div>
+<div style="background: #ffffff; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<span style="font: 600 11px var(--font-mono); color: var(--ink-muted)">BOX SIDE BAND</span>
+<div style="display: flex; gap: 10px; align-items: center"><img src="../../design-system/assets/moods/key-passing.svg" alt="" style="width: 48px"><img src="../../design-system/assets/moods/key-diagnosing.svg" alt="" style="width: 48px"><img src="../../design-system/assets/moods/key-repairing.svg" alt="" style="width: 48px"><img src="../../design-system/assets/moods/key-verifying.svg" alt="" style="width: 48px"></div>
+<span style="font: 600 14px/20px var(--font-sans)">Diagnose. Repair. Verify.</span>
+<span style="font-size: 13px; line-height: 18px; color: var(--ink-muted)">In the box: GC-1 deck, 1 m USB-C cable, 4 spare emerald keycaps, sticker sheet.</span>
+</div>
+<div style="background: #ffffff; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<span style="font: 600 11px var(--font-mono); color: var(--ink-muted)">UNDERSIDE PLATE · ONE COLOUR</span>
+<div style="border: 1.5px solid #23272e; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start"><img src="../../design-system/assets/logos/greenci-logo-black.svg" alt="GreenCI" style="height: 24px"><span style="font: 12px/18px var(--font-mono)">GC-1 Command Deck<br>5V ⎓ 0.5A · USB-C<br>Designed in London</span></div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -9,3 +9,8 @@ pnpm-lock.yaml
 next-env.d.ts
 playwright-report
 test-results
+# Supplied reference artifacts: preserve byte-for-byte.
+design/
+design-system/
+docs/CODEX_PROMPT.md
+docs/CODEX_PROMPT_CLOUDFLARE.md

@@ -1,3 +1,12 @@
+# Progress
+
+- [x] Design system, screens and build brief committed
+- [ ] M0 Scaffold
+
+---
+
+## Local M0 scaffold notes (before Cloudflare migration)
+
 # GreenCI progress
 
 ## M0 — scaffold implemented; Docker verification pending

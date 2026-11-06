@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GreenCI landing page</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/greenci/tokens.css">
+<link rel="stylesheet" href="ds/greenci/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0b7a55;text-decoration:none}a:hover{color:#23272e}
+</style>
+</helmet>
+<div style="background: var(--surface); color: var(--ink); font-family: var(--font-sans)">
+
+<section style="background: #23272e; color: #e7ecea">
+<nav aria-label="Site" style="max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px">
+<img src="../../design-system/assets/logos/greenci-logo-on-dark.svg" alt="GreenCI" style="height: 34px">
+<div style="display: flex; gap: 22px; font-size: 14px; margin-left: auto; flex-wrap: wrap; align-items: center"><a href="#how" style="color: #c3ccc8">How it works</a><a href="#trust" style="color: #c3ccc8">Safety</a><a href="#pricing" style="color: #c3ccc8">Pricing</a><a href="#" style="color: #c3ccc8">Docs</a><a href="#pricing" class="gc-btn gc-btn--primary gc-btn--sm" style="background: #34d399; color: #06281c">Order a deck</a></div>
+</nav>
+<div style="max-width: 1200px; margin: 0 auto; padding: 72px 24px 96px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<span style="font: 600 13px/16px var(--font-mono); color: #34d399">A command deck for AI coding agents</span>
+<h1 style="margin: 0; font: 700 clamp(44px, 6vw, 76px)/1 var(--font-display); letter-spacing: -.035em">Red to green, one key at a time.</h1>
+<p style="margin: 0; font-size: 19px; line-height: 29px; color: #c3ccc8; max-width: 34rem">When a GitHub check fails, press Diagnose. GreenCI finds the cause, writes the fix and proves it by re-running every check, then hands you a pull request to review.</p>
+<div style="display: flex; gap: 12px; flex-wrap: wrap"><a href="#pricing" class="gc-btn gc-btn--primary" style="background: #34d399; color: #06281c; font-size: 16px; padding: 13px 22px 16px">Order a deck · [PRICE]</a><a href="#how" class="gc-btn gc-btn--secondary" style="background: transparent; color: #e7ecea; border-color: #4a515b; font-size: 16px; padding: 13px 22px 15px">Watch a 20s run</a></div>
+<span style="font-size: 13px; color: #97a39d">Ships [SHIP DATE] · Works with GitHub Actions · Never pushes to main</span>
+</div>
+<div style="flex: 1 1 420px; min-width: 0; display: flex; justify-content: center">
+<div style="width: min(100%, 480px); background: #1b1e23; border-radius: 32px; padding: 20px; box-shadow: 0 40px 80px rgba(0,0,0,.45), inset 0 -10px 0 #0f1114; display: flex; flex-direction: column; gap: 14px">
+<div style="height: 76px; border-radius: 18px; background: #15181c; padding-bottom: 8px"><div style="height: 100%; border-radius: 18px; background: #3a4048; display: flex; align-items: center; gap: 12px; padding: 0 18px; font: 600 12px var(--font-sans); letter-spacing: .08em"><img src="../../design-system/assets/logos/greenci-symbol-white.svg" alt="" style="width: 28px">COMMAND</div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+<div style="aspect-ratio: 1; border-radius: 20px; background: #0a5c40; padding-bottom: 9px"><div style="height: 100%; border-radius: 20px; background: #34d399; color: #06281c; display: grid; place-content: center; justify-items: center; gap: 6px; font: 600 11px var(--font-sans); letter-spacing: .08em"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="M15 15l5 5"></path></svg>DIAGNOSE</div></div>
+<div style="aspect-ratio: 1; border-radius: 20px; background: #0a5c40; padding-bottom: 9px"><div style="height: 100%; border-radius: 20px; background: #34d399; color: #06281c; display: grid; place-content: center; justify-items: center; gap: 6px; font: 600 11px var(--font-sans); letter-spacing: .08em"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M14.5 4.5a4.5 4.5 0 0 0-5.8 5.8L4 15l5 5 4.7-4.7a4.5 4.5 0 0 0 5.8-5.8l-2.8 2.8-2.5-.5-.5-2.5z"></path></svg>REPAIR</div></div>
+<div style="aspect-ratio: 1; border-radius: 20px; background: #0a5c40; padding-bottom: 9px"><div style="height: 100%; border-radius: 20px; background: #34d399; color: #06281c; display: grid; place-content: center; justify-items: center; gap: 6px; font: 600 11px var(--font-sans); letter-spacing: .08em"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6z"></path></svg>VERIFY</div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="how" style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 40px">
+<div style="max-width: 640px"><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-ink)">How it works</span><h2 style="margin: 10px 0 0; font: 700 clamp(32px, 4vw, 44px)/1.05 var(--font-display); letter-spacing: -.02em">Three keys. You stay the reviewer.</h2></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px">
+<article style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px"><img src="../../design-system/assets/moods/key-diagnosing.svg" alt="" style="width: 64px"><h3 style="margin: 0; font: 650 24px/28px var(--font-display)">Diagnose</h3><p style="margin: 0; font-size: 16px; line-height: 25px; color: var(--ink-muted)">Reads the failed job's logs and your code, and tells you the cause in one line, with the file and line number.</p></article>
+<article style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px"><img src="../../design-system/assets/moods/key-repairing.svg" alt="" style="width: 64px"><h3 style="margin: 0; font: 650 24px/28px var(--font-display)">Repair</h3><p style="margin: 0; font-size: 16px; line-height: 25px; color: var(--ink-muted)">Writes the smallest fix on its own <code style="font: 14px var(--font-mono)">greenci/*</code> branch. Never on main. Never merged without you.</p></article>
+<article style="background: var(--surface-raised); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px"><img src="../../design-system/assets/moods/key-passing.svg" alt="" style="width: 64px"><h3 style="margin: 0; font: 650 24px/28px var(--font-display)">Verify</h3><p style="margin: 0; font-size: 16px; line-height: 25px; color: var(--ink-muted)">Re-runs every check on the fix. Only when they all pass does it open a pull request for you to review.</p></article>
+</div>
+<pre class="gc-term" style="margin: 0; font-size: 14px; line-height: 23px; padding: 24px 28px"><span class="bad">✕</span> test (ubuntu) failed on main · acme/payments
+<span class="ok">✔</span> Cause  <span class="hl">fixture date 2026-10-31 is now in the past</span> · tests/billing.spec.ts:41
+<span class="ok">✔</span> Fix    1 file  <span class="ok">+3</span> <span class="bad">−1</span>  on greenci/fix-4182
+<span class="ok">✔</span> <span class="hl">12/12 checks passing</span> · PR #418 ready for review         <span class="dim">example run</span></pre>
+</section>
+
+<section id="trust" style="background: var(--surface-raised); border-block: 1px solid var(--line)">
+<div style="max-width: 1200px; margin: 0 auto; padding: 88px 24px; display: flex; flex-wrap: wrap; gap: 48px">
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-ink)">Safety</span><h2 style="margin: 0; font: 700 clamp(30px, 3.6vw, 40px)/1.08 var(--font-display); letter-spacing: -.02em">An agent with a short leash and a big green button.</h2><p style="margin: 0; font-size: 17px; line-height: 27px; color: var(--ink-muted)">You decide which paths always need a person. When GreenCI can't verify a fix, it says so and hands it back.</p></div>
+<div style="flex: 1 1 480px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px">
+<div style="padding: 18px; border-radius: var(--radius-lg); background: var(--brand-tint)"><b style="font-weight: 600; color: var(--brand-ink)">✔ Opens pull requests</b><p style="margin: 6px 0 0; font-size: 14px; line-height: 20px">You review and merge, like any teammate's.</p></div>
+<div style="padding: 18px; border-radius: var(--radius-lg); background: var(--brand-tint)"><b style="font-weight: 600; color: var(--brand-ink)">✔ Proves every fix</b><p style="margin: 6px 0 0; font-size: 14px; line-height: 20px">Every check re-runs before you see a PR.</p></div>
+<div style="padding: 18px; border-radius: var(--radius-lg); background: var(--fail-tint)"><b style="font-weight: 600; color: var(--fail)">✕ Never pushes to main</b><p style="margin: 6px 0 0; font-size: 14px; line-height: 20px">Writes only to its own greenci/* branches.</p></div>
+<div style="padding: 18px; border-radius: var(--radius-lg); background: var(--fail-tint)"><b style="font-weight: 600; color: var(--fail)">✕ Never touches secrets</b><p style="margin: 6px 0 0; font-size: 14px; line-height: 20px">It tells you which setting to change instead.</p></div>
+</div>
+</div>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 88px 24px; display: flex; flex-direction: column; gap: 20px; align-items: flex-start">
+<span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--brand-ink)">From early teams</span>
+<blockquote style="margin: 0; font: 650 clamp(26px, 3vw, 36px)/1.2 var(--font-display); letter-spacing: -.015em; max-width: 52rem">“[CUSTOMER QUOTE: one sentence about a real fix GreenCI made for them]”</blockquote>
+<span style="font-size: 15px; color: var(--ink-muted)">[NAME], [ROLE] at [COMPANY] · add only with written permission</span>
+</section>
+
+<section id="pricing" style="background: #23272e; color: #e7ecea">
+<div style="max-width: 1200px; margin: 0 auto; padding: 88px 24px; display: flex; flex-direction: column; gap: 32px">
+<h2 style="margin: 0; font: 700 clamp(32px, 4vw, 44px)/1.05 var(--font-display); letter-spacing: -.02em">Pick a deck</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px">
+<div style="background: #2c3138; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px"><span style="font: 600 13px var(--font-mono); color: #a8b3ae">SOLO</span><span style="font: 700 40px/44px var(--font-display)">[PRICE]</span><span style="font-size: 15px; line-height: 22px; color: #c3ccc8">One deck · your repos · [RUNS] runs a month</span><a href="#" class="gc-btn gc-btn--secondary" style="background: transparent; color: #e7ecea; border-color: #4a515b; justify-content: center; margin-top: auto">Order Solo</a></div>
+<div style="background: #34d399; color: #06281c; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px"><span style="font: 600 13px var(--font-mono)">TEAM · MOST PICKED</span><span style="font: 700 40px/44px var(--font-display)">[PRICE] <span style="font-size: 16px">per seat</span></span><span style="font-size: 15px; line-height: 22px">A deck per developer · shared repo rules · approval gates · team digest</span><a href="#" class="gc-btn" style="background: #06281c; color: #e7ecea; justify-content: center; margin-top: auto; box-shadow: inset 0 -4px 0 rgba(0,0,0,.4)">Order for your team</a></div>
+<div style="background: #2c3138; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px"><span style="font: 600 13px var(--font-mono); color: #a8b3ae">ORG</span><span style="font: 700 40px/44px var(--font-display)">Talk to us</span><span style="font-size: 15px; line-height: 22px; color: #c3ccc8">SSO · audit log · self-hosted runner support · volume decks</span><a href="#" class="gc-btn gc-btn--secondary" style="background: transparent; color: #e7ecea; border-color: #4a515b; justify-content: center; margin-top: auto">Contact sales</a></div>
+</div>
+</div>
+</section>
+
+<footer style="max-width: 1200px; margin: 0 auto; padding: 48px 24px 64px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; font-size: 14px; color: var(--ink-muted)">
+<img src="../../design-system/assets/logos/greenci-logo.svg" alt="GreenCI" style="height: 30px">
+<div style="display: flex; gap: 20px; flex-wrap: wrap"><a href="#">Docs</a><a href="#">Changelog</a><a href="#">Security</a><a href="#">Status</a><a href="#">Press kit</a></div>
+<span>Made in London · GreenCI is not affiliated with GitHub</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

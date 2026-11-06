@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GreenCI emails and signatures</title>
+
+<link rel="stylesheet" href="../../design-system/tokens.css">
+<link rel="stylesheet" href="../../design-system/components.css">
+</head>
+<body>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0b7a55}a:hover{color:#23272e}
+</style>
+
+<div style="width: 1600px; height: 1560px; box-sizing: border-box; padding: 48px 56px; background: #e9edeb; color: #1d2125; font-family: var(--font-sans); display: flex; flex-direction: column; gap: 28px">
+<header><span style="font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: #0b7a55">Email</span><h1 style="margin: 6px 0 0; font: 700 40px/44px var(--font-display); letter-spacing: -.02em">Three emails that matter, and how we sign off</h1></header>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; line-height: 18px; color: #566159"><b style="color: #1d2125; font-weight: 600">Subject:</b> Your deck is on its way. Connect GitHub now and it's ready on the first press.</div>
+<article style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.06)">
+<div style="background: #23272e; padding: 28px; display: flex; flex-direction: column; gap: 18px"><img src="../../design-system/assets/logos/greenci-logo-on-dark.svg" alt="GreenCI" style="height: 30px; align-self: flex-start"><h2 style="margin: 0; color: #ffffff; font: 700 30px/34px var(--font-display); letter-spacing: -.015em">Your deck ships today.</h2></div>
+<div style="padding: 28px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 24px">
+<p style="margin: 0">Hi Sam,</p>
+<p style="margin: 0">GC-1 left our London warehouse this morning and should reach you by [DATE]. Tracking: <a href="#">[TRACKING NUMBER]</a>.</p>
+<p style="margin: 0">One thing to do before it lands: connect GitHub. It takes a minute, and the deck will be ready the moment you plug it in.</p>
+<a href="#" class="gc-btn gc-btn--primary" style="align-self: flex-start">Connect GitHub</a>
+<div style="display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 12px; background: #e3f4ec"><img src="../../design-system/assets/moods/key-ready.svg" alt="" style="width: 40px"><span style="font-size: 14px; line-height: 20px">We'll add a practice repo with one broken test, so your first green run happens on day one.</span></div>
+<p style="margin: 0; color: #566159; font-size: 14px">The GreenCI team</p>
+</div>
+</article>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; line-height: 18px; color: #566159"><b style="color: #1d2125; font-weight: 600">Subject:</b> Your first fix is merged</div>
+<article style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.06)">
+<div style="background: #0e9f6e; padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center"><img src="../../design-system/assets/moods/key-shipped.svg" alt="" style="width: 84px"><h2 style="margin: 0; color: #06281c; font: 700 30px/34px var(--font-display); letter-spacing: -.015em">Red to green. Nicely done.</h2></div>
+<div style="padding: 28px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 24px">
+<p style="margin: 0">Sam, you just merged your first GreenCI fix.</p>
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<tr><td style="padding: 8px 0; border-bottom: 1px solid #dce2df; color: #566159">Check</td><td style="padding: 8px 0; border-bottom: 1px solid #dce2df; text-align: right; font-family: var(--font-mono); font-size: 13px">test: adds tax correctly</td></tr>
+<tr><td style="padding: 8px 0; border-bottom: 1px solid #dce2df; color: #566159">Cause</td><td style="padding: 8px 0; border-bottom: 1px solid #dce2df; text-align: right">Rounding before summing</td></tr>
+<tr><td style="padding: 8px 0; color: #566159">Red for</td><td style="padding: 8px 0; text-align: right; font-variant-numeric: tabular-nums">4 min 12 s</td></tr>
+</table>
+<p style="margin: 0">From now on, the Diagnose key will breathe orange whenever a watched check fails. That's your cue.</p>
+<a href="#" class="gc-btn gc-btn--primary" style="align-self: flex-start">Add your real repos</a>
+<p style="margin: 0; color: #566159; font-size: 14px">The GreenCI team</p>
+</div>
+</article>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; line-height: 18px; color: #566159"><b style="color: #1d2125; font-weight: 600">Subject:</b> Your week: 9 checks fixed, 14 min median red</div>
+<article style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.06)">
+<div style="padding: 28px 28px 0; display: flex; justify-content: space-between; align-items: center"><img src="../../design-system/assets/logos/greenci-logo.svg" alt="GreenCI" style="height: 28px"><span style="font: 13px var(--font-mono); color: #566159">27 Oct – 2 Nov</span></div>
+<div style="padding: 24px 28px 28px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 24px">
+<h2 style="margin: 0; font: 700 28px/32px var(--font-display); letter-spacing: -.015em">A good week for acme.</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="background: #f6f8f7; border-radius: 12px; padding: 12px"><div style="font: 700 28px/32px var(--font-display)">9</div><div style="font-size: 12px; color: #566159">checks fixed</div></div>
+<div style="background: #f6f8f7; border-radius: 12px; padding: 12px"><div style="font: 700 28px/32px var(--font-display)">14m</div><div style="font-size: 12px; color: #566159">median red</div></div>
+<div style="background: #f6f8f7; border-radius: 12px; padding: 12px"><div style="font: 700 28px/32px var(--font-display)">7/8</div><div style="font-size: 12px; color: #566159">PRs merged</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0; font-size: 14px">
+<div style="display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #dce2df"><span>acme/payments</span><span style="color: #0b7a55; font-weight: 600">✔ 4 fixed</span></div>
+<div style="display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #dce2df"><span>acme/web</span><span style="color: #0b7a55; font-weight: 600">✔ 3 fixed</span></div>
+<div style="display: flex; justify-content: space-between; padding: 9px 0"><span>acme/ledger</span><span style="color: #8a5a00; font-weight: 600">2 handed to a person</span></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 21px; color: #566159">One flaky test failed 5 times: <code style="font: 13px var(--font-mono); color: #1d2125">e2e (chrome) › checkout</code>. Worth a look by a human.</p>
+<a href="#" class="gc-btn gc-btn--secondary" style="align-self: flex-start">Open dashboard</a>
+</div>
+</article>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px">
+<section style="background: #ffffff; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<span style="font: 600 11px var(--font-mono); color: #566159">SIGNATURE · PERSON</span>
+<div style="display: flex; gap: 14px; align-items: center; padding-top: 12px; border-top: 2px solid #0e9f6e">
+<img src="../../design-system/assets/logos/greenci-symbol.svg" alt="" style="width: 48px; height: 48px">
+<div style="font-size: 14px; line-height: 20px"><b style="font-weight: 600">[Your name]</b><br><span style="color: #566159">[Role] · GreenCI</span><br><span style="font: 13px var(--font-mono); color: #0b7a55">[your-domain]</span></div>
+</div>
+<p style="margin: 0; font-size: 12px; line-height: 18px; color: #566159">Key at 48px, name in bold, role and company on one line, one link. No quotes, no banners, no social icon rows.</p>
+</section>
+
+<section style="background: #ffffff; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<span style="font: 600 11px var(--font-mono); color: #566159">SIGNATURE · SUPPORT</span>
+<div style="display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 2px solid #0e9f6e; font-size: 14px; line-height: 20px">
+<img src="../../design-system/assets/logos/greenci-logo.svg" alt="GreenCI" style="height: 22px; align-self: flex-start">
+<span><b style="font-weight: 600">[Name]</b> from GreenCI Support</span>
+<span style="color: #566159">Replies within one working day · <span style="font-family: var(--font-mono); font-size: 13px">greenci doctor</span> output helps us help you</span>
+</div>
+<p style="margin: 0; font-size: 12px; line-height: 18px; color: #566159">Full logo at 22px tall. Always tell people what to send next.</p>
+</section>
+
+<section style="background: #23272e; color: #e7ecea; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+<span style="font: 600 11px var(--font-mono); color: #a8b3ae">SUBJECT LINES · FACT FIRST</span>
+<span style="font-size: 14px; line-height: 20px">✔ “Your first fix is merged”</span>
+<span style="font-size: 14px; line-height: 20px">✔ “2 checks failing on acme/payments”</span>
+<span style="font-size: 14px; line-height: 20px">✔ “Your week: 9 checks fixed, 14 min median red”</span>
+<span style="font-size: 14px; line-height: 20px">✔ “Your card was declined. Plan active until 20 Nov.”</span>
+<span style="font-size: 14px; line-height: 20px; color: #fb8a4c">✕ “🚨 Uh oh, something broke!”</span>
+<span style="font-size: 14px; line-height: 20px; color: #fb8a4c">✕ “Supercharge your CI with AI magic”</span>
+</section>
+</div>
+</div>
+
+
+</body>
+</html>
