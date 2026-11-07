@@ -3,7 +3,18 @@
 - [x] Design system, screens and build brief committed
 - [x] M0 Scaffold
 
-## Current milestone — M4.5 local implementation
+## M5 — product screens (web)
+
+- [x] Dashboard rebuilt to the approved board: top bar, side nav, state-led greeting, banner, live stats, filters, run list, on-screen deck that highlights the key the oldest failing run needs, activity.
+- [x] Run detail rebuilt: hero with mood and one status chip, on-screen deck (keys 2–4 work too), Diagnose / Repair / Verify phase cards, coloured diff, check list with progress, "likely unrelated" marking, PR strip, Needs-you approval panel, grouped routing decisions with probabilities, timeline from run events.
+- [x] Onboarding is the four-step flow (Plug in → GitHub → Repos → First fix) with the deckless skip.
+- [x] `/app/_states` renders every run state with the dashboard's own helpers.
+- [x] Fixed: disabled keys looked pressable; "Failing" showed a blue in-progress spinner.
+- [x] All new strings live in `packages/core/src/copy.ts`; core coverage stays at 100%.
+- [x] Lint, typecheck, 47 unit/integration tests, 7 browser tests and the dev worker build pass. Evidence: docs/fidelity/app-m5.md.
+- [ ] Mobile (Expo, M8) and full CLI output (M6) remain.
+
+## Previous milestone — M4.5 local implementation
 
 - [x] Step 1 and M0.5 retained; M1, M2, M3 and M4 committed in order.
 - [x] SDK 0.21.0, Zod v4, three Decisions providers, guarded tools and R2 approval/resume implemented.

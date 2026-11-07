@@ -66,18 +66,21 @@ export function ActionKey({
   name,
   busy = false,
   pressed = false,
+  hot = false,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   name: Key;
   busy?: boolean;
   pressed?: boolean;
+  /** The key the current run is waiting for (breathes orange on hardware). */
+  hot?: boolean;
 }) {
   return (
     <button
       type="button"
       {...props}
       aria-busy={busy}
-      className={`gc-key ${name === 'command' ? 'gc-key--command' : ''} ${busy ? 'is-busy' : ''} ${pressed ? 'is-pressed' : ''}`}
+      className={`gc-key ${name === 'command' ? 'gc-key--command' : ''} ${busy ? 'is-busy' : ''} ${pressed ? 'is-pressed' : ''} ${hot ? 'is-hot' : ''}`}
     >
       <span>
         <Icon name={name} />
