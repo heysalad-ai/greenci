@@ -1,0 +1,17 @@
+{
+  "name": "@greenci/client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --outDir dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@greenci/core": "workspace:*",
+    "zod": "^4.1.12"
+  }
+}

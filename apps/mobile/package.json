@@ -1,0 +1,14 @@
+{
+  "name": "@greenci/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@greenci/client": "workspace:*",
+    "@greenci/core": "workspace:*"
+  }
+}

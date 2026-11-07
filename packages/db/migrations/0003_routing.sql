@@ -1,0 +1,3 @@
+ALTER TABLE repo_rules ADD COLUMN infra_threshold REAL NOT NULL DEFAULT 0.7;
+ALTER TABLE repo_rules ADD COLUMN flaky_threshold REAL NOT NULL DEFAULT 0.6;
+ALTER TABLE repo_rules ADD COLUMN risk_threshold REAL NOT NULL DEFAULT 4;

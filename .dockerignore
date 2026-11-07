@@ -1,0 +1,14 @@
+.git
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+.env
+.env.*
+.data
+playwright-report
+test-results
+
+**/.dev.vars*
+**/.wrangler
+**/.open-next

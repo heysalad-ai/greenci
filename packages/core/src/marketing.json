@@ -1,0 +1,9 @@
+{
+  "price": "[PRICE]",
+  "shipDate": "[SHIP DATE]",
+  "runs": "[RUNS]",
+  "quote": "[CUSTOMER QUOTE: one sentence about a real fix GreenCI made for them]",
+  "customerName": "[NAME]",
+  "customerRole": "[ROLE]",
+  "customerCompany": "[COMPANY]"
+}

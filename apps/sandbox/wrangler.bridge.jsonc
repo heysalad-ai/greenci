@@ -1,0 +1,35 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "greenci-sandbox-dev",
+  "main": "src/bridge.ts",
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "send_metrics": false,
+  "env": {
+    "dev": {
+      "name": "greenci-sandbox-dev",
+      "workers_dev": false,
+      "preview_urls": false,
+      "containers": [
+        {
+          "class_name": "Sandbox",
+          "image": "./Dockerfile",
+          "max_instances": 1,
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          { "name": "SANDBOX", "class_name": "Sandbox" },
+          { "name": "WARM_POOL", "class_name": "WarmPool" },
+        ],
+      },
+      "migrations": [
+        { "tag": "v1-bridge", "new_sqlite_classes": ["Sandbox", "WarmPool"] },
+      ],
+      "vars": { "WARM_POOL_TARGET": "0", "WARM_POOL_MAX_INSTANCES": "1" },
+    },
+  },
+}

@@ -1,0 +1,22 @@
+-- Domain data; additive migration, safe for the existing dev scaffold.
+CREATE TABLE users (id TEXT PRIMARY KEY NOT NULL, github_id TEXT, login TEXT, name TEXT, avatar_url TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE orgs (id TEXT PRIMARY KEY NOT NULL, login TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE memberships (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, org_id TEXT, role TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE installations (id TEXT PRIMARY KEY NOT NULL, github_installation_id INTEGER, org_id TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE repos (id TEXT PRIMARY KEY NOT NULL, org_id TEXT, full_name TEXT, default_branch TEXT, watched INTEGER, test_command TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE repo_rules (id TEXT PRIMARY KEY NOT NULL, repo_id TEXT, protected_paths TEXT, page_me_branches TEXT, max_diff_lines INTEGER, auto_open_pr INTEGER, allow_workflows INTEGER, auto_mode INTEGER, auto_repair INTEGER, created_at TEXT, updated_at TEXT);
+CREATE TABLE decks (id TEXT PRIMARY KEY NOT NULL, org_id TEXT, user_id TEXT, serial TEXT, firmware TEXT, last_seen_at TEXT, status TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE runs (id TEXT PRIMARY KEY NOT NULL, repo_id TEXT, org_id TEXT, head_sha TEXT, branch TEXT, failing_check_name TEXT, state TEXT, cause_summary TEXT, cause_file TEXT, cause_line INTEGER, confidence TEXT, fix_branch TEXT, pr_number INTEGER, attempts INTEGER, started_by TEXT, trace_id TEXT, snapshot TEXT, version INTEGER, created_at TEXT, updated_at TEXT);
+CREATE TABLE run_events (id TEXT PRIMARY KEY NOT NULL, run_id TEXT, type TEXT, payload TEXT, at TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE checks (id TEXT PRIMARY KEY NOT NULL, run_id TEXT, phase TEXT, name TEXT, status TEXT, duration_ms INTEGER, log_excerpt TEXT, log_key TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE fixes (id TEXT PRIMARY KEY NOT NULL, run_id TEXT, attempt INTEGER, diff_key TEXT, files_changed TEXT, additions INTEGER, deletions INTEGER, touches_protected INTEGER, created_at TEXT, updated_at TEXT);
+CREATE TABLE approvals (id TEXT PRIMARY KEY NOT NULL, run_id TEXT, requested_reason TEXT, decided_by TEXT, decision TEXT, decided_at TEXT, state_key TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE notifications (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, run_id TEXT, channel TEXT, kind TEXT, sent_at TEXT, suppressed_reason TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE push_tokens (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, expo_token TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE webhook_deliveries (id TEXT PRIMARY KEY NOT NULL, event TEXT, payload TEXT, processed INTEGER, created_at TEXT, updated_at TEXT);
+CREATE TABLE decisions (id TEXT PRIMARY KEY NOT NULL, run_id TEXT, question TEXT, answer TEXT, probabilities TEXT, model TEXT, created_at TEXT, updated_at TEXT);
+CREATE UNIQUE INDEX repos_full_name ON repos(full_name);
+CREATE UNIQUE INDEX memberships_unique ON memberships(user_id,org_id);
+CREATE UNIQUE INDEX run_dedup ON runs(repo_id,head_sha,failing_check_name);
+CREATE INDEX events_run ON run_events(run_id,at);
+CREATE INDEX runs_org_state ON runs(org_id,state);

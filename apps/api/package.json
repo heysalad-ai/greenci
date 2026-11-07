@@ -1,0 +1,23 @@
+{
+  "name": "@greenci/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "build": "wrangler deploy --dry-run --env=\"\" --outdir dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@greenci/core": "workspace:*",
+    "@greenci/db": "workspace:*",
+    "@greenci/deck-protocol": "workspace:*",
+    "@greenci/worker": "workspace:*",
+    "hono": "4.13.16",
+    "@hono/zod-openapi": "1.6.3",
+    "zod": "^4.1.12",
+    "@greenci/email": "workspace:*",
+    "@greenci/github": "workspace:*",
+    "@greenci/decisions": "workspace:*"
+  }
+}

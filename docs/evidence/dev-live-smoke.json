@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-06",
+  "anonymous": [
+    {
+      "url": "https://greenci-web-dev.heysalad-o.workers.dev/",
+      "status": 302,
+      "redirect": "https://heysalad.cloudflareaccess.com/cdn-cgi/access/login/greenci-web-dev.heysalad-o.workers.dev"
+    },
+    {
+      "url": "https://greenci-api-dev.heysalad-o.workers.dev/healthz",
+      "status": 302,
+      "redirect": "https://heysalad.cloudflareaccess.com/cdn-cgi/access/login/greenci-api-dev.heysalad-o.workers.dev"
+    }
+  ],
+  "browser": {
+    "profile": "Existing authenticated Chrome HeySalad profile",
+    "landing": {
+      "url": "https://greenci-web-dev.heysalad-o.workers.dev/",
+      "heading": "GreenCI",
+      "copy": "M0.5 scaffold. Product screens and agent jobs follow in M1–M9."
+    },
+    "api": {
+      "url": "https://greenci-api-dev.heysalad-o.workers.dev/healthz",
+      "response": {
+        "status": "ok",
+        "service": "api",
+        "milestone": "M0.5",
+        "mode": "scaffold",
+        "integrations": "disabled"
+      }
+    },
+    "webServiceBinding": {
+      "url": "https://greenci-web-dev.heysalad-o.workers.dev/api/health",
+      "status": "ok",
+      "apiMode": "scaffold"
+    }
+  },
+  "access": {
+    "scope": "All traffic, including previews",
+    "policy": "Cloudflare account members",
+    "session": "24 hours",
+    "webApplication": "b1d1fddd-8c35-45e3-8a69-6f23ce23a704",
+    "apiApplication": "416142d6-a5b0-4c6f-bf8c-f10593e85dbd"
+  },
+  "note": "Browser observations were made directly at workers.dev with the existing Chrome session. The landing screenshot was captured through the authenticated remote service-binding probe to the same deployed web Worker, without exporting browser cookies."
+}

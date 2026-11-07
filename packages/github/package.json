@@ -1,0 +1,17 @@
+{
+  "name": "@greenci/github",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --outDir dist"
+  },
+  "dependencies": {
+    "@greenci/core": "workspace:*",
+    "zod": "^4.1.12"
+  }
+}

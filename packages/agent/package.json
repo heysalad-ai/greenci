@@ -1,0 +1,23 @@
+{
+  "name": "@greenci/agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures.ts",
+    "./local": "./src/local.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --outDir dist"
+  },
+  "dependencies": {
+    "@greenci/core": "workspace:*",
+    "@greenci/github": "workspace:*",
+    "@openai/agents": "0.21.0",
+    "@openai/agents-extensions": "0.21.0",
+    "openai": "7.2.0",
+    "zod": "^4.1.12"
+  }
+}

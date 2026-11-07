@@ -1,0 +1,83 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "send_metrics": false,
+  "name": "greenci-web",
+  "main": ".open-next/worker.js",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "dev": {
+    "port": 3000,
+    "inspector_port": 9231,
+  },
+  "services": [
+    {
+      "binding": "API",
+      "service": "greenci-api",
+    },
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "greenci-web",
+    },
+  ],
+  "vars": {
+    "APP_ENV": "local",
+  },
+  "env": {
+    "dev": {
+      "name": "greenci-web-dev",
+      "vars": {
+        "APP_ENV": "dev",
+      },
+      "services": [
+        {
+          "binding": "API",
+          "service": "greenci-api-dev",
+        },
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "greenci-web-dev",
+        },
+      ],
+      "preview_urls": false,
+      "workers_dev": true,
+    },
+    "staging": {
+      "name": "greenci-web-staging",
+      "vars": {
+        "APP_ENV": "staging",
+      },
+      "services": [
+        {
+          "binding": "API",
+          "service": "greenci-api-staging",
+        },
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "greenci-web-staging",
+        },
+      ],
+    },
+    "production": {
+      "name": "greenci-web-prod",
+      "vars": {
+        "APP_ENV": "prod",
+      },
+      "services": [
+        {
+          "binding": "API",
+          "service": "greenci-api-prod",
+        },
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "greenci-web-prod",
+        },
+      ],
+    },
+  },
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
+}

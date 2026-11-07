@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-06",
+  "transport": "Wrangler authenticated remote service bindings to the deployed dev Workers; workers.dev public routing remains disabled",
+  "results": [
+    {
+      "proxy_path": "/api/healthz",
+      "status": 200,
+      "bytes": 94,
+      "response": {
+        "status": "ok",
+        "service": "api",
+        "milestone": "M0.5",
+        "mode": "scaffold",
+        "integrations": "disabled"
+      }
+    },
+    {
+      "proxy_path": "/healthz",
+      "status": 200,
+      "bytes": 151,
+      "response": {
+        "status": "ok",
+        "service": "web",
+        "milestone": "M0.5",
+        "api": {
+          "status": "ok",
+          "service": "api",
+          "milestone": "M0.5",
+          "mode": "scaffold",
+          "integrations": "disabled"
+        }
+      }
+    },
+    {
+      "proxy_path": "/",
+      "status": 200,
+      "bytes": 5125,
+      "has_GreenCI_heading": true,
+      "sha256": "3bd398fcbb584088548d21570469c1df2e57be4f6caa717bbcf6ac0ea009e572"
+    },
+    {
+      "proxy_path": "/private-api/__local/emails",
+      "status": 404,
+      "bytes": 13
+    },
+    {
+      "proxy_path": "/private-api/deck?serial=GC-1",
+      "status": 404,
+      "bytes": 13
+    },
+    {
+      "proxy_path": "/private-api/openapi.json",
+      "status": 404,
+      "bytes": 13
+    }
+  ]
+}

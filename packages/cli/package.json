@@ -1,0 +1,20 @@
+{
+  "name": "@greenci/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --outDir dist"
+  },
+  "dependencies": {
+    "@greenci/client": "workspace:*",
+    "@greenci/core": "workspace:*"
+  },
+  "bin": {
+    "greenci": "./dist/main.js"
+  }
+}

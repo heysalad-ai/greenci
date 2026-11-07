@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - workerd
+
+ignoredBuiltDependencies:
+  - rclone.js

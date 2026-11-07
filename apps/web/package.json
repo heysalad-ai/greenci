@@ -1,0 +1,29 @@
+{
+  "name": "@greenci/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 3000",
+    "build": "node ../../scripts/screens.mjs && node ../../scripts/assets.mjs && next build",
+    "start": "wrangler dev --ip 127.0.0.1 --port 3000",
+    "typecheck": "tsc --noEmit",
+    "dev:next": "next dev --hostname 127.0.0.1 --port 3000",
+    "build:worker": "opennextjs-cloudflare build"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@greenci/client": "workspace:*",
+    "@greenci/core": "workspace:*",
+    "@greenci/db": "workspace:*",
+    "@greenci/deck-protocol": "workspace:*",
+    "@greenci/ui": "workspace:*",
+    "@opennextjs/cloudflare": "1.20.16",
+    "next": "15.5.29",
+    "rclone.js": "^0.6.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
+}
