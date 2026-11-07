@@ -10,5 +10,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --outDir dist"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@greenci/core": "workspace:*",
+    "zod": "^4.1.12"
+  }
 }

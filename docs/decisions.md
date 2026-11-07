@@ -57,3 +57,7 @@ Initially kept every dev URL and preview disabled. Wrangler OAuth could deploy b
 ## M2 — explicit verification and side effects
 
 The pure transition function emits jobs/events/notifications/lights without I/O. A run remains repaired after passing checks until a real PR number is returned; no speculative pr_open state. Empty or unfinished check lists fail verification. Approval is scoped to the current repair attempt and reset on retry. Workflow edits are denied unless allowed by repo rules, then always require human approval. Timezone conversion is the notification caller's responsibility; the policy takes the user's local hour. Core branch coverage is an enforced 100% gate, including configuration.
+
+## M3 — offline fixture execution and persistence
+
+Only known first-party fixture source and test bytes can run under SANDBOX=none. The mock service rejects arbitrary patch content and validates fixture integrity before starting Node's test runner; customer code never reaches a host shell. Git commands use execFile argument arrays, validated refs, bounded buffers and timeouts. The mock GitHub client has no merge/approve method; a separate local human UI endpoint supports simulated merges later. Original runs use real commit SHAs and actual failing results rather than forging the abbreviated SHAs shown in the design. Full logs/diffs belong in R2; D1 retains keys/excerpts. Atomic versioned run writes append events only if the state update succeeds. The additional decisions table prepares the additive M4.5 storage requirement.

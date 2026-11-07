@@ -62,3 +62,7 @@ Typed tokens generated from the supplied JSON and byte-identical CSS output; all
 ## M2 — pure core rules
 
 State machine, runtime schemas, safety guards, mood mapping, redaction and notification policy implemented. Every state/event pair is tested; no empty/pending/failed check set can be verified, protected/workflow/oversized changes require approval, retries stop after three attempts. `pnpm test:core` enforces 100% statements/branches/functions/lines across all core source files. Lint/typecheck, 31 tests and core build pass. M3 data/mock GitHub is next.
+
+## M3 — D1 data and real local git fixtures
+
+Added the domain tables, additive D1 migration, validated run repository with optimistic concurrency and atomic append-only events, local seed for Sam/acme/greenci/deck/rules, and five real bare git repositories. Mock CI really executes immutable first-party fixture tests; practice/payments/ledger fail before their approved fixes and pass afterwards. Mock PR creation rechecks actual branch CI and protected-path approval, and PR metadata survives restart. Signed webhooks use HMAC-SHA256. Lint/typecheck, 35 tests and affected package builds pass; local migration and seed ran successfully. Runtime runs will be created from signed failures in M4; historical dashboard display fixtures/fidelity remain M5. Nothing remote was migrated in this milestone.

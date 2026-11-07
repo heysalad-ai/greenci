@@ -1,3 +1,5 @@
+import { RunRepository } from '../packages/db/src/repository.js';
+import { runSchema, transition } from '../packages/core/src/index.js';
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 import { parse } from 'jsonc-parser';
@@ -82,6 +84,12 @@ beforeAll(async () => {
     await readFile('packages/db/migrations/0001_platform.sql', 'utf8')
   ).replace(/^--.*$/gm, '');
   await db.exec(sql);
+  await db.exec(
+    (await readFile('packages/db/migrations/0002_domain.sql', 'utf8')).replace(
+      /^--.*$/gm,
+      '',
+    ),
+  );
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
@@ -333,4 +341,42 @@ it('dev scaffold health is operational without integration credentials, while ev
   } finally {
     await dev.dispose();
   }
+});
+
+it('D1 persists validated runs and append-only events atomically, rejects stale writes and separates orgs', async () => {
+  const db = await mf.getD1Database('DB', 'api');
+  const repository = new RunRepository(db as unknown as D1Database);
+  const run = runSchema.parse({
+    id: 'data-test',
+    repo: 'acme/payments',
+    orgId: 'acme',
+    headSha: 'fixture-sha',
+    branch: 'main',
+    failingCheckName: 'test',
+  });
+  await repository.create(run);
+  const first = await repository.get(run.id, 'acme');
+  const result = transition(first.run, { type: 'diagnose' });
+  await repository.save(
+    result.run,
+    first.version,
+    'event-1',
+    'diagnose',
+    result.effects,
+  );
+  await repository.save(
+    result.run,
+    first.version,
+    'event-1',
+    'diagnose',
+    result.effects,
+  );
+  expect(await repository.events(run.id)).toHaveLength(1);
+  await expect(
+    repository.save(result.run, first.version, 'event-2', 'diagnose'),
+  ).rejects.toThrow('concurrently');
+  expect(await repository.events(run.id)).toHaveLength(1);
+  await expect(repository.get(run.id, 'other')).rejects.toThrow('not found');
+  expect(await repository.list('other')).toEqual([]);
+  expect((await repository.get(run.id)).run.state).toBe('diagnosing');
 });

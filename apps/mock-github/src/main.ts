@@ -2,7 +2,10 @@ import { loadConfig } from '@greenci/core/config';
 import { buildServer } from './server.js';
 const config = loadConfig(process.env);
 const url = new URL(config.MOCK_GITHUB_URL);
-const server = await buildServer();
+const server = await buildServer({
+  root: new URL('../../../.data/mock-github/', import.meta.url).pathname,
+  webhookUrl: `${config.API_URL}/webhooks/github`,
+});
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.once(signal, () => {
     void server.close();

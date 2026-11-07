@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "seed": "node scripts/not-ready.mjs seed M3",
+    "seed": "pnpm db:migrate && tsx scripts/seed.mts",
     "reset": "node scripts/reset.mjs",
     "deck:sim": "node scripts/deck-sim.mjs",
     "github:verify": "node scripts/not-ready.mjs github:verify M7",
