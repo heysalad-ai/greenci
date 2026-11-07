@@ -6,6 +6,6 @@ export interface ApiEnv {
   EVENTS: Queue;
   ORG_ROOMS: DurableObjectNamespace;
   DECK_SESSIONS: DurableObjectNamespace;
-  RUN_WORKFLOW: Workflow<{ requiresApproval: boolean }>;
+  RUN_WORKFLOW: Workflow<{ requiresApproval?: boolean; runId?: string }>;
   SANDBOX_SERVICE: Fetcher;
 }

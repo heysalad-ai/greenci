@@ -1,0 +1,16 @@
+name: Deploy dev
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-cloudflare.yml
+    with:
+      target: dev
+    secrets: inherit

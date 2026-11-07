@@ -4,13 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc --outDir dist"
   },
   "dependencies": {
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "@greenci/core": "workspace:*",
+    "@greenci/github": "workspace:*"
   }
 }

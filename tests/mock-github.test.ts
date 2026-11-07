@@ -3,7 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { buildServer } from '../apps/mock-github/src/server.js';
-import { fixtures } from '../apps/mock-github/src/fixtures.js';
+import { fixtures } from '../packages/agent/src/fixtures.js';
 import {
   MockGitHubClient,
   signWebhook,

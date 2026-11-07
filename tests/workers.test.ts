@@ -1,3 +1,5 @@
+import { buildServer } from '../apps/mock-github/src/server.js';
+import { MockGitHubClient, signWebhook } from '../packages/github/src/index.js';
 import { RunRepository } from '../packages/db/src/repository.js';
 import { runSchema, transition } from '../packages/core/src/index.js';
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
@@ -8,6 +10,8 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 let mf: Miniflare;
+let mockServer: Awaited<ReturnType<typeof buildServer>>;
+let mockClient: MockGitHubClient;
 let temporary: string;
 let makeRuntime: (
   overrides: Record<string, string>,
@@ -78,7 +82,10 @@ beforeAll(async () => {
         },
       ],
     });
-  mf = new Miniflare(makeRuntime({}));
+  mockServer = await buildServer({ root: path.join(temporary, 'mock-repos') });
+  const mockUrl = await mockServer.listen({ host: '127.0.0.1', port: 0 });
+  mockClient = new MockGitHubClient(mockUrl);
+  mf = new Miniflare(makeRuntime({ MOCK_GITHUB_URL: mockUrl }));
   const db = await mf.getD1Database('DB', 'api');
   const sql = (
     await readFile('packages/db/migrations/0001_platform.sql', 'utf8')
@@ -93,6 +100,7 @@ beforeAll(async () => {
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
+  await mockServer?.close();
   if (temporary) await rm(temporary, { recursive: true, force: true });
 });
 
@@ -380,3 +388,155 @@ it('D1 persists validated runs and append-only events atomically, rejects stale 
   expect(await repository.list('other')).toEqual([]);
   expect((await repository.get(run.id)).run.state).toBe('diagnosing');
 });
+
+async function waitForRun(id: string, state: string) {
+  for (let attempt = 0; attempt < 150; attempt++) {
+    const db = await mf.getD1Database('DB', 'api'),
+      repository = new RunRepository(db as unknown as D1Database);
+    try {
+      const { run } = await repository.get(id);
+      if (run.state === state) return run;
+    } catch {
+      /* Queue delivery pending. */
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const status = await (await request(`/__local/workflows/${id}`)).json();
+  const db = await mf.getD1Database('DB', 'api');
+  const row = await db
+    .prepare('SELECT state FROM runs WHERE id=?')
+    .bind(id)
+    .first();
+  throw new Error(
+    `Run did not reach ${state}: ${JSON.stringify({ status, row })}`,
+  );
+}
+it('authenticated HTTP + signed webhook + real Workflow completes all four journeys', async () => {
+  const db = await mf.getD1Database('DB', 'api');
+  await db.exec(
+    "INSERT INTO memberships (id,user_id,org_id,role) VALUES ('sam:acme','sam','acme','owner'),('sam:greenci','sam','greenci','owner'); INSERT INTO repos (id,org_id,full_name,default_branch,watched) VALUES ('acme/payments','acme','acme/payments','main',1),('acme/ledger','acme','acme/ledger','main',1),('greenci/practice','greenci','greenci/practice','main',1);",
+  );
+  expect((await request('/v1/runs')).status).toBe(401);
+  const login = await request('/__local/session', { orgId: 'acme' });
+  const auth = (await login.json()) as { token: string; csrf: string };
+  const headers = {
+    Authorization: `Bearer ${auth.token}`,
+    'Content-Type': 'application/json',
+  };
+  const actions = async (id: string, action: string) =>
+    mf.dispatchFetch(url + `/v1/runs/${id}/actions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action }),
+    });
+  for (const [repo, scenario] of [
+    ['acme/payments', 'normal'],
+    ['acme/ledger', 'normal'],
+    ['acme/payments', 'honest_miss'],
+    ['acme/payments', 'out_of_scope'],
+  ] as const) {
+    const checks = await mockClient.checks(repo, 'main');
+    const sha = checks[0]!.sha,
+      name = `test-${scenario}-${repo}`;
+    const payload = {
+      action: 'completed',
+      repository: { full_name: repo, default_branch: 'main' },
+      check_run: {
+        name,
+        head_sha: sha,
+        head_branch: 'main',
+        conclusion: 'failure',
+        output: { text: checks[0]!.log },
+      },
+    };
+    const body = JSON.stringify(payload),
+      delivery = crypto.randomUUID(),
+      signature = await signWebhook('local-only-webhook-secret', body);
+    const webhook = () =>
+      mf.dispatchFetch(url + '/webhooks/github', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-GitHub-Event': 'check_run',
+          'X-GitHub-Delivery': delivery,
+          'X-Hub-Signature-256': signature,
+        },
+        body,
+      });
+    expect((await webhook()).status).toBe(202);
+    await webhook();
+    const hash = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(`${repo}:${sha}:${name}`),
+    );
+    const id =
+      'run-' +
+      Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0'))
+        .join('')
+        .slice(0, 32);
+    await waitForRun(id, 'failing');
+    if (scenario !== 'normal') {
+      const repository = new RunRepository(db as unknown as D1Database),
+        current = await repository.get(id);
+      await repository.save(
+        { ...current.run, scenario },
+        current.version,
+        `${id}:scenario`,
+        'fixture.scenario',
+      );
+      // The Workflow cached its initial state; its phase reload picks up this explicit first-party fixture scenario.
+    }
+    expect((await actions(id, 'verify')).status).toBe(409);
+    expect((await actions(id, 'diagnose')).status).toBe(202);
+    if (scenario === 'out_of_scope') {
+      await waitForRun(id, 'out_of_scope');
+      expect((await actions(id, 'repair')).status).toBe(409);
+      await actions(id, 'handoff');
+      await waitForRun(id, 'handed_back');
+      continue;
+    }
+    await waitForRun(id, 'diagnosed');
+    await actions(id, 'repair');
+    await waitForRun(id, 'repaired');
+    await actions(id, 'verify');
+    if (scenario === 'honest_miss') {
+      const run = await waitForRun(id, 'not_verified');
+      expect(run.verified).toBe(false);
+      expect(run.prNumber).toBeUndefined();
+      await actions(id, 'handoff');
+      await waitForRun(id, 'handed_back');
+      continue;
+    }
+    if (repo === 'acme/ledger') {
+      const run = await waitForRun(id, 'needs_you');
+      expect(run.prNumber).toBeUndefined();
+      await actions(id, 'approve');
+    }
+    const done = await waitForRun(id, 'pr_open');
+    expect(done.verified).toBe(true);
+    expect(done.prNumber).toBeGreaterThan(0);
+    expect(
+      (await mf.dispatchFetch(url + `/v1/runs/${id}/diff`, { headers })).status,
+    ).toBe(200);
+    const events = (await (
+      await mf.dispatchFetch(url + `/v1/runs/${id}/events`, { headers })
+    ).json()) as unknown[];
+    expect(events.length).toBeGreaterThan(5);
+  }
+  const invalid = await mf.dispatchFetch(url + '/webhooks/github', {
+    method: 'POST',
+    body: '{}',
+    headers: { 'X-Hub-Signature-256': 'sha256=bad' },
+  });
+  expect(invalid.status).toBe(401);
+  const cookie = login.headers.get('set-cookie')!.split(';')[0]!;
+  expect(
+    (
+      await mf.dispatchFetch(url + '/v1/runs/anything/actions', {
+        method: 'POST',
+        headers: { Cookie: cookie, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'diagnose' }),
+      })
+    ).status,
+  ).toBe(401);
+}, 90_000);

@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import { MockStore } from './store.js';
-import { fixtures } from './fixtures.js';
+import { fixtures } from '@greenci/agent/fixtures';
 import { patchSchema } from '@greenci/github';
 import { rulesSchema } from '@greenci/core';
 import swagger from '@fastify/swagger';
@@ -57,6 +57,12 @@ export async function buildServer(
   const refOf = (query: unknown) =>
     z.object({ ref: z.string().default('main') }).parse(query).ref;
   const route = '/repos/:owner/:repo';
+  server.get(`${route}/compare`, async (req) => {
+    const query = z
+      .object({ base: z.string(), head: z.string() })
+      .parse(req.query);
+    return store.compare(repoOf(req.params), query.base, query.head);
+  });
   server.get('/repos', async () => Object.keys(fixtures));
   server.get(`${route}/checks`, async (req) =>
     store.checks(repoOf(req.params), refOf(req.query)),

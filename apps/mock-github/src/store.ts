@@ -19,7 +19,7 @@ import {
 } from '@greenci/core';
 import { signWebhook, type Patch, type gitCheckSchema } from '@greenci/github';
 import { z } from 'zod';
-import { fixtures, type FixtureRepo } from './fixtures.js';
+import { fixtures, type FixtureRepo } from '@greenci/agent/fixtures';
 const execute = promisify(execFile);
 type Check = z.infer<typeof gitCheckSchema>;
 export class MockStore {
@@ -151,8 +151,7 @@ export class MockStore {
     try {
       await this.git(repo, ['branch', branch, sha]);
     } catch {
-      if ((await this.sha(repo, branch)) !== sha)
-        throw new Error('Branch exists at different SHA');
+      return this.sha(repo, branch);
     }
     return sha;
   }
@@ -163,7 +162,7 @@ export class MockStore {
     for (const file of files)
       if (
         safePath(file.path) !== fixture.path ||
-        file.content !== fixture.after
+        (file.content !== fixture.after && file.content !== fixture.before)
       )
         throw new Error('Only approved fixture patch may execute locally');
     const work = await mkdtemp(path.join(tmpdir(), 'greenci-fix-'));
@@ -249,6 +248,28 @@ export class MockStore {
   async checks(repo: string, ref: string) {
     const sha = await this.sha(repo, ref);
     return this.checksBySha.get(`${repo}:${sha}`) ?? this.ci(repo, ref, false);
+  }
+  async compare(repo: string, base: string, head: string) {
+    const args = [await this.sha(repo, base), await this.sha(repo, head)];
+    const diff = await this.git(repo, [
+      'diff',
+      '--no-ext-diff',
+      '--no-textconv',
+      ...args,
+    ]);
+    const files = (await this.git(repo, ['diff', '--name-only', ...args]))
+      .split('\n')
+      .filter(Boolean);
+    let additions = 0,
+      deletions = 0;
+    for (const row of (
+      await this.git(repo, ['diff', '--numstat', ...args])
+    ).split('\n')) {
+      const [a, d] = row.split('\t');
+      additions += Number(a) || 0;
+      deletions += Number(d) || 0;
+    }
+    return { diff, files, additions, deletions };
   }
   async openPr(
     repo: string,

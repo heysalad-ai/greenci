@@ -1,5 +1,13 @@
 export const copy = {
   name: 'GreenCI',
+  api: {
+    signIn: 'Sign in to continue',
+    seedRequired: 'Run pnpm seed first',
+    illegalAction: 'This action is not available in the current state',
+    badWebhook: 'Invalid webhook signature',
+    oversizeWebhook: 'Webhook too large',
+    requestFailed: 'Request failed. Check local service configuration.',
+  },
   phases: 'Diagnose, Repair, Verify',
   commandPlaceholder: 'Ask GreenCI or type a command',
   uiTitle: 'GreenCI components',

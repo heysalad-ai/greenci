@@ -4,16 +4,45 @@ import {
   type WorkflowStep,
 } from 'cloudflare:workers';
 import { z } from 'zod';
-const paramsSchema = z.object({ requiresApproval: z.boolean().default(false) });
+import { domainWorkflow, applyEvent, type RunEnv } from './domain.js';
+const paramsSchema = z.object({
+  requiresApproval: z.boolean().default(false),
+  runId: z.string().optional(),
+});
 export class RunWorkflow extends WorkflowEntrypoint<
-  { DB: D1Database },
-  { requiresApproval: boolean }
+  RunEnv,
+  { requiresApproval?: boolean; runId?: string }
 > {
   async run(
-    event: WorkflowEvent<{ requiresApproval: boolean }>,
+    event: WorkflowEvent<{ requiresApproval?: boolean; runId?: string }>,
     step: WorkflowStep,
   ) {
     const params = paramsSchema.parse(event.payload);
+    if (params.runId) {
+      const id = params.runId;
+      try {
+        return await domainWorkflow(
+          this.env,
+          { ...event, payload: { runId: id } },
+          step,
+        );
+      } catch {
+        return step.do('Record stopped job', async () => {
+          const run = await applyEvent(
+            this.env,
+            id,
+            { type: 'stop' },
+            `${id}:job-failed`,
+          );
+          return {
+            id,
+            state: run.state,
+            error:
+              'The job could not complete. Review the run before retrying.',
+          };
+        });
+      }
+    }
     let sequence = 0;
     for (const phase of ['diagnose', 'repair', 'verify']) {
       await step.waitForEvent(`Wait for ${phase}`, {
@@ -43,3 +72,4 @@ export class RunWorkflow extends WorkflowEntrypoint<
     };
   }
 }
+export { publishRun } from './domain.js';

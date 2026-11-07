@@ -1,7 +1,8 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
-import { loadConfig, validateBindings } from '@greenci/core';
+import { loadConfig, validateBindings, copy, redact } from '@greenci/core';
 import { localEmailSchema, eventSchema } from '@greenci/db';
 import { sendLocalEmail } from '@greenci/email';
+import domainRoutes, { processWebhook } from './domain.js';
 import type { ApiEnv } from './env.js';
 export { OrgRoom, DeckSession } from './rooms.js';
 export { RunWorkflow } from '@greenci/worker';
@@ -46,12 +47,18 @@ app.use('*', async (c, next) => {
   await next();
 });
 app.onError(
-  () =>
+  (error) =>
     new Response(
       JSON.stringify({
-        error: 'Request failed. Check local service configuration.',
+        error: copy.api.requestFailed,
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
+      {
+        status:
+          error instanceof z.ZodError || error instanceof SyntaxError
+            ? 400
+            : 500,
+        headers: { 'Content-Type': 'application/json' },
+      },
     ),
 );
 for (const path of ['/healthz', '/health'])
@@ -195,7 +202,10 @@ app.openapi(
   async (c) => {
     const instance = await c.env.RUN_WORKFLOW.get(c.req.valid('param').id);
     const status = await instance.status();
-    return c.json({ status: status.status, output: status.output ?? null });
+    return c.json({
+      status: status.status,
+      output: status.output ?? status.error ?? null,
+    });
   },
 );
 app.openapi(
@@ -269,6 +279,7 @@ for (const path of ['/live', '/events'])
       c.req.raw,
     );
   });
+app.route('/', domainRoutes);
 app.doc('/openapi.json', {
   openapi: '3.1.0',
   info: { title: 'GreenCI API', version: '0.0.5' },
@@ -285,21 +296,23 @@ export default {
         continue;
       }
       const event = parsed.data;
+      if (event.type.startsWith('github.')) await processWebhook(env, event);
       await env.DB.prepare(
         'INSERT INTO platform_events (id,type,payload,created_at,updated_at) VALUES (?,?,?,?,?) ON CONFLICT(id) DO NOTHING',
       )
         .bind(
           event.id,
           event.type,
-          JSON.stringify(event.payload),
+          redact(JSON.stringify(event.payload)),
           event.at,
           event.at,
         )
         .run();
-      await env.ORG_ROOMS.get(env.ORG_ROOMS.idFromName('local')).fetch(
-        'https://room/publish',
-        { method: 'POST', body: JSON.stringify(event) },
-      );
+      if (!event.type.startsWith('github.'))
+        await env.ORG_ROOMS.get(env.ORG_ROOMS.idFromName('local')).fetch(
+          'https://room/publish',
+          { method: 'POST', body: JSON.stringify(event) },
+        );
       message.ack();
     }
   },

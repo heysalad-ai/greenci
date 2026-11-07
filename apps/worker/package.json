@@ -10,7 +10,9 @@
   "dependencies": {
     "@greenci/core": "workspace:*",
     "@greenci/db": "workspace:*",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "@greenci/github": "workspace:*",
+    "@greenci/agent": "workspace:*"
   },
   "exports": {
     ".": "./src/index.ts"

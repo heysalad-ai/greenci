@@ -268,6 +268,12 @@ it('enforces branches, secret exclusion and workflow approval at the boundary', 
     ),
   ).toBe(true);
   expect(needsApproval(['src/a.ts'], 1, rulesSchema.parse({}))).toBe(false);
+  expect(needsApproval(['migrations\\001.sql'], 1, rulesSchema.parse({}))).toBe(
+    true,
+  );
+  expect(redact('{"token":"fixture-private-token"}')).not.toContain(
+    'fixture-private-token',
+  );
   expect(matchesPath('src/a.ts', 'src/*.ts')).toBe(true);
   expect(matchesPath('src/deep/a.ts', 'src/*.ts')).toBe(false);
   expect(

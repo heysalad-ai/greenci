@@ -35,7 +35,10 @@ test('component catalogue renders reference assets and keyboard controls in both
     ).toBe(true);
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.screenshot({
-      path: `docs/fidelity/ui-${theme}.png`,
+      path:
+        process.env.UPDATE_FIDELITY === '1'
+          ? `docs/fidelity/ui-${theme}.png`
+          : test.info().outputPath(`ui-${theme}.png`),
       fullPage: true,
     });
   }

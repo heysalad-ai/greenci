@@ -16,6 +16,12 @@ export const patchSchema = z.object({
   path: z.string(),
   content: z.string().max(100_000),
 });
+export const diffSchema = z.object({
+  diff: z.string(),
+  files: z.array(z.string()),
+  additions: z.number().int().nonnegative(),
+  deletions: z.number().int().nonnegative(),
+});
 export const prSchema = z.object({
   number: z.number().int().positive(),
   state: z.enum(['open', 'merged', 'closed']),
@@ -23,6 +29,11 @@ export const prSchema = z.object({
 });
 export type Patch = z.infer<typeof patchSchema>;
 export interface GitHubClient {
+  compare(
+    repo: string,
+    base: string,
+    head: string,
+  ): Promise<z.infer<typeof diffSchema>>;
   repos(): Promise<string[]>;
   checks(repo: string, sha: string): Promise<z.infer<typeof gitCheckSchema>[]>;
   tree(repo: string, sha: string): Promise<string[]>;
@@ -50,7 +61,7 @@ export interface GitHubClient {
 export class MockGitHubClient implements GitHubClient {
   constructor(
     private base: string,
-    private transport: typeof fetch = fetch,
+    private transport: typeof fetch = (input, init) => fetch(input, init),
   ) {}
   private async request(path: string, body?: unknown): Promise<unknown> {
     const res = await this.transport(
@@ -68,6 +79,13 @@ export class MockGitHubClient implements GitHubClient {
   }
   private path(repo: string) {
     return `/repos/${repoSchema.parse(repo)}`;
+  }
+  async compare(repo: string, base: string, head: string) {
+    return diffSchema.parse(
+      await this.request(
+        `${this.path(repo)}/compare?base=${encodeURIComponent(base)}&head=${encodeURIComponent(head)}`,
+      ),
+    );
   }
   async repos() {
     return z.array(z.string()).parse(await this.request('/repos'));

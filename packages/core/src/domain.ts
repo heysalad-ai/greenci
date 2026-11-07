@@ -40,6 +40,7 @@ export const diagnosisSchema = z.object({
   evidence: z.array(z.string()).min(1),
 });
 export const runSchema = z.object({
+  scenario: z.enum(['normal', 'honest_miss', 'out_of_scope']).default('normal'),
   id: z.string().min(1),
   repo: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
   orgId: z.string().min(1),
@@ -276,15 +277,21 @@ export function needsApproval(
   inspectFiles(files, rules);
   return (
     lines > rules.maxDiffLines ||
-    files.some(
-      (file) =>
-        file.startsWith('.github/workflows/') ||
-        rules.protectedPaths.some((glob) => matchesPath(file, glob)),
-    )
+    files.some((file) => {
+      const path = safePath(file);
+      return (
+        path.startsWith('.github/workflows/') ||
+        rules.protectedPaths.some((glob) => matchesPath(path, glob))
+      );
+    })
   );
 }
 export function redact(input: string): string {
   return input
+    .replace(
+      /"(password|secret|token|api_key)"\s*:\s*"[^"]*"/gi,
+      '"$1":"[REDACTED]"',
+    )
     .replace(
       /\b(?:gh[pousr]_[\w]+|github_pat_[\w]+|sk-[\w-]+)\b/g,
       '[REDACTED]',
