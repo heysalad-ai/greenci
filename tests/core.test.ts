@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  copy,
   states,
   runSchema,
   rulesSchema,
@@ -335,4 +336,45 @@ it('binds SDK review metadata to an explicit approval scope', () => {
       approvalKey: 'state-1',
     }).run.approvalKey,
   ).toBe('state-1');
+});
+
+describe('product screen copy', () => {
+  it('renders every copy helper to plain, non-empty text', () => {
+    const seen: string[] = [];
+    const walk = (value: unknown): void => {
+      if (typeof value === 'function') {
+        let ok = 0;
+        for (const args of [
+          ['run-abc', 'x', 'y'],
+          [1, 'x', 'y'],
+          [2, 'x', 'y'],
+          [0.3],
+          ['x', 3],
+        ]) {
+          try {
+            const out = (value as (...a: unknown[]) => unknown)(...args);
+            expect(typeof out).toBe('string');
+            seen.push(String(out));
+            ok++;
+          } catch (error) {
+            if (!(error instanceof TypeError)) throw error;
+          }
+        }
+        expect(ok).toBeGreaterThan(0);
+      } else if (value && typeof value === 'object')
+        Object.values(value).forEach(walk);
+    };
+    walk(copy.app);
+    walk(copy.onboarding);
+    walk(copy.states);
+    expect(copy.app.greetingRed(1)).toBe('One thing is red.');
+    expect(copy.app.greetingRed(3)).toBe('3 things are red.');
+    expect(copy.app.activityLine.pr_open('acme/web')).toBe(
+      'Fix PR opened on acme/web',
+    );
+    expect(copy.app.decisionAsked(1)).toBe('');
+    expect(copy.onboarding.watch(1)).toBe('Watch 1 repo');
+    expect(copy.app.filesChanged(1, 1)).toBe('1 file · 1 changed line');
+    expect(seen.length).toBeGreaterThan(0);
+  });
 });

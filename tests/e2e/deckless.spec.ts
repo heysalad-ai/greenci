@@ -15,6 +15,16 @@ test('a deckless user runs a real fixture through comment Diagnose, Repair, Veri
   await page
     .getByRole('button', { name: 'Connect GitHub', exact: true })
     .click();
+  await expect(
+    page.getByRole('heading', { name: 'Pick the repos to watch.' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Watch 1 repo' }).click();
+  await expect(
+    page.getByRole('heading', {
+      name: 'Your practice repo is red. Press Diagnose.',
+    }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Open the practice run' }).click();
   await expect(page).toHaveURL(/\/app\?deckless=1/);
   const card = page
     .locator('a[href^="/app/runs/"]')

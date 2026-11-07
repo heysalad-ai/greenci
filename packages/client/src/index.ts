@@ -44,12 +44,29 @@ export function createActionClient(options: {
             id: z.string(),
             question: z.unknown(),
             answer: z.unknown(),
+            probabilities: z.unknown().optional(),
             model: z.string(),
           }),
         )
         .parse(
           await (
             await request(`/runs/${encodeURIComponent(id)}/decisions`)
+          ).json(),
+        );
+    },
+    async events(id: string) {
+      return z
+        .array(
+          z.object({
+            id: z.string(),
+            type: z.string(),
+            at: z.string(),
+            payload: z.unknown().optional(),
+          }),
+        )
+        .parse(
+          await (
+            await request(`/runs/${encodeURIComponent(id)}/events`)
           ).json(),
         );
     },
