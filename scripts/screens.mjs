@@ -1,5 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { format } from 'prettier';
+import { fileURLToPath } from 'node:url';
+process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 // Trusted, committed screen markup only. No user input enters this HTML adapter.
 let body = readFileSync('design/static/Landing.html', 'utf8')
   .split('<body>')[1]

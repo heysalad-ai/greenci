@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --ip 127.0.0.1 --port 3000",
-    "build": "node ../../scripts/assets.mjs && next build",
+    "build": "node ../../scripts/screens.mjs && node ../../scripts/assets.mjs && next build",
     "start": "wrangler dev --ip 127.0.0.1 --port 3000",
     "typecheck": "tsc --noEmit",
     "dev:next": "next dev --hostname 127.0.0.1 --port 3000",

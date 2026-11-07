@@ -29,6 +29,11 @@ export const prSchema = z.object({
 });
 export type Patch = z.infer<typeof patchSchema>;
 export interface GitHubClient {
+  permission(
+    repo: string,
+    login: string,
+  ): Promise<'read' | 'write' | 'admin' | 'none'>;
+  comment(repo: string, target: string, body: string): Promise<void>;
   compare(
     repo: string,
     base: string,
@@ -79,6 +84,20 @@ export class MockGitHubClient implements GitHubClient {
   }
   private path(repo: string) {
     return `/repos/${repoSchema.parse(repo)}`;
+  }
+  async permission(repo: string, login: string) {
+    return z
+      .enum(['read', 'write', 'admin', 'none'])
+      .parse(
+        (
+          (await this.request(
+            `${this.path(repo)}/permission?login=${encodeURIComponent(login)}`,
+          )) as { permission: unknown }
+        ).permission,
+      );
+  }
+  async comment(repo: string, target: string, body: string) {
+    await this.request(`${this.path(repo)}/comments`, { target, body });
   }
   async compare(repo: string, base: string, head: string) {
     return diffSchema.parse(
