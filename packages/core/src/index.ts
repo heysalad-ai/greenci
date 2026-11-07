@@ -5,3 +5,4 @@ export {
   type Config,
 } from './config.js';
 export { copy } from './copy.js';
+export * from './domain.js';

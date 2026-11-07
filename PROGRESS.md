@@ -58,3 +58,7 @@ Verified: lint, typecheck, 13 tests, all 15 workspace builds and one browser smo
 ## M1 — tokens and component library
 
 Typed tokens generated from the supplied JSON and byte-identical CSS output; all ten reference component wrappers and `/app/_ui` comparison catalogue implemented. Original assets/CSS unchanged. Lint/typecheck, 23 unit/integration tests, 16 builds and four browser tests pass. Light/dark and mobile evidence: docs/fidelity/ui.md. M2 is next; landing/product screen implementation remains M5.
+
+## M2 — pure core rules
+
+State machine, runtime schemas, safety guards, mood mapping, redaction and notification policy implemented. Every state/event pair is tested; no empty/pending/failed check set can be verified, protected/workflow/oversized changes require approval, retries stop after three attempts. `pnpm test:core` enforces 100% statements/branches/functions/lines across all core source files. Lint/typecheck, 31 tests and core build pass. M3 data/mock GitHub is next.

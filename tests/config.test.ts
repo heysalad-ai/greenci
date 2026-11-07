@@ -63,3 +63,69 @@ it('allows a health-only dev scaffold without manufacturing provider credentials
     'AGENT_PROVIDER=fake',
   );
 });
+
+it('validates complete deployed credentials and each partially supplied provider pair', () => {
+  const env = {
+    APP_ENV: 'dev',
+    SANDBOX: 'cloudflare',
+    GITHUB_MODE: 'app',
+    EMAIL_PROVIDER: 'resend',
+    GITHUB_APP_ID: 'fixture-id',
+    GITHUB_PRIVATE_KEY: 'fixture-private-key',
+    RESEND_API_KEY: 'fixture-resend',
+  };
+  expect(() => loadConfig(env)).toThrow('GITHUB_WEBHOOK_SECRET');
+  expect(
+    loadConfig({ ...env, GITHUB_WEBHOOK_SECRET: 'fixture-webhook-secret' })
+      .APP_ENV,
+  ).toBe('dev');
+  expect(() =>
+    loadConfig({ GITHUB_MODE: 'app', GITHUB_APP_ID: 'fixture-id' }),
+  ).toThrow();
+  expect(() =>
+    loadConfig({ AGENT_PROVIDER: 'openai', OPENAI_API_KEY: 'fixture-key' }),
+  ).toThrow();
+  expect(() =>
+    loadConfig({
+      AGENT_PROVIDER: 'anthropic',
+      ANTHROPIC_API_KEY: 'fixture-key',
+    }),
+  ).toThrow();
+  expect(
+    loadConfig({
+      AGENT_PROVIDER: 'openai',
+      OPENAI_API_KEY: 'fixture-key',
+      OPENAI_MODEL: 'fixture-model',
+    }).AGENT_PROVIDER,
+  ).toBe('openai');
+  expect(
+    loadConfig({
+      AGENT_PROVIDER: 'anthropic',
+      ANTHROPIC_API_KEY: 'fixture-key',
+      ANTHROPIC_MODEL: 'fixture-model',
+    }).AGENT_PROVIDER,
+  ).toBe('anthropic');
+  const capabilities = {
+    DB: 'prepare',
+    SESSIONS: 'get',
+    ARTIFACTS: 'put',
+    EVENTS: 'send',
+    ORG_ROOMS: 'idFromName',
+    DECK_SESSIONS: 'idFromName',
+    RUN_WORKFLOW: 'create',
+    SANDBOX_SERVICE: 'fetch',
+  };
+  expect(() =>
+    validateBindings(
+      Object.fromEntries(
+        Object.entries(capabilities).map(([key, method]) => [
+          key,
+          { [method]: () => undefined },
+        ]),
+      ),
+    ),
+  ).not.toThrow();
+  expect(() =>
+    validateBindings({ DB: {}, SESSIONS: null, ARTIFACTS: 'invalid' }),
+  ).toThrow();
+});

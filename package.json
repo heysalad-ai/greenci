@@ -21,7 +21,8 @@
     "deck:sim": "node scripts/deck-sim.mjs",
     "github:verify": "node scripts/not-ready.mjs github:verify M7",
     "build:workers": "pnpm --filter @greenci/web build:worker && pnpm --filter @greenci/api build && pnpm --filter @greenci/sandbox build",
-    "db:migrate": "wrangler d1 migrations apply greenci-local --local --config apps/api/wrangler.jsonc --persist-to .data/wrangler"
+    "db:migrate": "wrangler d1 migrations apply greenci-local --local --config apps/api/wrangler.jsonc --persist-to .data/wrangler",
+    "test:core": "vitest run tests/core.test.ts tests/config.test.ts --coverage --coverage.include=packages/core/src/** --coverage.thresholds.branches=100 --coverage.thresholds.lines=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261106.1",
@@ -32,6 +33,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "3.2.7",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.0",
     "eslint-config-prettier": "^10.1.8",
