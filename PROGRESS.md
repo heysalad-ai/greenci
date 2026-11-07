@@ -54,3 +54,7 @@ Verified: lint, typecheck, 13 tests, all 15 workspace builds and one browser smo
 - M7: provider tools, sandbox, GitHub App integration and live practice verification.
 - M8: Expo, emails, push, digest.
 - M9: full journeys, hardening, reset, visual baselines, environment transition guidance.
+
+## M1 — tokens and component library
+
+Typed tokens generated from the supplied JSON and byte-identical CSS output; all ten reference component wrappers and `/app/_ui` comparison catalogue implemented. Original assets/CSS unchanged. Lint/typecheck, 23 unit/integration tests, 16 builds and four browser tests pass. Light/dark and mobile evidence: docs/fidelity/ui.md. M2 is next; landing/product screen implementation remains M5.

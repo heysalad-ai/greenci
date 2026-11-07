@@ -1,0 +1,30 @@
+.page {
+  padding: var(--space-6);
+  max-width: 1400px;
+  margin: auto;
+}
+.page section {
+  padding-block: var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+.comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+}
+.comparison > div {
+  min-width: 0;
+  overflow: auto;
+}
+.comparison iframe {
+  width: 100%;
+  min-height: 240px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+@media (max-width: 900px) {
+  .comparison {
+    grid-template-columns: 1fr;
+  }
+}

@@ -34,3 +34,5 @@ test-results/
 !.dev.vars.example
 
 /apps/web/public/brand/
+
+/apps/web/public/references/

@@ -21,3 +21,6 @@ docs/CODEX_PROMPT*.md
 !.dev.vars.example
 
 apps/web/public/brand/
+
+apps/web/public/references/
+packages/tokens/generated/

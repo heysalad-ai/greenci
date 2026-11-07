@@ -8,7 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc --outDir dist"
+    "build": "node ../../scripts/tokens.mjs && tsc --outDir dist"
   },
   "dependencies": {}
 }
