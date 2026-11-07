@@ -10,6 +10,7 @@
 - [x] Write-permission-checked comments, owner-only auto mode, deckless web journey and CLI/mobile action adapters implemented.
 - [x] Approved landing markup/assets rendered with software-only pricing and offline fonts. Desktop/mobile evidence: docs/fidelity/landing.md.
 - [x] Local checks: 46 tests, 100% core coverage, 18 builds, seven browser tests.
+- [x] Updated existing dev API/web and additive migrations; authenticated health/landing smoke passes and anonymous Access redirects remain intact.
 - [ ] Live OpenAI/container bridge and real GitHub App activation: external credentials/runtime setup still required. Live dev actions remain disabled; no staging/production work.
 
 See docs/acceptance-m45.md for the precise implemented/activated boundary. M5 screen fidelity, M6's full CLI and M8's Expo screens remain later milestones.

@@ -115,3 +115,22 @@ After protected routing was enabled, anonymous HTTPS requests to the actual web 
 ## Remaining milestones
 
 The dev deployment is complete for the scaffold. Agent execution and provider integrations remain disabled. GitHub Actions deployment automation is the next separate step; no long-lived CI credential was created. Before enabling remote WebSockets in M4, replace the current Worker-level Access policy with a hostname-based policy, since [Worker-level Access does not support WebSocket upgrades](https://developers.cloudflare.com/workers/configuration/cloudflare-access/). Local socket tests are unaffected. Sandbox containers and real providers remain M7 work. Staging/production require a later explicit written instruction.
+
+## 2026-11-07 — M1–M4.5 code and landing update (dev only)
+
+Built and tested the local SDK/fake workflows, then updated the same dev API/web Workers. The existing sandbox was not redeployed: its disabled profile remains active. The container bridge profile was prepared but not activated. Deployed source: cdc04176465306f0a2e02bcc59e9cb6a9a90fcc1; the later evidence/smoke-script commit does not change Worker runtime code.
+
+Commands executed from the repository root:
+
+```sh
+corepack pnpm exec wrangler whoami
+corepack pnpm --filter @greenci/web build:worker --env dev
+corepack pnpm exec wrangler d1 migrations apply greenci-dev --config apps/api/wrangler.jsonc --env dev --remote
+corepack pnpm exec wrangler deploy --config apps/api/wrangler.jsonc --env dev
+corepack pnpm exec wrangler deploy --config apps/web/wrangler.jsonc --env dev
+node scripts/smoke-deployment.mjs dev
+```
+
+Both additive migrations (0002_domain.sql and 0003_routing.sql) applied successfully. API version: `ebfb1ea9-0c6e-4805-be83-a26545ae8de4`; web version: `99195b3c-c61f-4488-b879-5da1ffd62ff4`. Authenticated remote bindings returned 200/ok for API and web health, plus 200 for the landing with the approved headline and software-only plan present. The probe shut down afterwards. Anonymous requests to the actual public web/API URLs still returned 302 to the existing HeySalad Access login; the policy was not changed. Safe evidence: [live smoke](evidence/m45-live-smoke.json), [Access redirects](evidence/m45-access.json).
+
+The local browser fidelity/approval/deckless tests are separate evidence from this authenticated deployed-service smoke. Browser automation could not reattach to the existing in-app tab in this pass; no claim of a new authenticated public-browser observation is made. The public URL remains the same. Remote actions are still disabled, with no GitHub App/model/container activation, no staging/production command and no PR merge.

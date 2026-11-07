@@ -21,3 +21,9 @@ GitHub App integration and deployed user authentication are still the M7/externa
 ## Sources checked
 
 [Sandbox agents](https://openai.github.io/openai-agents-js/guides/sandbox-agents/), [sandbox clients](https://openai.github.io/openai-agents-js/guides/sandbox-agents/clients/), [human approval](https://openai.github.io/openai-agents-js/guides/human-in-the-loop/), [tool guardrails](https://openai.github.io/openai-agents-js/guides/guardrails/), [Decisions API](https://developers.openai.com/api/docs/guides/decisions), and the installed 0.21.0 declaration files were checked before integration. The current Decisions guide describes general availability, superseding the supplied brief's preview note; openai 7.2.0 has no typed Decisions resource, so that provider uses fetch.
+
+## Final verification ledger
+
+`pnpm lint` and `pnpm typecheck` pass. `pnpm test:core` reports 100% statements/branches/functions/lines over all core source files. `pnpm test` passes 46 tests in ten files, including real workerd/D1/R2/Workflow integrations. `pnpm build` succeeds for all 18 packages. `pnpm e2e` passes seven browser tests, including deckless human mock merge and pre-execution SDK approval. `pnpm --filter @greenci/web build:worker --env dev` builds the deployable OpenNext Worker. The UI detector returns no findings, and desktop/mobile screenshots were inspected against the supplied reference.
+
+The updated dev API/web deployments and authenticated service-binding health/landing smoke also pass; anonymous public requests still redirect to Access. See docs/deploy.md for version IDs and exact commands. This hosted proof covers the preview/health profile, not live model or customer-code execution.

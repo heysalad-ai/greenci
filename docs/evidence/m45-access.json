@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-07",
+  "results": [
+    {
+      "url": "https://greenci-web-dev.heysalad-o.workers.dev/",
+      "status": 302,
+      "redirect": "https://heysalad.cloudflareaccess.com/cdn-cgi/access/login/greenci-web-dev.heysalad-o.workers.dev"
+    },
+    {
+      "url": "https://greenci-api-dev.heysalad-o.workers.dev/healthz",
+      "status": 302,
+      "redirect": "https://heysalad.cloudflareaccess.com/cdn-cgi/access/login/greenci-api-dev.heysalad-o.workers.dev"
+    }
+  ]
+}

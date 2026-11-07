@@ -71,7 +71,12 @@ try {
       throw new Error(`Health check failed: ${path}`);
   }
   const landing = await fetch('http://127.0.0.1:8799/');
-  if (!landing.ok || !(await landing.text()).includes('GreenCI'))
+  const html = await landing.text();
+  if (
+    !landing.ok ||
+    !html.includes('Red to green, one key at a time.') ||
+    !html.includes('Software only')
+  )
     throw new Error('Landing smoke failed');
   console.log(`Authenticated ${environment} API/web health and landing passed`);
 } finally {

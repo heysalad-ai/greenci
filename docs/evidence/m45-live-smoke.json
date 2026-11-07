@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-07",
+  "sourceCommit": "cdc04176465306f0a2e02bcc59e9cb6a9a90fcc1",
+  "transport": "Wrangler authenticated remote service bindings to the deployed dev Workers; public workers.dev URLs remain behind Cloudflare Access",
+  "apiVersion": "ebfb1ea9-0c6e-4805-be83-a26545ae8de4",
+  "webVersion": "99195b3c-c61f-4488-b879-5da1ffd62ff4",
+  "checks": [
+    { "service": "api", "path": "/healthz", "status": 200, "jsonStatus": "ok" },
+    { "service": "web", "path": "/healthz", "status": 200, "jsonStatus": "ok" },
+    {
+      "service": "web",
+      "path": "/",
+      "status": 200,
+      "approvedHeadlinePresent": true,
+      "softwarePlanPresent": true
+    }
+  ],
+  "scope": "Dev only. Hosted action routes remain disabled by SCAFFOLD_ONLY=true. Existing sandbox remains a disabled service-binding Worker. No staging or production changes."
+}
