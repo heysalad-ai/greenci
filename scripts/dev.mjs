@@ -2,6 +2,10 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 process.chdir(root);
+const dataDir = process.env.GREENCI_DATA_DIR ?? '.data';
+if (!/^\.data(?:\/e2e-[\w-]+)?$/.test(dataDir))
+  throw new Error('Invalid local data directory');
+process.env.GREENCI_DATA_DIR = dataDir;
 process.env.WRANGLER_SEND_METRICS = 'false';
 process.env.NEXT_TELEMETRY_DISABLED = '1';
 const children = new Set();
@@ -43,7 +47,7 @@ async function command(args) {
 process.once('SIGINT', () => stop('SIGINT'));
 process.once('SIGTERM', () => stop('SIGTERM'));
 try {
-  await command(['db:migrate']);
+  await command(['seed']);
   await command(['--filter', '@greenci/web', 'build:worker']);
   if (!stopping) {
     start([
@@ -57,7 +61,7 @@ try {
       '--port',
       '8787',
       '--persist-to',
-      '.data/wrangler',
+      `${dataDir}/wrangler`,
     ]);
     start([
       'exec',
@@ -70,7 +74,7 @@ try {
       '--port',
       '8788',
       '--persist-to',
-      '.data/wrangler',
+      `${dataDir}/wrangler`,
     ]);
     start([
       'exec',
@@ -83,7 +87,7 @@ try {
       '--port',
       '3000',
       '--persist-to',
-      '.data/wrangler',
+      `${dataDir}/wrangler`,
     ]);
     start(['--filter', '@greenci/mock-github', 'dev']);
     console.log('Deck simulator: http://localhost:3000/deck');

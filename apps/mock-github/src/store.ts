@@ -305,7 +305,7 @@ export class MockStore {
       pr = {
         number,
         state: 'open' as const,
-        url: `http://localhost:4001/repos/${repo}/pulls/${number}`,
+        url: `http://localhost:4001/repos/${repo}/pulls/${number}/view`,
         branch: `${repo}:${branch}`,
       };
     this.prs.set(`${repo}:${number}`, pr);

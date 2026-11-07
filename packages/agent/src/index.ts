@@ -35,9 +35,15 @@ export interface AgentContext {
   logs: string;
   files: Record<string, string>;
 }
+export type RepairResult = {
+  files: Patch[];
+  diff: string;
+  pendingState?: string;
+};
 export interface AgentProvider {
   diagnose(context: AgentContext): Promise<z.infer<typeof diagnosisSchema>>;
-  repair(context: AgentContext): Promise<{ files: Patch[]; diff: string }>;
+  repair(context: AgentContext): Promise<RepairResult>;
+  resume?(context: AgentContext, serialized: string): Promise<RepairResult>;
 }
 export class FakeAgentProvider implements AgentProvider {
   private fixture(repo: string) {
@@ -70,3 +76,5 @@ export class FakeAgentProvider implements AgentProvider {
     };
   }
 }
+
+export { SdkAgentProvider } from './sdk.js';

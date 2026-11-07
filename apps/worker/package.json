@@ -12,7 +12,8 @@
     "@greenci/db": "workspace:*",
     "zod": "^4.1.12",
     "@greenci/github": "workspace:*",
-    "@greenci/agent": "workspace:*"
+    "@greenci/agent": "workspace:*",
+    "@greenci/decisions": "workspace:*"
   },
   "exports": {
     ".": "./src/index.ts"

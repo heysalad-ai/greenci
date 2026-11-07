@@ -14,7 +14,10 @@ export class RunRepository {
       .first();
     if (!row) throw new Error('Run not found');
     const parsed = rowSchema.parse(row),
-      run = runSchema.parse(JSON.parse(parsed.snapshot));
+      run = runSchema.parse({
+        ...JSON.parse(parsed.snapshot),
+        revision: parsed.version,
+      });
     if (orgId && run.orgId !== orgId) throw new Error('Run not found');
     return { run, version: parsed.version };
   }
@@ -70,7 +73,7 @@ export class RunRepository {
     const result = await this.db.batch([
       this.db
         .prepare(
-          'UPDATE runs SET state=?,attempts=?,fix_branch=?,pr_number=?,cause_summary=?,cause_file=?,cause_line=?,confidence=?,snapshot=?,version=version+1,updated_at=? WHERE id=? AND version=?',
+          'UPDATE runs SET state=?,attempts=?,fix_branch=?,pr_number=?,cause_summary=?,cause_file=?,cause_line=?,confidence=?,trace_id=?,snapshot=?,version=version+1,updated_at=? WHERE id=? AND version=?',
         )
         .bind(
           run.state,
@@ -81,6 +84,7 @@ export class RunRepository {
           run.diagnosis?.file ?? null,
           run.diagnosis?.line ?? null,
           run.diagnosis?.confidence ?? null,
+          run.traceId ?? null,
           JSON.stringify(run),
           at,
           run.id,

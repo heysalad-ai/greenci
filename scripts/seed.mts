@@ -2,7 +2,28 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { MockStore } from '../apps/mock-github/src/store.js';
 const root = new URL('../', import.meta.url).pathname;
-const store = new MockStore(`${root}.data/mock-github`);
+const dataDir = process.env.GREENCI_DATA_DIR ?? '.data';
+if (!/^\.data(?:\/e2e-[\w-]+)?$/.test(dataDir))
+  throw new Error('Invalid local data directory');
+execFileSync(
+  'corepack',
+  [
+    'pnpm',
+    'exec',
+    'wrangler',
+    'd1',
+    'migrations',
+    'apply',
+    'greenci-local',
+    '--local',
+    '--config',
+    'apps/api/wrangler.jsonc',
+    '--persist-to',
+    `${dataDir}/wrangler`,
+  ],
+  { cwd: root, stdio: 'inherit' },
+);
+const store = new MockStore(`${root}${dataDir}/mock-github`);
 await store.seed();
 const at = '2026-11-07T09:14:00.000Z';
 const rows: string[] = [];
@@ -71,8 +92,8 @@ insert('decks', {
   last_seen_at: at,
   status: 'offline',
 });
-await mkdir(`${root}.data`, { recursive: true });
-await writeFile(`${root}.data/seed.sql`, rows.join('\n'));
+await mkdir(`${root}${dataDir}`, { recursive: true });
+await writeFile(`${root}${dataDir}/seed.sql`, rows.join('\n'));
 execFileSync(
   'corepack',
   [
@@ -86,9 +107,9 @@ execFileSync(
     '--config',
     'apps/api/wrangler.jsonc',
     '--persist-to',
-    '.data/wrangler',
+    `${dataDir}/wrangler`,
     '--file',
-    '.data/seed.sql',
+    `${dataDir}/seed.sql`,
   ],
   { cwd: root, stdio: 'inherit' },
 );

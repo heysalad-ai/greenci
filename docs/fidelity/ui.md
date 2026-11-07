@@ -1,6 +1,6 @@
 # M1 component comparison
 
-The `/app/_ui` catalogue uses the approved CSS and untouched logo/mood assets. Each React component appears beside its supplied HTML preview. Samples demonstrate the same primitives with different props; this is a component check, not the M5 screen fidelity pass. Fonts were deliberately blocked to verify offline fallback.
+The `/app/_ui` catalogue uses the approved CSS and untouched logo/mood assets. Each React component appears beside its supplied HTML preview. Samples demonstrate the same primitives with different props; this is a component check, not the M5 screen fidelity pass. Google Fonts requests are blocked during verification. M4.5 now supplies the approved faces locally, including inside reference frames.
 
 | Light                  | Dark                 |
 | ---------------------- | -------------------- |

@@ -3,7 +3,10 @@ import { buildServer } from './server.js';
 const config = loadConfig(process.env);
 const url = new URL(config.MOCK_GITHUB_URL);
 const server = await buildServer({
-  root: new URL('../../../.data/mock-github/', import.meta.url).pathname,
+  root: new URL(
+    `../../../${process.env.GREENCI_DATA_DIR ?? '.data'}/mock-github/`,
+    import.meta.url,
+  ).pathname,
   webhookUrl: `${config.API_URL}/webhooks/github`,
 });
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {

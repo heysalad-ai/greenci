@@ -27,11 +27,11 @@ export class RunWorkflow extends WorkflowEntrypoint<
           step,
         );
       } catch {
-        return step.do('Record stopped job', async () => {
+        return step.do('Hand failed job back', async () => {
           const run = await applyEvent(
             this.env,
             id,
-            { type: 'stop' },
+            { type: 'route_failed' },
             `${id}:job-failed`,
           );
           return {

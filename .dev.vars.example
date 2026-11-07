@@ -5,3 +5,11 @@ AGENT_PROVIDER=fake
 SANDBOX=none
 EMAIL_PROVIDER=local
 # Real provider secrets are unnecessary for M0.5. Never commit .dev.vars.
+
+# M4.5: keep fake providers for offline work. Configure live keys only locally.
+OPENAI_AGENT_MODEL=
+DECISIONS_PROVIDER=fake
+DECISIONS_MODEL=gpt-6-luna
+SANDBOX_CLIENT=fake
+CLOUDFLARE_SANDBOX_WORKER_URL=
+CLOUDFLARE_SANDBOX_API_KEY=

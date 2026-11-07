@@ -1,5 +1,86 @@
 export const copy = {
   name: 'GreenCI',
+  docs: {
+    title: 'Press green. You stay the reviewer.',
+    sections: [
+      {
+        id: 'start',
+        title: 'With or without a deck',
+        body: 'Start with the practice repository. Diagnose reads the failure, Repair prepares a change, and Verify re-runs the checks.',
+      },
+      {
+        id: 'safety',
+        title: 'You stay the reviewer.',
+        body: 'GreenCI writes to its own greenci/* branches. It never merges a pull request, pushes to main, or reads secrets. Protected changes pause for your approval.',
+      },
+      {
+        id: 'progress',
+        title: 'Current preview',
+        body: 'The local practice journey works with example repositories. The hosted preview is not connected to your GitHub repositories yet. Prices, dates and quotes remain placeholders.',
+      },
+    ],
+  },
+  infraReview:
+    'CI configuration or infrastructure needs a person. Review the failed job logs before retrying.',
+  cli: {
+    signedIn: 'Signed in to the local practice environment.',
+    nextStatus: 'Next: greenci status',
+    nextDiagnose: 'Next: greenci diagnose [repo]',
+    commands: 'Commands: login, status, diagnose, repair, verify, approve',
+  },
+  mockPrTitle: 'Local practice pull request',
+  mockMerge: 'Merge practice pull request',
+  mockMergeNote:
+    'This merges only the local fixture repository. GreenCI never merges a real pull request.',
+  onboardingTitle: 'Plug in your deck, then press any key.',
+  onboardingDetail: 'USB-C to your laptop. No driver to install.',
+  githubTitle: 'Let GreenCI read your checks.',
+  githubDetail:
+    'Read checks, logs and code. Push to greenci/* branches only. Open pull requests.',
+  connectGithub: 'Connect GitHub',
+  practiceRepo: 'greenci/practice',
+  practiceDetail: 'Has one failing test, on purpose',
+  practiceTitle: 'Your practice repo is red. Press Diagnose.',
+  practiceStart: 'Start the practice run',
+  previewNotConnected: 'This preview is not connected to GitHub yet.',
+  working: 'Working…',
+  dashboard: 'Your builds',
+  empty: 'All green. Nothing to fix.',
+  refresh: 'Refresh runs',
+  approvalTitle: 'Review before continuing',
+  approvalDetail:
+    'The repair needs your approval. Review the diff and the run history before continuing.',
+  approve: 'Approve and continue',
+  changes: 'Request changes',
+  takeOver: 'Take over',
+  viewPr: 'View pull request',
+  back: 'Back to your builds',
+  runUnavailable: 'The run did not load. Refresh to try again.',
+  runStateLabels: {
+    failing: 'Failing',
+    diagnosing: 'Diagnosing',
+    diagnosed: 'Diagnosed',
+    repairing: 'Repairing',
+    repaired: 'Repaired',
+    verifying: 'Verifying',
+    needs_you: 'Needs you',
+    pr_open: 'Fix PR opened',
+    merged: 'Merged',
+    not_verified: 'Not verified',
+    out_of_scope: 'Out of scope',
+    handed_back: 'Handed back',
+    stopped: 'Stopped',
+  },
+  commentQueued: 'Command queued. Follow the run for the result.',
+  commentDenied:
+    'You need write access to this repository to run GreenCI commands.',
+  commentUnavailable:
+    'That command is not available for this run. Check its current state.',
+  deckless: 'No deck yet? Continue without it',
+  worksWithoutDeck: 'Works without the deck. Better with it.',
+  getDeck: 'Get the deck',
+  softwareOnly: 'Software only',
+  whyDecision: 'Why GreenCI chose this',
   api: {
     signIn: 'Sign in to continue',
     seedRequired: 'Run pnpm seed first',
@@ -41,3 +122,4 @@ export const copy = {
   noEmails: 'No emails yet. The first fix email follows in M8.',
   unavailable: 'The API did not answer. Check pnpm dev and reload.',
 } as const;
+export { screenCopy } from './screens.js';

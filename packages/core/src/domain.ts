@@ -24,6 +24,9 @@ export const rulesSchema = z.object({
   allowWorkflows: z.boolean().default(false),
   autoMode: z.boolean().default(false),
   autoRepair: z.boolean().default(false),
+  infraThreshold: z.number().min(0).max(1).default(0.7),
+  flakyThreshold: z.number().min(0).max(1).default(0.6),
+  riskThreshold: z.number().min(1).max(5).default(4),
 });
 export const checkSchema = z.object({
   name: z.string().min(1),
@@ -40,6 +43,10 @@ export const diagnosisSchema = z.object({
   evidence: z.array(z.string()).min(1),
 });
 export const runSchema = z.object({
+  approvalKey: z.string().optional(),
+  approvalId: z.string().optional(),
+  revision: z.number().int().nonnegative().default(0),
+  traceId: z.string().optional(),
   scenario: z.enum(['normal', 'honest_miss', 'out_of_scope']).default('normal'),
   id: z.string().min(1),
   repo: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
@@ -59,9 +66,12 @@ export const runSchema = z.object({
   checks: z.array(checkSchema).default([]),
   fixBranch: z.string().optional(),
   prNumber: z.number().int().positive().optional(),
+  prUrl: z.url().optional(),
   verified: z.boolean().default(false),
   approved: z.boolean().default(false),
-  resumeState: z.enum(['repairing', 'pr_open']).optional(),
+  resumeState: z
+    .enum(['repairing', 'repaired', 'diagnosed', 'pr_open'])
+    .optional(),
 });
 export type Run = z.infer<typeof runSchema>;
 export const actionSchema = z.enum([
@@ -81,7 +91,14 @@ export type DomainEvent =
   | { type: 'diagnosis'; diagnosis: z.infer<typeof diagnosisSchema> }
   | { type: 'fix'; files: string[]; diffLines: number; branch: string }
   | { type: 'checks'; checks: z.infer<typeof checkSchema>[] }
-  | { type: 'pr'; number: number }
+  | { type: 'pr'; number: number; url?: string }
+  | {
+      type: 'review';
+      resume: 'repairing' | 'repaired' | 'diagnosed';
+      approvalKey?: string;
+      approvalId?: string;
+    }
+  | { type: 'route_failed' }
   | { type: 'merged' };
 export type Effect =
   | { type: 'enqueue'; phase: 'diagnose' | 'repair' | 'verify' | 'open_pr' }
@@ -124,6 +141,8 @@ export function transition(
       run.attempts++;
       run.verified = false;
       run.approved = false;
+      delete run.approvalKey;
+      delete run.approvalId;
       run.checks = [];
       job('repair');
       break;
@@ -134,6 +153,7 @@ export function transition(
       run.filesChanged = event.files;
       run.diffLines = z.number().int().nonnegative().parse(event.diffLines);
       run.fixBranch = event.branch;
+      delete run.approvalKey;
       run.state = 'repaired';
       break;
     case 'verify':
@@ -149,9 +169,13 @@ export function transition(
         run.state = 'not_verified';
         break;
       }
-      if (needsApproval(run.filesChanged, run.diffLines, run.rules)) {
+      if (
+        needsApproval(run.filesChanged, run.diffLines, run.rules) &&
+        !run.approved
+      ) {
         run.state = 'needs_you';
         run.resumeState = 'pr_open';
+        run.approvalId = `${run.id}:${run.attempts}:verified`;
       } else {
         run.state = 'repaired';
         if (run.rules.autoOpenPr) job('open_pr');
@@ -164,10 +188,28 @@ export function transition(
       if (run.resumeState === 'repairing') {
         run.state = 'repairing';
         job('repair');
+      } else if (
+        run.resumeState === 'repaired' ||
+        run.resumeState === 'diagnosed'
+      ) {
+        run.state = run.resumeState;
       } else {
         run.state = 'repaired';
         job('open_pr');
       }
+      break;
+    case 'review':
+      if (!['diagnosed', 'repairing', 'repaired'].includes(run.state))
+        return illegal();
+      run.state = 'needs_you';
+      run.approved = false;
+      run.resumeState = event.resume;
+      run.approvalKey = event.approvalKey;
+      run.approvalId = event.approvalId ?? `${run.id}:${run.attempts}:review`;
+      break;
+    case 'route_failed':
+      if (finalStates.includes(run.state)) return illegal();
+      run.state = 'handed_back';
       break;
     case 'changes':
       if (run.state !== 'needs_you') return illegal();
@@ -192,6 +234,7 @@ export function transition(
       )
         return illegal();
       run.prNumber = z.number().int().positive().parse(event.number);
+      run.prUrl = event.url;
       run.state = 'pr_open';
       break;
     case 'merged':

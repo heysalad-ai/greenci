@@ -3,7 +3,7 @@ export const configSchema = z.object({
   SCAFFOLD_ONLY: z.enum(['true', 'false']).default('false'),
   APP_ENV: z.enum(['local', 'dev', 'staging', 'prod']).default('local'),
   GITHUB_MODE: z.enum(['mock', 'app']).default('mock'),
-  AGENT_PROVIDER: z.enum(['fake', 'openai', 'anthropic']).default('fake'),
+  AGENT_PROVIDER: z.enum(['fake', 'openai']).default('fake'),
   SANDBOX: z.enum(['none', 'cloudflare']).default('none'),
   EMAIL_PROVIDER: z.enum(['local', 'resend']).default('local'),
   WEB_URL: z.url().default('http://localhost:3000'),
@@ -17,8 +17,12 @@ export const configSchema = z.object({
     .default('local-only-webhook-secret'),
   OPENAI_API_KEY: z.string().default(''),
   OPENAI_MODEL: z.string().default(''),
-  ANTHROPIC_API_KEY: z.string().default(''),
-  ANTHROPIC_MODEL: z.string().default(''),
+  OPENAI_AGENT_MODEL: z.string().default(''),
+  DECISIONS_PROVIDER: z.enum(['fake', 'openai', 'responses']).default('fake'),
+  DECISIONS_MODEL: z.string().default('gpt-6-luna'),
+  SANDBOX_CLIENT: z.enum(['fake', 'docker', 'cloudflare']).default('fake'),
+  CLOUDFLARE_SANDBOX_WORKER_URL: z.string().default(''),
+  CLOUDFLARE_SANDBOX_API_KEY: z.string().default(''),
   RESEND_API_KEY: z.string().default(''),
 });
 export type Config = z.infer<typeof configSchema>;
@@ -29,6 +33,7 @@ export function loadConfig(env: Record<string, unknown>): Config {
       `Invalid configuration fields: ${result.error.issues.map((i) => i.path.join('.')).join(', ')}`,
     );
   const config = result.data;
+  config.OPENAI_AGENT_MODEL = config.OPENAI_AGENT_MODEL || config.OPENAI_MODEL;
   if (config.APP_ENV !== 'local' && config.SANDBOX === 'none')
     throw new Error('SANDBOX=none is permitted only locally');
   if (config.APP_ENV !== 'local' && config.GITHUB_MODE !== 'app')
@@ -54,14 +59,9 @@ export function loadConfig(env: Record<string, unknown>): Config {
     throw new Error('GITHUB_WEBHOOK_SECRET is required outside local');
   if (
     config.AGENT_PROVIDER === 'openai' &&
-    (!config.OPENAI_API_KEY || !config.OPENAI_MODEL)
+    (!config.OPENAI_API_KEY || !config.OPENAI_AGENT_MODEL)
   )
     throw new Error('OPENAI_API_KEY and OPENAI_MODEL are required');
-  if (
-    config.AGENT_PROVIDER === 'anthropic' &&
-    (!config.ANTHROPIC_API_KEY || !config.ANTHROPIC_MODEL)
-  )
-    throw new Error('ANTHROPIC_API_KEY and ANTHROPIC_MODEL are required');
   if (config.EMAIL_PROVIDER === 'resend' && !config.RESEND_API_KEY)
     throw new Error('RESEND_API_KEY is required');
   return config;

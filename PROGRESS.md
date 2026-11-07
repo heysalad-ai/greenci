@@ -3,7 +3,18 @@
 - [x] Design system, screens and build brief committed
 - [x] M0 Scaffold
 
-## Current milestone — first Cloudflare dev deployment
+## Current milestone — M4.5 local implementation
+
+- [x] Step 1 and M0.5 retained; M1, M2, M3 and M4 committed in order.
+- [x] SDK 0.21.0, Zod v4, three Decisions providers, guarded tools and R2 approval/resume implemented.
+- [x] Write-permission-checked comments, owner-only auto mode, deckless web journey and CLI/mobile action adapters implemented.
+- [x] Approved landing markup/assets rendered with software-only pricing and offline fonts. Desktop/mobile evidence: docs/fidelity/landing.md.
+- [x] Local checks: 46 tests, 100% core coverage, 18 builds, seven browser tests.
+- [ ] Live OpenAI/container bridge and real GitHub App activation: external credentials/runtime setup still required. Live dev actions remain disabled; no staging/production work.
+
+See docs/acceptance-m45.md for the precise implemented/activated boundary. M5 screen fidelity, M6's full CLI and M8's Expo screens remain later milestones.
+
+## Previous checkpoint — first Cloudflare dev deployment
 
 - [x] Dev scaffold deployed to https://greenci-web-dev.heysalad-o.workers.dev/.
 - [x] API /healthz and web→API health verified live; root page inspected in authenticated Chrome.

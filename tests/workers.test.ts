@@ -9,6 +9,7 @@ import { build } from 'esbuild';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { builtinModules } from 'node:module';
 let mf: Miniflare;
 let mockServer: Awaited<ReturnType<typeof buildServer>>;
 let mockClient: MockGitHubClient;
@@ -37,10 +38,24 @@ beforeAll(async () => {
       outfile: path.join(temporary, `${name}.mjs`),
       bundle: true,
       format: 'esm',
-      platform: 'neutral',
-      mainFields: ['module', 'main'],
-      conditions: ['workerd', 'worker'],
+      platform: 'browser',
+      mainFields: ['browser', 'module', 'main'],
+      conditions: ['workerd', 'worker', 'browser'],
       external: ['cloudflare:*', 'node:*'],
+      plugins: [
+        {
+          name: 'nodejs-compat-builtins',
+          setup(build) {
+            build.onResolve(
+              { filter: /^[a-z_][a-z0-9_]*(?:\/.*)?$/ },
+              (args) =>
+                builtinModules.includes(args.path)
+                  ? { path: `node:${args.path}`, external: true }
+                  : undefined,
+            );
+          },
+        },
+      ],
     });
   const config = parse(await readFile('apps/api/wrangler.jsonc', 'utf8')) as {
     vars: Record<string, string>;
@@ -93,6 +108,12 @@ beforeAll(async () => {
   await db.exec(sql);
   await db.exec(
     (await readFile('packages/db/migrations/0002_domain.sql', 'utf8')).replace(
+      /^--.*$/gm,
+      '',
+    ),
+  );
+  await db.exec(
+    (await readFile('packages/db/migrations/0003_routing.sql', 'utf8')).replace(
       /^--.*$/gm,
       '',
     ),
@@ -427,7 +448,14 @@ it('authenticated HTTP + signed webhook + real Workflow completes all four journ
     mf.dispatchFetch(url + `/v1/runs/${id}/actions`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({
+        action,
+        revision: (
+          await new RunRepository(
+            (await mf.getD1Database('DB', 'api')) as unknown as D1Database,
+          ).get(id)
+        ).version,
+      }),
     });
   for (const [repo, scenario] of [
     ['acme/payments', 'normal'],
@@ -497,6 +525,26 @@ it('authenticated HTTP + signed webhook + real Workflow completes all four journ
     }
     await waitForRun(id, 'diagnosed');
     await actions(id, 'repair');
+    if (repo === 'acme/ledger') {
+      const waiting = await waitForRun(id, 'needs_you');
+      const object = await (
+        await mf.getR2Bucket('ARTIFACTS', 'api')
+      ).get(waiting.approvalKey!);
+      expect(object).not.toBeNull();
+      expect(
+        (
+          await mf.dispatchFetch(url + `/v1/runs/${id}/actions`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              action: 'approve',
+              revision: waiting.revision - 1,
+            }),
+          })
+        ).status,
+      ).toBe(409);
+      await actions(id, 'approve');
+    }
     await waitForRun(id, 'repaired');
     await actions(id, 'verify');
     if (scenario === 'honest_miss') {
@@ -507,11 +555,7 @@ it('authenticated HTTP + signed webhook + real Workflow completes all four journ
       await waitForRun(id, 'handed_back');
       continue;
     }
-    if (repo === 'acme/ledger') {
-      const run = await waitForRun(id, 'needs_you');
-      expect(run.prNumber).toBeUndefined();
-      await actions(id, 'approve');
-    }
+
     const done = await waitForRun(id, 'pr_open');
     expect(done.verified).toBe(true);
     expect(done.prNumber).toBeGreaterThan(0);
@@ -540,3 +584,102 @@ it('authenticated HTTP + signed webhook + real Workflow completes all four journ
     ).status,
   ).toBe(401);
 }, 90_000);
+
+it('owner-only auto mode diagnoses without a key and defaults back to manual', async () => {
+  const db = await mf.getD1Database('DB', 'api');
+  await db.exec(
+    "INSERT OR IGNORE INTO users (id,login) VALUES ('sam','sam'); INSERT OR IGNORE INTO memberships(id,user_id,org_id,role) VALUES ('sam:greenci','sam','greenci','owner'); INSERT OR IGNORE INTO repos(id,org_id,full_name,default_branch,watched) VALUES ('greenci/practice','greenci','greenci/practice','main',1);",
+  );
+  const login = (await (
+    await request('/__local/session', { orgId: 'greenci' })
+  ).json()) as { token: string };
+  const headers = {
+    Authorization: `Bearer ${login.token}`,
+    'Content-Type': 'application/json',
+  };
+  const setRules = async (autoMode: boolean) =>
+    mf.dispatchFetch(url + '/v1/repos/greenci/practice/rules', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ autoMode }),
+    });
+  expect((await setRules(true)).status).toBe(200);
+  const check = (await mockClient.checks('greenci/practice', 'main'))[0]!;
+  async function send(name: string) {
+    const body = JSON.stringify({
+      action: 'completed',
+      repository: { full_name: 'greenci/practice', default_branch: 'main' },
+      check_run: {
+        name,
+        head_sha: check.sha,
+        head_branch: 'main',
+        conclusion: 'failure',
+        output: { text: check.log },
+      },
+    });
+    expect(
+      (
+        await mf.dispatchFetch(url + '/webhooks/github', {
+          method: 'POST',
+          body,
+          headers: {
+            'X-GitHub-Event': 'check_run',
+            'X-GitHub-Delivery': crypto.randomUUID(),
+            'X-Hub-Signature-256': await signWebhook(
+              'local-only-webhook-secret',
+              body,
+            ),
+          },
+        })
+      ).status,
+    ).toBe(202);
+    const hash = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(`greenci/practice:${check.sha}:${name}`),
+    );
+    return (
+      'run-' +
+      Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0'))
+        .join('')
+        .slice(0, 32)
+    );
+  }
+  const autoId = await send('auto-mode-check'),
+    auto = await waitForRun(autoId, 'diagnosed');
+  expect(auto.startedBy).toBe('auto');
+  expect(auto.attempts).toBe(0);
+  expect((await setRules(false)).status).toBe(200);
+  const manualId = await send('manual-mode-check');
+  await waitForRun(manualId, 'failing');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  expect(
+    (await new RunRepository(db as unknown as D1Database).get(manualId)).run
+      .state,
+  ).toBe('failing');
+  const token = crypto.randomUUID();
+  await db.exec(
+    "INSERT OR IGNORE INTO memberships(id,user_id,org_id,role) VALUES ('reader:greenci','reader','greenci','member');",
+  );
+  await (
+    await mf.getKVNamespace('SESSIONS', 'api')
+  ).put(
+    `session:${token}`,
+    JSON.stringify({
+      userId: 'reader',
+      orgId: 'greenci',
+      csrf: crypto.randomUUID(),
+    }),
+  );
+  expect(
+    (
+      await mf.dispatchFetch(url + '/v1/repos/greenci/practice/rules', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ autoMode: true }),
+      })
+    ).status,
+  ).toBe(404);
+}, 30_000);

@@ -5,7 +5,10 @@ test('boots Workers and resolves API through the web service binding', async ({
 }) => {
   await page.goto('/');
   await expect(
-    page.getByRole('heading', { name: 'GreenCI', exact: true }),
+    page.getByRole('heading', {
+      name: 'Red to green, one key at a time.',
+      exact: true,
+    }),
   ).toBeVisible();
   const response = await request.get('/api/health');
   expect(response.status()).toBe(200);

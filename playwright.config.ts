@@ -9,6 +9,7 @@ export default defineConfig({
   },
   webServer: {
     command: 'pnpm dev',
+    env: { GREENCI_DATA_DIR: `.data/e2e-${Date.now()}` },
     url: 'http://localhost:3000/api/health',
     reuseExistingServer: false,
     gracefulShutdown: { signal: 'SIGTERM', timeout: 10_000 },

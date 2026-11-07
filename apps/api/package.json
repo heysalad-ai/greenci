@@ -17,6 +17,7 @@
     "@hono/zod-openapi": "1.6.3",
     "zod": "^4.1.12",
     "@greenci/email": "workspace:*",
-    "@greenci/github": "workspace:*"
+    "@greenci/github": "workspace:*",
+    "@greenci/decisions": "workspace:*"
   }
 }

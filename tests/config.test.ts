@@ -21,7 +21,6 @@ describe('Cloudflare configuration', () => {
   it.each([
     { GITHUB_MODE: 'app' },
     { AGENT_PROVIDER: 'openai' },
-    { AGENT_PROVIDER: 'anthropic' },
     { EMAIL_PROVIDER: 'resend' },
   ])('rejects incomplete credentials: %j', (env) => {
     expect(() => loadConfig(env)).toThrow(/required/);
@@ -85,12 +84,6 @@ it('validates complete deployed credentials and each partially supplied provider
   expect(() =>
     loadConfig({ AGENT_PROVIDER: 'openai', OPENAI_API_KEY: 'fixture-key' }),
   ).toThrow();
-  expect(() =>
-    loadConfig({
-      AGENT_PROVIDER: 'anthropic',
-      ANTHROPIC_API_KEY: 'fixture-key',
-    }),
-  ).toThrow();
   expect(
     loadConfig({
       AGENT_PROVIDER: 'openai',
@@ -98,13 +91,6 @@ it('validates complete deployed credentials and each partially supplied provider
       OPENAI_MODEL: 'fixture-model',
     }).AGENT_PROVIDER,
   ).toBe('openai');
-  expect(
-    loadConfig({
-      AGENT_PROVIDER: 'anthropic',
-      ANTHROPIC_API_KEY: 'fixture-key',
-      ANTHROPIC_MODEL: 'fixture-model',
-    }).AGENT_PROVIDER,
-  ).toBe('anthropic');
   const capabilities = {
     DB: 'prepare',
     SESSIONS: 'get',
@@ -128,4 +114,20 @@ it('validates complete deployed credentials and each partially supplied provider
   expect(() =>
     validateBindings({ DB: {}, SESSIONS: null, ARTIFACTS: 'invalid' }),
   ).toThrow();
+});
+
+it('accepts the explicit SDK model name', () => {
+  expect(
+    loadConfig({
+      AGENT_PROVIDER: 'openai',
+      OPENAI_API_KEY: 'fixture',
+      OPENAI_AGENT_MODEL: 'fixture-model',
+    }).OPENAI_AGENT_MODEL,
+  ).toBe('fixture-model');
+});
+
+it('rejects the removed Anthropic provider explicitly', () => {
+  expect(() => loadConfig({ AGENT_PROVIDER: 'anthropic' })).toThrow(
+    'AGENT_PROVIDER',
+  );
 });

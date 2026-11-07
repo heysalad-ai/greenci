@@ -1,4 +1,10 @@
-import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
+import {
+  sqliteTable,
+  text,
+  integer,
+  real,
+  index,
+} from 'drizzle-orm/sqlite-core';
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   githubId: text('github_id'),
@@ -40,6 +46,9 @@ export const repos = sqliteTable('repos', {
   updatedAt: text('updated_at'),
 });
 export const repoRules = sqliteTable('repo_rules', {
+  infraThreshold: real('infra_threshold').notNull().default(0.7),
+  flakyThreshold: real('flaky_threshold').notNull().default(0.6),
+  riskThreshold: real('risk_threshold').notNull().default(4),
   id: text('id').primaryKey(),
   repoId: text('repo_id'),
   protectedPaths: text('protected_paths', { mode: 'json' }),

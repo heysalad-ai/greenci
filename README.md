@@ -39,7 +39,15 @@ Logo and brand are concept work; no trademark search has been done yet.
 
 The scaffold is live at [greenci-web-dev.heysalad-o.workers.dev](https://greenci-web-dev.heysalad-o.workers.dev/), behind Cloudflare Access for HeySalad Cloudflare account members. [API health](https://greenci-api-dev.heysalad-o.workers.dev/healthz) is protected the same way. It is a health-only scaffold with integrations and command execution disabled. See [deployment commands and evidence](docs/deploy.md). Staging and production have not been deployed.
 
-## Current runtime — Cloudflare M0.5
+## Current runtime — Cloudflare M4.5 (local fake providers)
+
+M1–M4 and the local M4.5 implementation are now present. The local practice flow works without a deck: open `/start`, continue without the deck, connect the local fixture account, then Diagnose, Repair and Verify. The mock PR page lets the human merge the local fixture; GreenCI never merges a real PR. Protected repairs pause before execution and show the proposed diff.
+
+`pnpm dev` now seeds the local users/orgs/repos/rules and first-party bare git fixtures. Browser tests use an isolated data directory. `pnpm greenci status`, `pnpm greenci diagnose acme/payments`, `pnpm greenci repair acme/payments`, `pnpm greenci verify acme/payments` and `pnpm greenci approve acme/ledger` use the same API as the on-screen deck. The mobile action adapter is ready for M8's Expo UI. `pnpm test:core` enforces 100% coverage of all core source files.
+
+The landing now renders the supplied design, with software-only pricing and bundled fonts. Full product-screen fidelity remains M5. Read [M4.5 acceptance and activation limits](docs/acceptance-m45.md) before enabling a live provider. Hosted dev remains behind Access with integrations disabled until the real GitHub App, authenticated user flow and sandbox endpoint are configured.
+
+### Local setup
 
 This section supersedes the Docker quick start and historical M0 notes below. Node 22 with Corepack/pnpm is sufficient. No Docker, Cloudflare account, login, or API key is needed for local development.
 

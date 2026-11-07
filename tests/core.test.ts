@@ -100,6 +100,14 @@ describe('domain state machine', () => {
         .run.state,
     ).toBe('repairing');
     expect(
+      transition({ ...waiting, resumeState: 'repaired' }, { type: 'approve' })
+        .run.state,
+    ).toBe('repaired');
+    expect(
+      transition({ ...waiting, resumeState: 'diagnosed' }, { type: 'approve' })
+        .run.state,
+    ).toBe('diagnosed');
+    expect(
       transition({ ...waiting, resumeState: undefined }, { type: 'approve' })
         .run.state,
     ).toBe('repaired');
@@ -181,9 +189,15 @@ describe('domain state machine', () => {
       { type: 'pr', number: 1 },
       { type: 'merged' },
       { type: 'handoff' },
+      { type: 'review', resume: 'repairing' },
+      { type: 'route_failed' },
       { type: 'stop' },
     ];
     const legal: Record<string, string[]> = {
+      review: ['diagnosed', 'repairing', 'repaired'],
+      route_failed: states.filter(
+        (s) => !['merged', 'handed_back', 'stopped'].includes(s),
+      ),
       diagnose: ['failing'],
       diagnosis: ['diagnosing'],
       repair: ['diagnosed', 'not_verified'],
@@ -309,4 +323,16 @@ it('batches success, handles quiet-hour boundaries and watched/page-me branches'
           expect(result.summary).toBe(['pr_open', 'merged'].includes(state));
         }
   for (const state of states) expect(moodFor(state)).toMatch(/^key-/);
+});
+
+it('binds SDK review metadata to an explicit approval scope', () => {
+  const run = base({ state: 'repairing' });
+  expect(
+    transition(run, {
+      type: 'review',
+      resume: 'repairing',
+      approvalId: 'approval-1',
+      approvalKey: 'state-1',
+    }).run.approvalKey,
+  ).toBe('state-1');
 });

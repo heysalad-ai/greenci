@@ -5,15 +5,19 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./fixtures": "./src/fixtures.ts"
+    "./fixtures": "./src/fixtures.ts",
+    "./local": "./src/local.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc --outDir dist"
   },
   "dependencies": {
-    "zod": "^4.1.12",
     "@greenci/core": "workspace:*",
-    "@greenci/github": "workspace:*"
+    "@greenci/github": "workspace:*",
+    "@openai/agents": "0.21.0",
+    "@openai/agents-extensions": "0.21.0",
+    "openai": "7.2.0",
+    "zod": "^4.1.12"
   }
 }

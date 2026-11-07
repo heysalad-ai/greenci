@@ -1,17 +1,5 @@
-import Link from 'next/link';
-import { copy } from '@greenci/core';
+import { screenCopy } from '@greenci/core';
 export default function Home() {
-  return (
-    <main>
-      <h1>{copy.name}</h1>
-      <p>{copy.scaffold}</p>
-      <nav>
-        <Link href="/api/health">{copy.health}</Link>
-        {' · '}
-        <Link href="/deck">{copy.deck}</Link>
-        {' · '}
-        <Link href="/app/_emails">{copy.emails}</Link>
-      </nav>
-    </main>
-  );
+  // This is generated only from the committed, trusted screen reference; no user content is interpolated.
+  return <main dangerouslySetInnerHTML={{ __html: screenCopy.landingHtml }} />;
 }

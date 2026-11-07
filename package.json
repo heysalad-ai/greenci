@@ -16,13 +16,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "seed": "pnpm db:migrate && tsx scripts/seed.mts",
+    "seed": "tsx scripts/seed.mts",
     "reset": "node scripts/reset.mjs",
     "deck:sim": "node scripts/deck-sim.mjs",
     "github:verify": "node scripts/not-ready.mjs github:verify M7",
     "build:workers": "pnpm --filter @greenci/web build:worker && pnpm --filter @greenci/api build && pnpm --filter @greenci/sandbox build",
     "db:migrate": "wrangler d1 migrations apply greenci-local --local --config apps/api/wrangler.jsonc --persist-to .data/wrangler",
-    "test:core": "vitest run tests/core.test.ts tests/config.test.ts --coverage --coverage.include=packages/core/src/** --coverage.thresholds.branches=100 --coverage.thresholds.lines=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100"
+    "test:core": "vitest run tests/core.test.ts tests/config.test.ts --coverage --coverage.include=packages/core/src/** --coverage.thresholds.branches=100 --coverage.thresholds.lines=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100",
+    "greenci": "tsx packages/cli/src/main.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261106.1",

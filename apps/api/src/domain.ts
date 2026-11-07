@@ -1,3 +1,4 @@
+import { MockGitHubClient } from '@greenci/github';
 import { publishRun } from '@greenci/worker';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { z } from 'zod';
@@ -77,6 +78,70 @@ app.use('/v1/*', async (c, next) => {
   if (!user) return c.json({ error: copy.api.signIn }, 401);
   await next();
 });
+app.post('/v1/practice', async (c) => {
+  const config = loadConfig(c.env);
+  if (config.APP_ENV !== 'local' || config.GITHUB_MODE !== 'mock')
+    return c.notFound();
+  const user = (await session(c.req.raw, c.env))!;
+  if (user.orgId !== 'greenci') return c.json({ error: copy.api.signIn }, 403);
+  await new MockGitHubClient(config.MOCK_GITHUB_URL).runChecks(
+    'greenci/practice',
+    'main',
+  );
+  return c.json({ accepted: true }, 202);
+});
+app.get('/v1/repos', async (c) => {
+  const user = (await session(c.req.raw, c.env))!;
+  const result = await c.env.DB.prepare(
+    'SELECT full_name,default_branch,watched FROM repos WHERE org_id=?',
+  )
+    .bind(user.orgId)
+    .all();
+  return c.json(
+    z
+      .array(
+        z.object({
+          full_name: z.string(),
+          default_branch: z.string(),
+          watched: z.number(),
+        }),
+      )
+      .parse(result.results),
+  );
+});
+app.post('/v1/repos/:owner/:repo/rules', async (c) => {
+  const user = (await session(c.req.raw, c.env))!,
+    repo = `${c.req.param('owner')}/${c.req.param('repo')}`;
+  const allowed = await c.env.DB.prepare(
+    'SELECT r.id FROM repos r JOIN memberships m ON r.org_id=m.org_id WHERE r.full_name=? AND r.org_id=? AND m.user_id=? AND m.role=?',
+  )
+    .bind(repo, user.orgId, user.userId, 'owner')
+    .first();
+  if (!allowed) return c.notFound();
+  const rules = rulesSchema.parse(await c.req.json()),
+    at = new Date().toISOString();
+  await c.env.DB.prepare(
+    'INSERT INTO repo_rules (id,repo_id,protected_paths,page_me_branches,max_diff_lines,auto_open_pr,allow_workflows,auto_mode,auto_repair,infra_threshold,flaky_threshold,risk_threshold,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET protected_paths=excluded.protected_paths,page_me_branches=excluded.page_me_branches,max_diff_lines=excluded.max_diff_lines,auto_open_pr=excluded.auto_open_pr,allow_workflows=excluded.allow_workflows,auto_mode=excluded.auto_mode,auto_repair=excluded.auto_repair,infra_threshold=excluded.infra_threshold,flaky_threshold=excluded.flaky_threshold,risk_threshold=excluded.risk_threshold,updated_at=excluded.updated_at',
+  )
+    .bind(
+      repo,
+      repo,
+      JSON.stringify(rules.protectedPaths),
+      JSON.stringify(rules.pageMeBranches),
+      rules.maxDiffLines,
+      Number(rules.autoOpenPr),
+      Number(rules.allowWorkflows),
+      Number(rules.autoMode),
+      Number(rules.autoRepair),
+      rules.infraThreshold,
+      rules.flakyThreshold,
+      rules.riskThreshold,
+      at,
+      at,
+    )
+    .run();
+  return c.json(rules);
+});
 app.get('/v1/runs', async (c) => {
   const user = (await session(c.req.raw, c.env))!;
   return c.json(await new RunRepository(c.env.DB).list(user.orgId));
@@ -102,6 +167,29 @@ app.get('/v1/runs/:id/events', async (c) => {
   }
   return c.json(await repository.events(c.req.param('id')));
 });
+app.get('/v1/runs/:id/decisions', async (c) => {
+  const user = (await session(c.req.raw, c.env))!;
+  try {
+    await new RunRepository(c.env.DB).get(c.req.param('id'), user.orgId);
+  } catch {
+    return c.notFound();
+  }
+  const result = await c.env.DB.prepare(
+    'SELECT id,question,answer,probabilities,model,created_at FROM decisions WHERE run_id=? ORDER BY rowid',
+  )
+    .bind(c.req.param('id'))
+    .all();
+  return c.json(
+    result.results.map((row) => ({
+      ...row,
+      question: JSON.parse(String(row.question)),
+      answer: JSON.parse(String(row.answer)),
+      probabilities: row.probabilities
+        ? JSON.parse(String(row.probabilities))
+        : null,
+    })),
+  );
+});
 app.get('/v1/runs/:id/diff', async (c) => {
   const user = (await session(c.req.raw, c.env))!;
   let run;
@@ -112,14 +200,21 @@ app.get('/v1/runs/:id/diff', async (c) => {
     return c.notFound();
   }
   const artifact = await c.env.ARTIFACTS.get(
-    `${run.id}/fix-${run.attempts}.diff`,
+    run.state === 'needs_you' && run.approvalKey
+      ? `${run.approvalKey}.diff`
+      : `${run.id}/fix-${run.attempts}.diff`,
   );
   return artifact ? c.text(await artifact.text()) : c.notFound();
 });
 app.post('/v1/runs/:id/actions', async (c) => {
   const user = (await session(c.req.raw, c.env))!,
     repository = new RunRepository(c.env.DB);
-  const body = z.object({ action: actionSchema }).parse(await c.req.json());
+  const body = z
+    .object({
+      action: actionSchema,
+      revision: z.number().int().nonnegative().optional(),
+    })
+    .parse(await c.req.json());
   let run;
   try {
     run = (await repository.get(c.req.param('id'), user.orgId)).run;
@@ -131,6 +226,8 @@ app.post('/v1/runs/:id/actions', async (c) => {
   } catch {
     return c.json({ error: copy.api.illegalAction }, 409);
   }
+  if (body.action === 'approve' && body.revision !== run.revision)
+    return c.json({ error: copy.commentUnavailable }, 409);
   const instance = await c.env.RUN_WORKFLOW.get(run.id),
     id = crypto.randomUUID();
   await instance.sendEvent({
@@ -141,20 +238,9 @@ app.post('/v1/runs/:id/actions', async (c) => {
       userId: user.userId,
       expectedState: run.state,
       expectedAttempt: run.attempts,
+      expectedVersion: run.revision,
     },
   });
-  if (['approve', 'changes', 'take_over'].includes(body.action))
-    await c.env.DB.prepare(
-      'UPDATE approvals SET decided_by=?,decision=?,decided_at=?,updated_at=? WHERE run_id=? AND decision IS NULL',
-    )
-      .bind(
-        user.userId,
-        body.action,
-        new Date().toISOString(),
-        new Date().toISOString(),
-        run.id,
-      )
-      .run();
   return c.json({ accepted: true, id }, 202);
 });
 app.get('/v1/events', async (c) => {
@@ -237,6 +323,19 @@ export async function processWebhook(
   env: ApiEnv,
   event: { id: string; type: string; payload: Record<string, unknown> },
 ) {
+  if (['github.issue_comment', 'github.commit_comment'].includes(event.type)) {
+    await processComment(env, event);
+    await env.DB.prepare('UPDATE webhook_deliveries SET processed=1 WHERE id=?')
+      .bind(event.id)
+      .run();
+    return;
+  }
+  const delivered = await env.DB.prepare(
+    'SELECT processed FROM webhook_deliveries WHERE id=?',
+  )
+    .bind(event.id)
+    .first<{ processed: number }>();
+  if (delivered?.processed) return;
   const parsed = webhookSchema.safeParse(event.payload);
   if (!parsed.success) return;
   const payload = parsed.data,
@@ -272,6 +371,9 @@ export async function processWebhook(
             allowWorkflows: !!rawRules.allow_workflows,
             autoMode: !!rawRules.auto_mode,
             autoRepair: !!rawRules.auto_repair,
+            infraThreshold: rawRules.infra_threshold ?? 0.7,
+            flakyThreshold: rawRules.flaky_threshold ?? 0.6,
+            riskThreshold: rawRules.risk_threshold ?? 4,
           }
         : {},
     );
@@ -292,6 +394,7 @@ export async function processWebhook(
       branch: check.head_branch ?? repositoryRow.default_branch,
       failingCheckName: check.name,
       rules,
+      startedBy: rules.autoMode ? 'auto' : 'web',
     });
     await new RunRepository(env.DB).create(run);
     await publishRun(env, run, `${id}:created`);
@@ -400,4 +503,92 @@ app.openAPIRegistry.registerPath({
     409: { description: 'Illegal transition' },
   },
 });
+
+async function processComment(
+  env: ApiEnv,
+  event: { id: string; type: string; payload: Record<string, unknown> },
+) {
+  const body = z
+    .object({
+      action: z.literal('created'),
+      repository: z.object({ full_name: z.string() }),
+      comment: z.object({
+        id: z.number(),
+        body: z.string(),
+        commit_id: z.string().optional(),
+        user: z.object({ login: z.string().regex(/^[a-zA-Z0-9-]{1,39}$/) }),
+      }),
+      issue: z.object({ number: z.number() }).optional(),
+    })
+    .safeParse(event.payload);
+  if (!body.success) return;
+  const input = body.data,
+    match = input.comment.body
+      .trim()
+      .match(/^\/greenci (diagnose|repair|verify|approve)$/);
+  if (!match) return;
+  const config = loadConfig(env);
+  if (config.APP_ENV !== 'local' || config.GITHUB_MODE !== 'mock')
+    throw new Error('GitHub App adapter is required');
+  const github = new MockGitHubClient(config.MOCK_GITHUB_URL),
+    repo = input.repository.full_name,
+    permission = await github.permission(repo, input.comment.user.login),
+    target = input.comment.commit_id ?? String(input.issue?.number ?? '');
+  if (!['write', 'admin'].includes(permission)) {
+    await github.comment(repo, target, copy.commentDenied);
+    return;
+  }
+  const member = await env.DB.prepare(
+    'SELECT u.id AS user_id,r.org_id FROM users u JOIN memberships m ON m.user_id=u.id JOIN repos r ON r.org_id=m.org_id WHERE u.login=? AND r.full_name=?',
+  )
+    .bind(input.comment.user.login, repo)
+    .first<{ user_id: string; org_id: string }>();
+  if (!member) {
+    await github.comment(repo, target, copy.commentDenied);
+    return;
+  }
+  const repository = new RunRepository(env.DB),
+    runs = await repository.list(member.org_id);
+  const run = runs.find(
+    (run) =>
+      run.repo === repo &&
+      (input.comment.commit_id
+        ? run.headSha === input.comment.commit_id
+        : run.prNumber === input.issue?.number),
+  );
+  if (!run) {
+    await github.comment(repo, target, copy.commentUnavailable);
+    return;
+  }
+  const action = actionSchema.parse(match[1]);
+  try {
+    transition(run, { type: action });
+  } catch {
+    await github.comment(repo, target, copy.commentUnavailable);
+    return;
+  }
+  const current = await repository.get(run.id);
+  await repository.save(
+    { ...current.run, startedBy: 'comment' },
+    current.version,
+    `${event.id}:source`,
+    'comment.command',
+  );
+  const workflow = await env.RUN_WORKFLOW.get(run.id);
+  await workflow.sendEvent({
+    type: run.state === 'needs_you' ? 'approval' : 'action',
+    payload: {
+      id: `${event.id}:command`,
+      action,
+      userId: member.user_id,
+      expectedState: run.state,
+      expectedAttempt: run.attempts,
+      expectedVersion: current.version + 1,
+    },
+  });
+  await github.comment(repo, target, copy.commentQueued);
+  await env.DB.prepare('UPDATE webhook_deliveries SET processed=1 WHERE id=?')
+    .bind(event.id)
+    .run();
+}
 export default app;

@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import { MockStore } from './store.js';
 import { fixtures } from '@greenci/agent/fixtures';
 import { patchSchema } from '@greenci/github';
-import { rulesSchema } from '@greenci/core';
+import { rulesSchema, copy } from '@greenci/core';
 import swagger from '@fastify/swagger';
 import { z } from 'zod';
 import {
@@ -63,6 +63,22 @@ export async function buildServer(
       .parse(req.query);
     return store.compare(repoOf(req.params), query.base, query.head);
   });
+  server.get(`${route}/permission`, async (req) => {
+    repoOf(req.params);
+    const query = z.object({ login: z.string() }).parse(req.query);
+    return { permission: query.login === 'sam' ? 'write' : 'read' };
+  });
+  const comments: { repo: string; target: string; body: string }[] = [];
+  server.post(`${route}/comments`, async (req) => {
+    const comment = z
+      .object({ target: z.string(), body: z.string().max(2000) })
+      .parse(req.body);
+    comments.push({ repo: repoOf(req.params), ...comment });
+    return { accepted: true };
+  });
+  server.get(`${route}/comments`, async (req) =>
+    comments.filter((comment) => comment.repo === repoOf(req.params)),
+  );
   server.get('/repos', async () => Object.keys(fixtures));
   server.get(`${route}/checks`, async (req) =>
     store.checks(repoOf(req.params), refOf(req.query)),
@@ -106,6 +122,19 @@ export async function buildServer(
         .number,
     ),
   );
+  server.get(`${route}/pulls/:number/view`, async (req, reply) => {
+    const repo = repoOf(req.params);
+    store.fixture(repo);
+    const number = z
+        .object({ number: z.coerce.number().int().positive() })
+        .parse(req.params).number,
+      pr = store.pr(repo, number);
+    return reply
+      .type('text/html')
+      .send(
+        `<!doctype html><html lang="en"><title>${copy.mockPrTitle}</title><h1>${copy.mockPrTitle} #${number}</h1><p>${repo}</p><p id="state">${pr.state}</p><p>${copy.mockMergeNote}</p><button id="merge" ${pr.state !== 'open' ? 'disabled' : ''}>${copy.mockMerge}</button><script>document.getElementById('merge').addEventListener('click',async()=>{const response=await fetch('/repos/${repo}/human-merge/${number}',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});if(response.ok){document.getElementById('state').textContent='Merged';document.getElementById('merge').disabled=true;}});</script></html>`,
+      );
+  });
   server.post(`${route}/human-merge/:number`, async (req) => {
     // This endpoint exists only in the local first-party fixture service, never in the agent client.
     if (req.headers.origin && req.headers.origin !== 'http://localhost:4001')

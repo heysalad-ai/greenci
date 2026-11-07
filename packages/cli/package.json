@@ -10,5 +10,11 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --outDir dist"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@greenci/client": "workspace:*",
+    "@greenci/core": "workspace:*"
+  },
+  "bin": {
+    "greenci": "./dist/main.js"
+  }
 }

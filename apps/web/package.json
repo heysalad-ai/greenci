@@ -12,14 +12,18 @@
     "build:worker": "opennextjs-cloudflare build"
   },
   "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@greenci/client": "workspace:*",
     "@greenci/core": "workspace:*",
-    "next": "15.5.29",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "@opennextjs/cloudflare": "1.20.16",
-    "rclone.js": "^0.6.6",
-    "@greenci/deck-protocol": "workspace:*",
     "@greenci/db": "workspace:*",
-    "@greenci/ui": "workspace:*"
+    "@greenci/deck-protocol": "workspace:*",
+    "@greenci/ui": "workspace:*",
+    "@opennextjs/cloudflare": "1.20.16",
+    "next": "15.5.29",
+    "rclone.js": "^0.6.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   }
 }

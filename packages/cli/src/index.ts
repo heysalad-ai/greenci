@@ -1,2 +1,1 @@
-/** cli: implementation follows in its assigned milestone. */
-export {};
+export { createActionClient as createCliClient } from '@greenci/client';
