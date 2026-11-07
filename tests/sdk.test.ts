@@ -13,7 +13,9 @@ const context = (repo = 'acme/payments') => ({
     attempts: 1,
   }),
   logs: 'test failed',
-  files: { 'AGENTS.md': 'Never touch secrets. Migrations require approval.' },
+  files: {
+    'AGENTS.md': 'Never touch secrets. Migrations require approval.',
+  } as Record<string, string>,
 });
 it('runs diagnosis and deterministic repair through the actual Agents SDK with no network', async () => {
   const provider = new SdkAgentProvider(loadConfig({}));
@@ -52,4 +54,18 @@ it('falls back to the SDK fake provider when local Docker is unavailable', async
   await expect(
     createLocalAgentProvider({ ...loadConfig({}), APP_ENV: 'dev' }),
   ).rejects.toThrow('local-only');
+});
+
+it('requires approval from actual before/after size even if the fixture model reports a tiny diff', async () => {
+  const provider = new SdkAgentProvider(loadConfig({})),
+    input = context();
+  input.files['tests/billing.spec.ts'] = Array.from(
+    { length: 220 },
+    (_, i) => `original line ${i}`,
+  ).join('\n');
+  const result = await provider.repair(input);
+  expect(result.pendingState).toBeTruthy();
+  expect(result.files).toEqual([]);
+  expect(result.diff).toContain('-original line 219');
+  expect(result.diff).toContain("+export const fixtureDate = '2027-10-31'");
 });

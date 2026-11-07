@@ -258,6 +258,25 @@ export class SdkAgentProvider implements AgentProvider {
         }
       },
     });
+    const reviewDiff = (files: z.infer<typeof patchSchema>[]) =>
+      files
+        .map((patch) => {
+          const path = safePath(patch.path),
+            before = context.files[path] ?? '';
+          return (
+            `--- a/${path}\n+++ b/${path}\n` +
+            before
+              .split('\n')
+              .map((line) => '-' + line)
+              .join('\n') +
+            '\n' +
+            patch.content
+              .split('\n')
+              .map((line) => '+' + line)
+              .join('\n')
+          );
+        })
+        .join('\n');
     const stage = tool({
       name: 'stage_fix',
       description:
@@ -266,8 +285,13 @@ export class SdkAgentProvider implements AgentProvider {
       needsApproval: async (_ctx, input) =>
         needsApproval(
           input.files.map((file) => file.path),
-          input.diff.split('\n').filter((line) => /^[+-](?![+-])/.test(line))
-            .length,
+          input.files.reduce(
+            (total, file) =>
+              total +
+              (context.files[safePath(file.path)] ?? '').split('\n').length +
+              file.content.split('\n').length,
+            0,
+          ),
           context.run.rules,
         ),
       inputGuardrails: [stageGuard],
@@ -341,7 +365,7 @@ export class SdkAgentProvider implements AgentProvider {
             shell({ configureTools }),
           ],
         });
-    return { agent, staged: () => staged, fixture };
+    return { agent, staged: () => staged, fixture, reviewDiff };
   }
   async repair(context: AgentContext): Promise<RepairResult> {
     return this.runRepair(context);
@@ -400,7 +424,9 @@ export class SdkAgentProvider implements AgentProvider {
           .map((interruption) => {
             const call = interruption.rawItem;
             return call.type === 'function_call' && call.name === 'stage_fix'
-              ? fixSchema.parse(JSON.parse(call.arguments)).diff
+              ? definition.reviewDiff(
+                  fixSchema.parse(JSON.parse(call.arguments)).files,
+                )
               : redact(JSON.stringify(call));
           })
           .join('\n\n');

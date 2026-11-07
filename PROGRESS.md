@@ -9,7 +9,7 @@
 - [x] SDK 0.21.0, Zod v4, three Decisions providers, guarded tools and R2 approval/resume implemented.
 - [x] Write-permission-checked comments, owner-only auto mode, deckless web journey and CLI/mobile action adapters implemented.
 - [x] Approved landing markup/assets rendered with software-only pricing and offline fonts. Desktop/mobile evidence: docs/fidelity/landing.md.
-- [x] Local checks: 46 tests, 100% core coverage, 18 builds, seven browser tests.
+- [x] Local checks: 47 tests, 100% core coverage, 18 builds, seven browser tests.
 - [x] Updated existing dev API/web and additive migrations; authenticated health/landing smoke passes and anonymous Access redirects remain intact.
 - [ ] Live OpenAI/container bridge and real GitHub App activation: external credentials/runtime setup still required. Live dev actions remain disabled; no staging/production work.
 
