@@ -16,6 +16,7 @@
       "name": "greenci-preview-dev",
       "workers_dev": true,
       "preview_urls": false,
+      "routes": [{ "pattern": "greenci.dev", "custom_domain": true }],
     },
   },
 }
