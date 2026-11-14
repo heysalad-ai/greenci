@@ -24,6 +24,8 @@ jobs:
       - run: pnpm test:core
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm build:preview
+      - run: pnpm exec wrangler deploy --config apps/web/wrangler.preview.jsonc --env dev --dry-run
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
       - uses: actions/upload-artifact@v4

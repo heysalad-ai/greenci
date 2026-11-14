@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "greenci-preview-local",
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
+  "main": "src/public-preview.ts",
+  "compatibility_date": "2026-11-06",
+  "workers_dev": false,
+  "send_metrics": false,
+  "assets": {
+    "directory": "../../.data/public-preview/assets",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+  },
+  "env": {
+    "dev": {
+      "name": "greenci-preview-dev",
+      "workers_dev": true,
+      "preview_urls": false,
+    },
+  },
+}

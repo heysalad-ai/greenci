@@ -1,5 +1,9 @@
 # Progress
 
+## Public site preview — 14 November 2026
+
+The user selected a public preview first. A separate dev-only static Worker publishes the landing and clearly labeled M5 screen captures, while the existing private web/API services retain Access. No live GitHub/model/repair or commerce capability is enabled. See docs/public-preview.md for the build, checks and deployment record.
+
 - [x] Design system, screens and build brief committed
 - [x] M0 Scaffold
 
