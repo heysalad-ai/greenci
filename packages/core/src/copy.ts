@@ -1,5 +1,52 @@
 export const copy = {
   name: 'GreenCI',
+  publicPreview: {
+    title: 'GreenCI public preview',
+    notice:
+      'Public preview. Explore the design; GitHub connections, repairs and orders are not available here.',
+    open: 'View product preview',
+    flow: 'See the example flow',
+    detail:
+      'GreenCI is being built to diagnose failed GitHub checks, prepare a fix and verify it before handing you a pull request to review.',
+    availability:
+      'In development. Pricing and release dates have not been announced.',
+    plans: 'With or without a deck',
+    planDetail:
+      'The planned software experience works without hardware. The command deck adds physical Diagnose, Repair and Verify keys.',
+    galleryTitle: 'Inside GreenCI',
+    galleryDetail:
+      'Read-only captures of the local practice build. Repositories, runs and pull requests shown below are examples. These images are not interactive.',
+    home: 'Back to GreenCI',
+    docs: 'About this preview',
+    docsDetail:
+      'This public preview serves static pages and screen captures only. It has no account sign-in, GitHub access, model execution, repair sandbox, checkout or customer data. The private development environment is separate.',
+    missing: 'This page is not part of the public preview.',
+    readOnly: 'This preview is read-only.',
+    screens: [
+      {
+        file: 'm5-app.png',
+        title: 'Dashboard',
+        detail: 'Example failing run with the on-screen command deck.',
+      },
+      {
+        file: 'm5-run.png',
+        title: 'Run detail',
+        detail:
+          'Diagnosis, repair and verification phases for a practice repository.',
+      },
+      {
+        file: 'm5-run-done.png',
+        title: 'Verified practice result',
+        detail:
+          'A local example of checks passing and a mock pull request ready for review.',
+      },
+      {
+        file: 'm5-start.png',
+        title: 'Onboarding',
+        detail: 'The setup flow includes a path without a physical deck.',
+      },
+    ],
+  },
   docs: {
     title: 'Press green. You stay the reviewer.',
     sections: [

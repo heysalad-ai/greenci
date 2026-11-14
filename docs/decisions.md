@@ -1,5 +1,9 @@
 # Decisions
 
+## Public preview — keep the private runtime separate
+
+Publish a dedicated dev-only static Worker in HeySalad Inc., rather than removing Cloudflare Access from the existing development app. This gives the requested public link without exposing the API or a simulated sign-in as a live product. The landing keeps the approved visual composition, removes unconfigured commerce/testimonial placeholders, and links to explicitly noninteractive M5 captures. The new Worker has only ASSETS; request allowlisting and a no-script/no-connection CSP enforce its read-only boundary. No staging or production deployment is needed.
+
 ## 2026-11-06 — repository location and scope
 
 The supplied working directory is a collection of unrelated projects in an unborn parent Git repository. Build an independent repository at `Product_Mgmt/greenci` on `codex/greenci-m0` to isolate commits. This pass implements M0, as requested by the final instruction of the prompt; M1–M9 remain tracked work.
