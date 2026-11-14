@@ -1,0 +1,13 @@
+{
+  "name": "@greenci/device-relay",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "wrangler deploy --env dev --dry-run --outdir dist"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}

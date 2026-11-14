@@ -158,6 +158,34 @@ app.post('/v1/practice', async (c) => {
   );
   return c.json({ accepted: true }, 202);
 });
+// A single dev pad, scoped to the beta owner and the existing Access/session boundary.
+app.all('/v1/device/*', async (c) => {
+  const config = loadConfig(c.env);
+  if (
+    config.APP_ENV !== 'dev' ||
+    config.BETA_ENABLED !== 'true' ||
+    !c.env.DEVICE_SERVICE
+  )
+    return c.notFound();
+  const user = (await session(c.req.raw, c.env))!;
+  const owner = await c.env.DB.prepare(
+    'SELECT id FROM memberships WHERE user_id=? AND org_id=? AND role=?',
+  )
+    .bind(user.userId, user.orgId, 'owner')
+    .first();
+  if (!owner) return c.json({ error: copy.api.signIn }, 403);
+  const part = c.req.path.slice('/v1/device/'.length);
+  if (!(
+    (part === 'status' && c.req.method === 'GET') ||
+    (['command', 'release'].includes(part) && c.req.method === 'POST')
+  ))
+    return c.notFound();
+  const size = Number(c.req.header('Content-Length') ?? 0);
+  if (size > (part === 'release' ? 0x1e0000 : 2048)) return c.body(null, 413);
+  const target = new URL('https://device.internal/operator/' + part);
+  target.search = new URL(c.req.url).search;
+  return c.env.DEVICE_SERVICE.fetch(new Request(target, c.req.raw));
+});
 app.get('/v1/repos', async (c) => {
   const user = (await session(c.req.raw, c.env))!;
   const result = await c.env.DB.prepare(

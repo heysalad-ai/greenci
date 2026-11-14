@@ -19,7 +19,7 @@ const navHref: Record<NavKey, string> = {
   runs: '/app',
   prs: '/app?filter=pr',
   repos: '/start',
-  deck: '/deck',
+  deck: '/app/device',
   rules: '/docs#safety',
   settings: '/docs',
 };

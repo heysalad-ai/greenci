@@ -160,6 +160,7 @@
           "binding": "SANDBOX_SERVICE",
           "service": "greenci-sandbox-dev",
         },
+        { "binding": "DEVICE_SERVICE", "service": "greenci-device-relay-dev" },
       ],
       "preview_urls": false,
       "workers_dev": true,

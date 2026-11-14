@@ -1,0 +1,23 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "greenci-device-relay-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-06",
+  "workers_dev": false,
+  "send_metrics": false,
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GreenPad"] }],
+  "env": {
+    "dev": {
+      "name": "greenci-device-relay-dev",
+      "workers_dev": false,
+      "preview_urls": false,
+      "durable_objects": {
+        "bindings": [{ "name": "DEVICE", "class_name": "GreenPad" }],
+      },
+      "r2_buckets": [
+        { "binding": "ARTIFACTS", "bucket_name": "greenci-artifacts-dev" },
+      ],
+    },
+  },
+}
