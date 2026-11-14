@@ -1,8 +1,8 @@
 # Progress
 
-## Custom domains — configured, managed HTTPS pending, 14 November 2026
+## Custom domains — verified, 14 November 2026
 
-Attached greenci.dev to greenci-preview-dev and beta.greenci.dev to greenci-web-dev. Saved Cloudflare nameservers through the user-signed-in Namecheap Safari session after reviewing the parking records, empty email-forwarder list and disabled DNSSEC. Registry/public-resolver delegation and Cloudflare active-zone status are confirmed. Public HTTP serves the landing; beta redirects to HTTPS. Managed primary TLS validation is pending (backup issued), so secure custom-domain/session acceptance and serving API canonical-origin cutover remain incomplete. Existing workers.dev public 200/private 302 remain available. No Access policy, secret or staging/production deployment changed. Lint, 18 typechecks, 74 tests and 18 builds pass; after one local SQLite startup lock, two browser runs each pass seven journeys. Evidence and remaining gates: [docs/custom-domains.md](docs/custom-domains.md).
+HTTPS is active for greenci.dev (public preview dev Worker) and beta.greenci.dev (private web dev Worker). Deployed API version 2e8ed1c8-3429-47db-beb8-f47af2d52f3a only to dev with the beta canonical origin. Signed custom-host session creation lists the real practice repository; dashboard and run detail load the real draft PR and 1/1 passing check. Anonymous beta/API routes still require Access with the same audience. Public HTTPS smoke passes. A user-approved temporary preference for the ISP's existing secondary DNS server enabled browser verification while its primary cached old DNS; original automatic DNS is restored. Cold requests through the stale ISP cache can still lag. No policy, secret, staging/production deployment, new repair or merge changed. Full evidence: [docs/custom-domains.md](docs/custom-domains.md).
 
 ## Private beta — real repair verified, 14 November 2026
 

@@ -1,41 +1,50 @@
-# GreenCI custom domains — dev only
+# GreenCI custom domains — verified in dev
 
-Requested mapping: greenci.dev to greenci-preview-dev; beta.greenci.dev to greenci-web-dev. Both custom domains are attached in the Cloudflare dashboard to the existing dev-named Workers. Cloudflare labels each standalone Worker deployment as Production in its dashboard; these are still the greenci-*-dev resources, not the repository staging/production environments.
+Status: managed HTTPS is active for greenci.dev and beta.greenci.dev. The dev API uses https://beta.greenci.dev as its canonical web origin. Signed owner session creation, repository access, dashboard and real run detail were verified on the custom beta hostname on 14 November 2026. Access remains enabled and no staging/production service was deployed.
 
-## Domain active; HTTPS validation pending — 14 November 2026
+## Domain mapping
 
-The new greenci.dev Free zone is in HeySalad Inc. Cloudflare assigned fatima.ns.cloudflare.com and glen.ns.cloudflare.com. Previously the nameservers were dns1.registrar-servers.com and dns2.registrar-servers.com. Namecheap Custom DNS was saved in the user-signed-in Safari session on 14 November 2026. The .dev registry now delegates to fatima/glen; Cloudflare now marks the zone active and its public resolver reports the new delegation. Do not claim either custom hostname is live until DNS, TLS and HTTP are verified.
+| Hostname                 | Worker              | Purpose                                        |
+| ------------------------ | ------------------- | ---------------------------------------------- |
+| https://greenci.dev      | greenci-preview-dev | Public, read-only landing and product captures |
+| https://beta.greenci.dev | greenci-web-dev     | Access-protected private beta                  |
 
-The automatic import preserved five existing Namecheap email-forwarding MX records and the SPF TXT record. The imported apex A parking record (192.64.119.105, Proxied, Auto TTL) conflicted with Worker attachment and was removed only from the new Cloudflare zone; it can be restored with those values if needed. Existing Namecheap parking records were reviewed before cutover: www CNAME and apex URL redirect only; no email forwarders were configured. DNSSEC was already off. Registrar delegation is now changed to Cloudflare; no email-forwarding migration was required. The www parking CNAME was retained; no www redirect was requested.
+Namecheap delegates greenci.dev to fatima.ns.cloudflare.com and glen.ns.cloudflare.com in the HeySalad Inc. Cloudflare account. The zone is active; managed Advanced and Universal certificates show Active, with displayed expiry 12 February 2027. Cloudflare manages their renewal.
+
+The registrar's pre-cutover records were reviewed: apex URL redirect, www parking CNAME, SPF and default email-forwarding configuration; no email forwarders were configured and DNSSEC was already off. Cloudflare imported the five default MX records and SPF TXT. Only the conflicting apex parking A record (192.64.119.105, Proxied, Auto TTL) was replaced by the public Worker attachment. The www parking CNAME was retained; a www redirect was not requested.
 
 ## Private boundary
 
-The existing greenci-web-dev Worker policy is All traffic, Cloudflare account members Allow, with policies attached directly to the Worker that move with its URLs. No Access policy or identity membership was changed. Its AUD matches the deployed API beta profile. The API still independently verifies the signed assertion and configured owner. Do not create an unprotected beta route or broaden the owner allowlist.
+The existing greenci-web-dev Worker policy requires Cloudflare account-member login on all traffic. It moves with the Worker across its URLs, including the new custom domain. No Access policy, membership or identity allowlist changed. The API still validates the signed Access JWT issuer, audience, signature, expiry and exact configured owner, then verifies repository write permission before creating its Secure/HttpOnly/SameSite session cookie.
 
-After authoritative activation, change only the generated dev API profile WEB_URL to https://beta.greenci.dev, then deploy that generated beta configuration using --env dev. Keep API_URL, BETA_ACCESS_AUD, owner identity, credentials and all other runtime bindings unchanged. The tracked dev API WEB_URL is now beta.greenci.dev, so beta:prepare will preserve that canonical origin on the next generation. Its Access-audience discovery continues to use the existing protected workers.dev hostname of the same Worker policy. Until activation, leave the deployed WEB_URL unchanged so the existing private app continues to work.
+Anonymous HTTPS requests to beta /app, /start and /api/health redirect to heysalad.cloudflareaccess.com with the same expected application audience. Existing private web/API workers.dev URLs remain Access-protected. No unprotected API custom domain was created; beta browser API calls continue through the web-to-API service binding.
 
-Tracked custom_domain routes are present only in the two web dev configurations so a future dev deploy preserves the dashboard attachments. No new Worker version or API configuration has been deployed for this domain migration. The prepared generated dev profile uses beta.greenci.dev, but the serving API keeps its workers.dev origin until managed HTTPS is ready.
+## Dev deployment
 
-## Remaining acceptance
+Deployed only apps/api/wrangler.beta.generated.jsonc with --env dev. WEB_URL is https://beta.greenci.dev; API_URL, Access audience, owner identity, one-repository allowlist, src/** write scope, model/provider settings and runtime bindings remain unchanged. No credentials were read or changed.
 
-- [x] Verify imported DNS against the registrar, then save Cloudflare nameservers at Namecheap.
-- [x] Confirm Cloudflare zone active and authoritative delegation.
-- [ ] Confirm managed TLS certificates active.
-- [ ] Run scripts/smoke-public-preview.mjs https://greenci.dev and inspect the landing page.
-- [ ] Verify anonymous beta /app and API endpoints require Access, plus old private workers.dev URLs remain protected.
-- [ ] Update dev canonical WEB_URL and verify signed session, run detail and allowed-origin actions through beta.greenci.dev.
-- [ ] Record deployed versions and proof. No staging/production deployment, merge or approval.
+| Worker              | Serving version                                  |
+| ------------------- | ------------------------------------------------ |
+| greenci-api-dev     | 2e8ed1c8-3429-47db-beb8-f47af2d52f3a             |
+| greenci-web-dev     | d42d9935-b809-4861-9365-6586ed7c3d7b (unchanged) |
+| greenci-preview-dev | 35474f3d-496d-485b-a476-d990ee546955 (unchanged) |
 
-## Checks during propagation
+Tracked custom_domain routes are only in the two web dev configurations. The tracked dev API WEB_URL defaults to the beta hostname so beta:prepare preserves the canonical origin. Access-audience discovery still uses the existing protected workers.dev hostname of the same Worker policy. Deploy private beta API changes with the generated dev profile, not the scaffold profile. Cloudflare's dashboard labels standalone Worker deployments Production, but the resources above are the repository's dev-named Workers, not its staging/production environments.
 
-The .dev registry nameservers report fatima/glen. Cloudflare now shows “Your domain is now protected by Cloudflare”. Managed Universal and custom-domain certificates are Pending Validation (TXT); Cloudflare displays that it validates them automatically. Authoritative DNS publishes their challenge records. Authoritative A records now resolve for both custom hostnames. An anonymous HTTP request pinned to the authoritative Cloudflare edge returns 200 with the real public landing markers; beta HTTP redirects to HTTPS (301). HTTPS handshakes still fail while the managed primary certificate is pending, so secure custom-domain smoke and signed beta session remain unverified. A backup certificate is issued, which is not an active primary certificate. A bounded five-minute readiness check did not pass; no certificate verification was bypassed. Existing public workers.dev returns 200; private workers.dev returns 302 to Access. Both web configuration dry-runs, the generated dev API dry-run, lint, 18 typechecks, 74 tests and 18 builds pass. The first browser-test server startup hit SQLITE_BUSY_RECOVERY; two subsequent runs each passed all seven browser journeys. No new Worker version or secret was changed.
+## Acceptance evidence
 
-Cloudflare documents a 15-minute to 24-hour Universal SSL activation window for full DNS setups: https://developers.cloudflare.com/ssl/edge-certificates/universal-ssl/enable-universal-ssl/ . Serving-origin cutover is intentionally deferred until the certificate is active, preserving the currently working private URL.
+- [x] Namecheap nameservers saved; registry, authoritative DNS and public-resolver delegation confirmed.
+- [x] Primary managed certificates active; strict TLS validation succeeds on both hostnames.
+- [x] Existing public-preview smoke script passes against https://greenci.dev: landing, gallery, docs, assets and health return 200; writes/API boundaries remain restricted. [Results](evidence/custom-domain-public-smoke.json).
+- [x] Anonymous beta routes and old private endpoints require Access; beta redirect audience matches the deployed API configuration. [Results](evidence/custom-domain-private-boundary.json).
+- [x] Signed owner session on https://beta.greenci.dev/start?deckless=1: Connect GitHub succeeds and lists only heysalad-ai/greenci-practice. This POST verifies the canonical browser origin and signed identity through the real API.
+- [x] Authenticated https://beta.greenci.dev/app loads the real fixed run and preserved handed-back attempt. The successful run detail displays 1/1 checks passing and the existing draft PR #1. No new provider probe, repair, PR, approval or merge was triggered by this sign-in test.
+- [x] Temporary local DNS preference restored to the original automatic Wi-Fi configuration; networksetup -getdnsservers Wi-Fi again reports no manually configured servers.
 
-## Follow-up verification — 14 November 2026, 14:52 UTC
+The Mac's primary ISP resolver retained the old negative response even after public DNS and HTTPS were ready. Peter explicitly approved temporarily preferring the already-configured secondary ISP resolver, 194.168.8.100, then restoring automatic DNS. Under that temporary preference the new hostname opened normally and signed session creation succeeded. Automatic DNS was then restored, and the browser loaded the real run detail afterward. A cold curl lookup through the primary ISP resolver still failed immediately after restoration; some fresh connections can remain affected until that upstream cache refreshes. No system DNS override remains installed and no TLS check was bypassed.
 
-Primary certificate remained Pending Validation (TXT) in the Cloudflare dashboard; direct edge HTTPS handshakes still failed. Both Cloudflare (1.1.1.1) and Google (8.8.8.8) resolve the correct delegation and four apex ACME challenge TXT values; the beta challenge has two TXT values. No DS or CAA records were returned. This supports waiting for managed issuance, not toggling SSL, weakening Access or bypassing certificate checks.
+The public smoke used a test-process-only Cloudflare DNS resolver while the local ISP cache was stale; certificate verification remained enabled. It did not alter system DNS settings.
 
-Existing private workers.dev sign-in was exercised through /start: Continue without deck, Connect GitHub, then the real practice repository was listed. The authenticated /app dashboard loaded one fixed check, the real draft PR #1 and preserved handed-back attempt. No setup inference, new repair or PR was triggered. This is existing-host sign-in proof only; custom-host sign-in remains pending HTTPS and canonical-origin deployment.
+Local screenshots: /tmp/greenci-certificates-active.jpg, /tmp/greenci-custom-public-landing.jpg, /tmp/greenci-beta-custom-signin.jpg and /tmp/greenci-beta-custom-domain-verified.jpg. Local deployment log: /tmp/greenci-custom-domain-api-deploy.log.
 
-Final dashboard and direct edge check at 14:55 UTC still showed primary Pending Validation (TXT) and TLS handshake failure. New-host cutover was not deployed. Existing-host session and certificate screenshots were saved locally; no new credentials, repairs or production changes occurred.
+Offline validation for the domain configuration: lint, 18 typechecks, 74 tests and 18 builds pass. One browser-test startup hit SQLITE_BUSY_RECOVERY; two subsequent runs each passed all seven browser journeys. Runtime sign-in and TLS acceptance above are separate live evidence. No source code changed after those gates; final edits record the observed deployment and verification.

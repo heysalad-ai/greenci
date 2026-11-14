@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "hostname": "beta.greenci.dev",
+      "path": "/app",
+      "status": 302,
+      "access_host": "heysalad.cloudflareaccess.com",
+      "audience_matches": true
+    },
+    {
+      "hostname": "beta.greenci.dev",
+      "path": "/start",
+      "status": 302,
+      "access_host": "heysalad.cloudflareaccess.com",
+      "audience_matches": true
+    },
+    {
+      "hostname": "beta.greenci.dev",
+      "path": "/api/health",
+      "status": 302,
+      "access_host": "heysalad.cloudflareaccess.com",
+      "audience_matches": true
+    },
+    {
+      "hostname": "greenci-web-dev.heysalad-o.workers.dev",
+      "path": "/app",
+      "status": 302,
+      "access_host": "heysalad.cloudflareaccess.com"
+    },
+    {
+      "hostname": "greenci-api-dev.heysalad-o.workers.dev",
+      "path": "/healthz",
+      "status": 302,
+      "access_host": "heysalad.cloudflareaccess.com"
+    }
+  ]
+}

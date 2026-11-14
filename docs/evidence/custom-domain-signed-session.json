@@ -1,0 +1,26 @@
+{
+  "observed_on": "2026-11-14",
+  "host": "https://beta.greenci.dev",
+  "method": "browser UI with existing Cloudflare SSO; new app session on custom host",
+  "sign_in_path": "/start?deckless=1",
+  "session_created": true,
+  "repository": "heysalad-ai/greenci-practice",
+  "dashboard_real_run_history_loaded": true,
+  "run_detail": {
+    "id": "run-b0359999-a4ce-4e38-9937-3f71a044d550",
+    "state": "pr_open",
+    "passing_checks": 1,
+    "total_checks": 1,
+    "pull_request": "https://github.com/heysalad-ai/greenci-practice/pull/1"
+  },
+  "api_dev_version": "2e8ed1c8-3429-47db-beb8-f47af2d52f3a",
+  "dns": {
+    "temporary_existing_secondary_preference_user_approved": true,
+    "automatic_wifi_dns_restored": true,
+    "browser_run_detail_loaded_after_restore": true,
+    "cold_primary_isp_lookup_still_stale": true
+  },
+  "new_repair_requested": false,
+  "access_policy_changed": false,
+  "staging_or_production_deployed": false
+}

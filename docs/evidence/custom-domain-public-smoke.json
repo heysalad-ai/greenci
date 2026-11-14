@@ -1,0 +1,64 @@
+{
+  "origin": "https://greenci.dev",
+  "mode": "read-only",
+  "results": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/preview",
+      "status": 200
+    },
+    {
+      "path": "/docs",
+      "status": 200
+    },
+    {
+      "path": "/styles.css",
+      "status": 200
+    },
+    {
+      "path": "/screens/m5-app.png",
+      "status": 200
+    },
+    {
+      "path": "/fonts/geist.woff2",
+      "status": 200
+    },
+    {
+      "path": "/healthz",
+      "status": 200
+    },
+    {
+      "path": "/api/client/session",
+      "method": "POST",
+      "status": 405
+    },
+    {
+      "path": "/api/client/runs",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/webhooks/github",
+      "method": "POST",
+      "status": 405
+    },
+    {
+      "path": "/start",
+      "method": "GET",
+      "status": 303
+    },
+    {
+      "path": "/app",
+      "method": "GET",
+      "status": 303
+    },
+    {
+      "path": "/.dev.vars",
+      "method": "GET",
+      "status": 404
+    }
+  ]
+}
