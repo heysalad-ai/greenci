@@ -49,6 +49,7 @@ export interface GitHubClient {
     branch: string,
     files: Patch[],
     rules: z.infer<typeof rulesSchema>,
+    approved?: boolean,
   ): Promise<string>;
   runChecks(
     repo: string,
@@ -247,3 +248,5 @@ export async function verifyWebhook(
     new TextEncoder().encode(body),
   );
 }
+
+export { GitHubAppClient, appJwt } from './app.js';

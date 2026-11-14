@@ -1,0 +1,17 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "greenci-webhooks-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-06",
+  "workers_dev": false,
+  "send_metrics": false,
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
+  "env": {
+    "dev": {
+      "name": "greenci-webhooks-dev",
+      "workers_dev": true,
+      "preview_urls": false,
+      "services": [{ "binding": "API", "service": "greenci-api-dev" }],
+    },
+  },
+}

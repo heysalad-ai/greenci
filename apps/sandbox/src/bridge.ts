@@ -16,6 +16,10 @@ const worker: typeof handler = {
         { error: 'SANDBOX_API_KEY is required' },
         { status: 503 },
       );
+    if (
+      request.headers.get('Authorization') !== `Bearer ${env.SANDBOX_API_KEY}`
+    )
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     return handler.fetch!(request, env, ctx);
   },
 };

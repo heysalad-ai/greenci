@@ -198,6 +198,7 @@ export default function RunPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [diff, setDiff] = useState('');
+  const [reviewRevision, setReviewRevision] = useState<number>();
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
 
@@ -209,7 +210,11 @@ export default function RunPage() {
       setEvents(await client.events(id).catch(() => []));
       if (value.attempts) {
         const response = await fetch(`/api/client/runs/${id}/diff`);
-        if (response.ok) setDiff(await response.text());
+        if (response.ok) {
+          setDiff(await response.text());
+          const revision = response.headers.get('X-GreenCI-Revision');
+          setReviewRevision(revision === null ? undefined : Number(revision));
+        }
       }
       setError('');
     } catch {
@@ -226,7 +231,13 @@ export default function RunPage() {
     async (action: Action) => {
       setBusy(true);
       try {
-        await client.action(id, action, run?.revision);
+        if (action === 'approve' && (!diff || reviewRevision !== run?.revision))
+          throw new Error(copy.commentUnavailable);
+        await client.action(
+          id,
+          action,
+          action === 'approve' ? reviewRevision : run?.revision,
+        );
         await refresh();
       } catch {
         setError(copy.runUnavailable);
@@ -234,7 +245,7 @@ export default function RunPage() {
         setBusy(false);
       }
     },
-    [id, run?.revision, refresh],
+    [id, run?.revision, refresh, diff, reviewRevision],
   );
 
   // Keys 2–4 mirror the deck simulator: Diagnose, Repair, Verify.
@@ -307,7 +318,10 @@ export default function RunPage() {
                 <h2>{copy.approvalTitle}</h2>
                 <p>{copy.approvalDetail}</p>
                 <div className={styles.approvalActions}>
-                  <Button disabled={busy} onClick={() => void act('approve')}>
+                  <Button
+                    disabled={busy || !diff || reviewRevision !== run.revision}
+                    onClick={() => void act('approve')}
+                  >
                     {copy.approve}
                   </Button>
                   <Button

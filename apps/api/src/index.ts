@@ -3,6 +3,7 @@ import { loadConfig, validateBindings, copy, redact } from '@greenci/core';
 import { localEmailSchema, eventSchema } from '@greenci/db';
 import { sendLocalEmail } from '@greenci/email';
 import domainRoutes, { processWebhook } from './domain.js';
+import betaRoutes from './beta.js';
 import type { ApiEnv } from './env.js';
 export { OrgRoom, DeckSession } from './rooms.js';
 export { RunWorkflow } from '@greenci/worker';
@@ -46,21 +47,28 @@ app.use('*', async (c, next) => {
   }
   await next();
 });
-app.onError(
-  (error) =>
-    new Response(
-      JSON.stringify({
-        error: copy.api.requestFailed,
-      }),
-      {
-        status:
-          error instanceof z.ZodError || error instanceof SyntaxError
-            ? 400
-            : 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    ),
-);
+app.onError((error) => {
+  console.warn('API request rejected', {
+    name: error.name,
+    issues:
+      error instanceof z.ZodError
+        ? error.issues.map((issue) => ({
+            path: issue.path.join('.'),
+            code: issue.code,
+          }))
+        : [],
+  });
+  return new Response(
+    JSON.stringify({
+      error: copy.api.requestFailed,
+    }),
+    {
+      status:
+        error instanceof z.ZodError || error instanceof SyntaxError ? 400 : 500,
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
+});
 for (const path of ['/healthz', '/health'])
   app.openapi(
     createRoute({
@@ -279,6 +287,7 @@ for (const path of ['/live', '/events'])
       c.req.raw,
     );
   });
+app.route('/', betaRoutes);
 app.route('/', domainRoutes);
 app.doc('/openapi.json', {
   openapi: '3.1.0',

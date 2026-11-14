@@ -1,5 +1,9 @@
 # Progress
 
+## Private beta preparation — 14 November 2026
+
+Created the user-selected private greenci-practice repository and observed its intentional failure in real GitHub CI. Implemented the real repository-scoped GitHub App adapter, signed Access sessions, readiness-gated manual actions, scoped webhook ingress, contained beta sandbox profile and secure App setup helper. Support Workers and private API/web are deployed dev-only. Existing OpenAI secret storage and selected-repository App installation are confirmed; signed application session and live OpenAI/Node/network-denial probes pass. CI import awaits the existing App's read-only commit-status permission; real repair remains pending. Offline gates passed: lint, types, 71 tests, 100% core coverage, 18 builds and seven browser journeys. See docs/private-beta.md for exact evidence and remaining gates. This is not a completed live beta.
+
 ## Public site preview — 14 November 2026
 
 The user selected a public preview first. A separate dev-only static Worker publishes the landing and clearly labeled M5 screen captures, while the existing private web/API services retain Access. No live GitHub/model/repair or commerce capability is enabled. See docs/public-preview.md for the build, checks and deployment record.

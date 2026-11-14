@@ -78,3 +78,4 @@ export class FakeAgentProvider implements AgentProvider {
 }
 
 export { SdkAgentProvider } from './sdk.js';
+export { probeBetaProviders } from './probe.js';

@@ -210,6 +210,7 @@ export function transition(
     case 'route_failed':
       if (finalStates.includes(run.state)) return illegal();
       run.state = 'handed_back';
+      run.verified = false;
       break;
     case 'changes':
       if (run.state !== 'needs_you') return illegal();

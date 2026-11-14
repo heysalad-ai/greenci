@@ -14,7 +14,11 @@ import {
   type DomainEvent,
 } from '@greenci/core';
 import { RunRepository } from '@greenci/db';
-import { MockGitHubClient, type GitHubClient } from '@greenci/github';
+import {
+  GitHubAppClient,
+  MockGitHubClient,
+  type GitHubClient,
+} from '@greenci/github';
 import { SdkAgentProvider } from '@greenci/agent';
 import { routeDecision, answerValue } from './decisions.js';
 export interface RunEnv {
@@ -25,10 +29,7 @@ export interface RunEnv {
 }
 export function githubFor(env: RunEnv): GitHubClient {
   const config = loadConfig(env);
-  if (config.APP_ENV !== 'local' || config.GITHUB_MODE !== 'mock')
-    throw new Error(
-      'GitHub App execution requires the configured M7 integration',
-    );
+  if (config.GITHUB_MODE === 'app') return new GitHubAppClient(config);
   return new MockGitHubClient(config.MOCK_GITHUB_URL);
 }
 export async function applyEvent(
@@ -401,6 +402,7 @@ export async function domainWorkflow(
               branch,
               fix.files,
               run.rules,
+              run.approved,
             );
             const comparison = await github.compare(run.repo, run.headSha, sha);
             await env.ARTIFACTS.put(
@@ -485,8 +487,16 @@ export async function domainWorkflow(
                 await env.ARTIFACTS.get(`${id}/fix-${run.attempts}.sha`)
               )?.text();
             if (!sha) throw new Error('Missing fix SHA');
+            const defaultBranch = await env.DB.prepare(
+              'SELECT default_branch FROM repos WHERE full_name=?',
+            )
+              .bind(run.repo)
+              .first<{ default_branch: string }>();
             const checks = await github.runChecks(run.repo, sha),
-              baseline = await github.checks(run.repo, 'main');
+              baseline = await github.checks(
+                run.repo,
+                defaultBranch?.default_branch ?? 'main',
+              );
             if (checks.some((check) => check.status === 'failed'))
               await routeDecision(
                 env,

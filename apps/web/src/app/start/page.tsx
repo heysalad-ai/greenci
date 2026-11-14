@@ -16,6 +16,7 @@ function Start() {
   const [step, setStep] = useState<Step>(deckless ? 2 : 1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [betaRepo, setBetaRepo] = useState('');
   const o = copy.onboarding;
 
   async function connect() {
@@ -31,6 +32,7 @@ function Start() {
       const session = sessionResponseSchema.parse(await response.json());
       // CSRF is not a session credential; the authenticated session stays in an HttpOnly cookie.
       sessionStorage.setItem('greenci-csrf', session.csrf);
+      setBetaRepo(session.mode === 'beta' ? (session.repo ?? '') : '');
       setStep(3);
     } catch {
       setError(copy.previewNotConnected);
@@ -43,18 +45,30 @@ function Start() {
     setBusy(true);
     setError('');
     try {
-      const practice = await fetch('/api/client/practice', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': sessionStorage.getItem('greenci-csrf') ?? '',
+      if (betaRepo) {
+        const probe = await fetch('/api/client/beta/probe', {
+          method: 'POST',
+          headers: {
+            'X-CSRF-Token': sessionStorage.getItem('greenci-csrf') ?? '',
+          },
+        });
+        if (!probe.ok) throw new Error(copy.beta.notReady);
+      }
+      const practice = await fetch(
+        betaRepo ? '/api/client/beta/import' : '/api/client/practice',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': sessionStorage.getItem('greenci-csrf') ?? '',
+          },
+          body: '{}',
         },
-        body: '{}',
-      });
+      );
       if (!practice.ok) throw new Error();
       setStep(4);
     } catch {
-      setError(copy.previewNotConnected);
+      setError(betaRepo ? copy.beta.notReady : copy.previewNotConnected);
     } finally {
       setBusy(false);
     }
@@ -148,15 +162,21 @@ function Start() {
                   <label className={styles.repoRow} data-on="true">
                     <input type="checkbox" checked readOnly />
                     <span style={{ flex: 1 }}>
-                      <b>{copy.practiceRepo}</b>
-                      <small>{copy.practiceDetail}</small>
+                      <b>{betaRepo || copy.practiceRepo}</b>
+                      <small>
+                        {betaRepo ? copy.beta.repoDetail : copy.practiceDetail}
+                      </small>
                     </span>
                   </label>
                 </div>
                 <p>{o.reposMore}</p>
                 <div className={styles.stepActions}>
                   <Button disabled={busy} onClick={() => void watch()}>
-                    {busy ? copy.working : o.watch(1)}
+                    {busy
+                      ? copy.working
+                      : betaRepo
+                        ? copy.beta.checkSetup
+                        : o.watch(1)}
                   </Button>
                 </div>
               </>
@@ -164,12 +184,12 @@ function Start() {
 
             {step === 4 && (
               <>
-                <h1>{copy.practiceTitle}</h1>
+                <h1>{betaRepo ? copy.beta.ready : copy.practiceTitle}</h1>
                 <p>{o.practiceDetail}</p>
                 <div className={styles.failCard}>
                   <Mascot mood="failing" size={44} />
                   <span>
-                    <b>{copy.failing}</b> · {copy.practiceRepo}
+                    <b>{copy.failing}</b> · {betaRepo || copy.practiceRepo}
                   </span>
                 </div>
                 <div className={styles.stepActions}>

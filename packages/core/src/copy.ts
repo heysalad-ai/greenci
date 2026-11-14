@@ -1,5 +1,27 @@
 export const copy = {
   name: 'GreenCI',
+  beta: {
+    manual:
+      'The first private beta uses manual Diagnose, Repair and Verify actions.',
+    notReady: 'Check the private beta setup before starting a repair.',
+    checkSetup: 'Check setup and load failing CI',
+    setupTitle: 'Create the private GreenCI Dev GitHub App',
+    setupScope:
+      'Owner: heysalad-ai. Install only on greenci-practice. Read checks and logs; write contents and pull requests. No administration or workflow-write permission is requested.',
+    setupKeys:
+      'GitHub generates the app key and webhook secret. This local setup sends them directly to the dev Worker secret store without displaying or saving their values. It also pairs a generated sandbox credential with the API.',
+    setupAction: 'Create private GitHub App on GitHub',
+    setupComplete:
+      'GitHub setup complete. Return to Codex. No credential value was displayed or saved locally.',
+    setupFailure:
+      'Setup did not complete. No credential value was logged. Return to Codex to continue.',
+    setupState: 'Setup state did not match.',
+    noFailure:
+      'No failing check is available yet. Wait for CI to finish, then retry.',
+    ready: 'A failing check is ready. Press Diagnose.',
+    repoDetail:
+      'This repository is connected through the private beta GitHub App.',
+  },
   publicPreview: {
     title: 'GreenCI public preview',
     notice:

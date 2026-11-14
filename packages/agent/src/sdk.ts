@@ -123,7 +123,27 @@ export class SdkAgentProvider implements AgentProvider {
     private sandboxClient?: SandboxClient,
   ) {}
   private runner(traceId?: string) {
+    const cyberModel = /-cyber(?:$|-)/.test(this.config.OPENAI_AGENT_MODEL);
+    if (
+      this.config.AGENT_PROVIDER === 'openai' &&
+      cyberModel &&
+      (this.config.OPENAI_CYBER_READY !== 'true' ||
+        this.config.OPENAI_CYBER_PROGRAM !== 'daybreak_red')
+    )
+      throw new Error(
+        'Cyber model access and deployment requirements must be confirmed before use',
+      );
     return new Runner({
+      ...(this.config.OPENAI_CYBER_PROGRAM
+        ? {
+            modelSettings: {
+              providerData: {
+                access_programs: { cyber: this.config.OPENAI_CYBER_PROGRAM },
+                safety_identifier: 'greenci-private-beta-owner',
+              },
+            },
+          }
+        : {}),
       traceIncludeSensitiveData: false,
       tracingDisabled: this.config.AGENT_PROVIDER === 'fake',
       ...(traceId ? { traceId } : {}),
@@ -228,6 +248,7 @@ export class SdkAgentProvider implements AgentProvider {
             if (
               ![
                 'node --experimental-strip-types --test test.mjs',
+                'node --test test.mjs',
                 'git diff --no-ext-diff --no-textconv',
               ].includes(command)
             )

@@ -1,16 +1,28 @@
 import { z } from 'zod';
 export const configSchema = z.object({
   SCAFFOLD_ONLY: z.enum(['true', 'false']).default('false'),
+  BETA_ENABLED: z.enum(['true', 'false']).default('false'),
   APP_ENV: z.enum(['local', 'dev', 'staging', 'prod']).default('local'),
   GITHUB_MODE: z.enum(['mock', 'app']).default('mock'),
   AGENT_PROVIDER: z.enum(['fake', 'openai']).default('fake'),
   SANDBOX: z.enum(['none', 'cloudflare']).default('none'),
-  EMAIL_PROVIDER: z.enum(['local', 'resend']).default('local'),
+  EMAIL_PROVIDER: z.enum(['local', 'resend', 'disabled']).default('local'),
   WEB_URL: z.url().default('http://localhost:3000'),
   API_URL: z.url().default('http://localhost:8787'),
   MOCK_GITHUB_URL: z.url().default('http://localhost:4001'),
   GITHUB_APP_ID: z.string().default(''),
   GITHUB_PRIVATE_KEY: z.string().default(''),
+  GITHUB_INSTALLATION_ID: z.string().default(''),
+  BETA_REPOS: z.string().default(''),
+  BETA_WRITE_PATHS: z.string().default('src/**'),
+  BETA_ACCESS_TEAM: z.string().default(''),
+  BETA_ACCESS_AUD: z.string().default(''),
+  BETA_OWNER_EMAIL: z.string().default(''),
+  BETA_OWNER_LOGIN: z.string().default(''),
+  OPENAI_CYBER_PROGRAM: z
+    .enum(['', 'daybreak_blue', 'daybreak_red'])
+    .default(''),
+  OPENAI_CYBER_READY: z.enum(['true', 'false']).default('false'),
   GITHUB_WEBHOOK_SECRET: z
     .string()
     .min(16)
@@ -38,7 +50,15 @@ export function loadConfig(env: Record<string, unknown>): Config {
     throw new Error('SANDBOX=none is permitted only locally');
   if (config.APP_ENV !== 'local' && config.GITHUB_MODE !== 'app')
     throw new Error('GITHUB_MODE must be app outside local');
-  if (config.APP_ENV !== 'local' && config.EMAIL_PROVIDER !== 'resend')
+  if (
+    config.APP_ENV !== 'local' &&
+    config.EMAIL_PROVIDER !== 'resend' &&
+    !(
+      config.APP_ENV === 'dev' &&
+      config.BETA_ENABLED === 'true' &&
+      config.EMAIL_PROVIDER === 'disabled'
+    )
+  )
     throw new Error('EMAIL_PROVIDER must be resend outside local');
   if (config.SCAFFOLD_ONLY === 'true') {
     if (config.APP_ENV !== 'dev')

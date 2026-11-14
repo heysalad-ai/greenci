@@ -378,3 +378,11 @@ describe('product screen copy', () => {
     expect(seen.length).toBeGreaterThan(0);
   });
 });
+
+it('clears verification when a previously verified run is handed back', () => {
+  const result = transition(base({ state: 'pr_open', verified: true }), {
+    type: 'route_failed',
+  });
+  expect(result.run.state).toBe('handed_back');
+  expect(result.run.verified).toBe(false);
+});
