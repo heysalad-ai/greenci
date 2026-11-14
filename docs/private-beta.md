@@ -1,6 +1,6 @@
 # Private beta: one real repair
 
-Status: offline validation and live provider acceptance are recorded below. Private dev API/web code is deployed behind the existing Access protection; The signed owner session, real GitHub repository metadata, live OpenAI response, Node execution and denied-network probe pass. CI import is awaiting the read-only commit-status permission. The public site preview is separate and unchanged. Live OpenAI readiness inference has completed; no repository repair or repair PR has been produced yet.
+Status: the first real OpenAI repair is verified in dev. The signed owner session imported real GitHub CI, diagnosed and repaired the source defect, verified passing checks on the repair SHA and opened [draft PR #1](https://github.com/heysalad-ai/greenci-practice/pull/1) through the installed GitHub App. The PR remains unmerged. Private web/API retain Access; the separate public preview is unchanged.
 
 ## First repository
 
@@ -45,7 +45,7 @@ Published in HeySalad Inc. (`67a17ada4efeee4480283035cc0c5f90`):
 
 | Worker                   | Version                              | Current observation                                                                                   |
 | ------------------------ | ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| greenci-sandbox-beta-dev | 676fd38d-efa4-4216-b4e3-c09f3e137e7d | Credential paired: unauthenticated health returns 401; Node execution and denied-network probe passed |
+| greenci-sandbox-beta-dev | 2b72aa6f-1939-4b1c-9477-4e3dd71c60e7 | Credential paired: unauthenticated health returns 401; Node execution and denied-network probe passed |
 | greenci-webhooks-dev     | 312de0d3-8c24-449e-a65e-cae31f921bb1 | Unauthenticated GET returns 404; private API activated; live signed delivery not yet verified         |
 
 Sandbox application ID: `a0363cd7-37a1-4d00-8a7a-8d3c83b60311`. It uses the matching official `docker.io/cloudflare/sandbox:0.12.14` image directly, so local Docker is unnecessary. The Sandbox subclass disables Internet access, the warm pool target is zero, capacity is one, and the bridge rejects requests without its mandatory bearer credential. Live acceptance ran a Node script with exit code 0 and a direct external TCP-denial probe with exit code 0. The sandbox uses the basic instance size (1 GiB), one-instance cap and zero warm target. GreenCIPool coalesces concurrent startup requests; its workerd regression reproduced three starts before the guard and one after it. A second regression covers recovery from a zero ceiling after transient platform exhaustion.
@@ -59,33 +59,44 @@ pnpm exec wrangler deploy --config apps/sandbox/wrangler.beta.jsonc --env dev
 pnpm exec wrangler deploy --config apps/webhooks/wrangler.jsonc --env dev
 ```
 
-After these deployments, anonymous private web/API requests still returned 302 to Access, while the public preview returned 200. No existing private web/API runtime was activated, Access policy changed, database migrated, staging/production deployed, PR merged or PR approved.
+Anonymous private web/API requests return 302 to Access, while the public preview returns 200 and the sandbox rejects unauthenticated requests with 401. Private API/web were activated only in dev. Migration `0004_operator_retries.sql` was applied only to dev D1: explicit operator retries get independent run IDs while automatic webhook deduplication remains deterministic. No Access policy was weakened, staging/production deployed, PR merged or PR approved.
 
 ## Cyber API
 
 The [official Daybreak guide](https://developers.openai.com/api/docs/guides/daybreak) documents `gpt-6-cyber` through Responses with `access_programs.cyber=daybreak_red`. It requires organization/project approval, additional model approval and an approved IP allowlist; Workers' ordinary shared egress is not a confirmed fixed-egress solution. Cyber inference remains disabled until those requirements are confirmed. The setup probe checks model visibility separately and does not treat visibility as inference approval. The existing key returned HTTP 404 for Cyber model visibility; no Cyber inference has been attempted.
 
-## Acceptance still required
-
-- [x] Store the existing OpenAI key directly in the dev API secret store.
-- [x] Complete the private GitHub App's creation and selected-repository installation.
-- [x] Confirm exact owner identity and signed Access session against the generated profile.
-- [x] Deploy the private API and M5 web code only to dev, preserving Access.
-- [x] Complete live model and sandbox execution/denied-network probes.
-- Import the real failed practice check, then press Diagnose, Repair and Verify.
-- Confirm a source-only patch, fresh passing GitHub checks on its SHA and a draft PR. Leave review and merge to the human.
-- Record the actual trace, check run, commit and PR evidence before calling the real repair verified.
-
-Private web version: `5f89eb7f-fff7-4bab-aa38-4853f68bbb34`. Anonymous HTTP checks after activation: private web/API 302, public preview 200, sandbox 401. These checks do not establish a working signed application session or live repair.
-
 ## Live acceptance: 14 November 2026
 
-- Private owner session: HTTP 200; GitHub App lists only the practice repository and confirms owner write access.
-- OpenAI: gpt-6-sol readiness response completed, HTTP 200. Cyber model visibility: HTTP 404; this is not an inference-access approval.
-- Sandbox: Node script returned exit 0 and the expected marker; a bounded direct TCP probe to 1.1.1.1:443 returned exit 0 after denial, then the sandbox was deleted. Both probes passed again after removing the temporary cleanup handler.
-- An exact stopped probe instance from earlier failed startup races was reclaimed through a temporary bearer-protected dev handler. That handler and its caller were removed from source and redeployed. Old pool namespaces are retained for their existing alarms; new sessions use GreenCIPool. No repository data had entered those probe containers.
-- CI import: GitHub check runs are readable, but `/commits/<sha>/status` returned HTTP 403. The prepared patch requests `statuses: read` in the App manifest and downscoped installation token. GitHub reauthentication and permission confirmation are pending. No permission failure is ignored during verification.
+- Signed owner session: HTTP 200; GitHub App lists only the practice repository and confirms owner write access. JWT signature, issuer, audience, expiry and configured owner are validated; Workers default fetch uses manual redirects during validation.
+- GitHub's read-only commit-status permission is granted and accepted on installation 181786346, still restricted to `greenci-practice`. Failed checks import without ignoring permission errors.
+- OpenAI: real diagnosis and repair used `gpt-6-sol`; Decisions used Responses with `gpt-6-luna`. Cyber visibility returned HTTP 404; no Cyber inference was attempted.
+- Sandbox: Node script returned exit 0 and its expected marker. A bounded direct TCP probe to 1.1.1.1:443 returned the denial marker and exit 0; its session was deleted. Probes passed again after removing the temporary cleanup handler. This is observed probe evidence, not an audit of every possible egress path.
+- An exact stopped probe instance from earlier startup races was reclaimed using a temporary bearer-protected dev handler. That handler and caller were removed and redeployed. Old pool namespaces retain their alarms; new sessions use GreenCIPool. No repository data entered those probe containers.
 
-Current observed deployment versions: private API `1399537c-3569-4e91-92d6-a33adbf2a24e`; sandbox `2b72aa6f-1939-4b1c-9477-4e3dd71c60e7`. The commit-status permission patch is not deployed yet.
+### Real repair evidence
 
-Offline gate after the session, pool and permission fixes: lint and all 18 typechecks pass; 71 tests across 14 files pass; core coverage remains 100% statements/branches/functions/lines; all 18 builds and seven browser journeys pass. Tests use synthetic credentials, fake models and mocked GitHub. Live provider probes are separate operator acceptance actions.
+| Evidence             | Observed result                                                                                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Application run      | [`run-b0359999-a4ce-4e38-9937-3f71a044d550`](https://greenci-web-dev.heysalad-o.workers.dev/app/runs/run-b0359999-a4ce-4e38-9937-3f71a044d550), state `pr_open`, 1/1 checks passing |
+| Workflow trace       | `trace_e822fd611b084529ad8b982d6bf43f9b`                                                                                                                                            |
+| Original/default SHA | `59fcd7b636665f04e4463daf5a8ea92ec4974dca`, unchanged after repair                                                                                                                  |
+| Repair SHA           | `c3ac958f7a4509e3ed6ab017e85d33df44e3553e`                                                                                                                                          |
+| Patch                | Only `src/add.mjs`: `left - right` becomes `left + right`; one commit, +1/-1; tests and workflows unchanged                                                                         |
+| Exact-head push CI   | [43597445852](https://github.com/heysalad-ai/greenci-practice/actions/runs/43597445852), `test` passed                                                                              |
+| Pull-request CI      | [43597524685](https://github.com/heysalad-ai/greenci-practice/actions/runs/43597524685), `test` passed                                                                              |
+| App-created PR       | [Draft #1](https://github.com/heysalad-ai/greenci-practice/pull/1), authored by `greenci-dev-heysalad-3e9efc[bot]`, open and unmerged                                               |
+
+The first attempt `run-ba052d1673e5c412ad1fb40d6d7df6ff` failed closed before a GitHub write and remains recorded as handed back. Its cause was filtering out the Agents SDK native `apply_patch` tool. The corrected adapter retains that tool and validates workspace paths and move destinations at the editor boundary before writes. Unsupported function calls receive bounded policy feedback without execution. A new explicit operator retry produced the successful run above; no failed-run history was reset. Protected-path, approval and final GitHub diff/check guards remain enforced.
+
+### Deployed dev versions
+
+| Worker          | Version                                                   |
+| --------------- | --------------------------------------------------------- |
+| Private API     | `d0405e82-4a11-4cf9-9af4-f4e4c7c4a7e8` (source `2851b67`) |
+| Private web     | `d42d9935-b809-4861-9365-6586ed7c3d7b`                    |
+| Beta sandbox    | `2b72aa6f-1939-4b1c-9477-4e3dd71c60e7`                    |
+| Webhook ingress | `312de0d3-8c24-449e-a65e-cae31f921bb1`                    |
+
+Offline gate: lint and all 18 typechecks pass; 74 tests across 14 files pass; core coverage is 100% statements/branches/functions/lines; all 18 builds and seven browser journeys pass. Automated tests use synthetic credentials, fake models and mocked GitHub. The real provider journey above is a separate live acceptance action.
+
+This acceptance covers one owner, one selected repository and one source-only repair. Broader repository onboarding, automatic repair, mobile/remote CLI sign-in and Cyber inference remain outside this dev beta acceptance. Review and merge remain human actions.

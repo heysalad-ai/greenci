@@ -1,12 +1,12 @@
 # Progress
 
-## Private beta preparation — 14 November 2026
+## Private beta — real repair verified, 14 November 2026
 
-Created the user-selected private greenci-practice repository and observed its intentional failure in real GitHub CI. Implemented the real repository-scoped GitHub App adapter, signed Access sessions, readiness-gated manual actions, scoped webhook ingress, contained beta sandbox profile and secure App setup helper. Support Workers and private API/web are deployed dev-only. Existing OpenAI secret storage and selected-repository App installation are confirmed; signed application session and live OpenAI/Node/network-denial probes pass. The read-only commit-status permission is granted, real CI imports, and OpenAI diagnosis passes. The first repair failed closed before any GitHub write because the SDK native patch tool was filtered out. The guarded native-editor adapter and independent operator retry path pass offline validation (74 tests and seven browser journeys); real repair remains pending. Offline gates passed: lint, types, 71 tests, 100% core coverage, 18 builds and seven browser journeys. See docs/private-beta.md for exact evidence and remaining gates. This is not a completed live beta.
+Fixed signed Workers session validation, contained sandbox startup and guarded native SDK patches. The installed GitHub App is restricted to `heysalad-ai/greenci-practice`; the existing OpenAI secret powered a real `gpt-6-sol` diagnosis and repair. Run `run-b0359999-a4ce-4e38-9937-3f71a044d550` verified GitHub checks on repair SHA `c3ac958f7a4509e3ed6ab017e85d33df44e3553e` and the App opened [draft PR #1](https://github.com/heysalad-ai/greenci-practice/pull/1). Only `src/add.mjs` changed; push and PR CI pass, and the default branch is unchanged. The first failed attempt remains recorded; independent operator retries preserve history. Lint, 18 typechecks, 74 tests, 100% core coverage, 18 builds and seven browser journeys pass. Private API/web and the retry migration are deployed only to dev; Access and the public preview remain intact. No PR was merged or approved. Cyber visibility returned 404, so Cyber inference remains disabled. Exact live evidence and versions: [docs/private-beta.md](docs/private-beta.md).
 
 ## Public site preview — 14 November 2026
 
-The user selected a public preview first. A separate dev-only static Worker publishes the landing and clearly labeled M5 screen captures, while the existing private web/API services retain Access. No live GitHub/model/repair or commerce capability is enabled. See docs/public-preview.md for the build, checks and deployment record.
+The user selected a public preview first. A separate dev-only static Worker publishes the landing and clearly labeled M5 screen captures, while the existing private web/API services retain Access. The public preview has no live GitHub/model/repair or commerce capability. See docs/public-preview.md for the build, checks and deployment record.
 
 - [x] Design system, screens and build brief committed
 - [x] M0 Scaffold
