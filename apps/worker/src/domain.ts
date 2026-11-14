@@ -232,11 +232,12 @@ export async function domainWorkflow(
               .slice(-400)
               .join('\n');
             const historyResult = await env.DB.prepare(
-              "SELECT c.name,c.log_excerpt AS log FROM checks c JOIN runs r ON r.id=c.run_id WHERE r.repo_id=? AND r.id<>? AND r.branch=(SELECT default_branch FROM repos WHERE id=?) AND c.phase='original' AND c.created_at>=? ORDER BY c.created_at DESC LIMIT 100",
+              "SELECT c.name,c.log_excerpt AS log FROM checks c JOIN runs r ON r.id=c.run_id WHERE r.repo_id=? AND r.id<>? AND r.head_sha<>? AND r.branch=(SELECT default_branch FROM repos WHERE id=?) AND c.phase='original' AND c.created_at>=? ORDER BY c.created_at DESC LIMIT 100",
             )
               .bind(
                 run.repo,
                 run.id,
+                run.headSha,
                 run.repo,
                 new Date(Date.now() - 7 * 86400_000).toISOString(),
               )

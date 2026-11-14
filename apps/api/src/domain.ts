@@ -97,21 +97,28 @@ app.post('/v1/beta/import', async (c) => {
   if (!failed) return c.json({ error: copy.beta.noFailure }, 409);
   const id = `beta-import-${sha}-${Date.now()}`;
   console.info('Beta import: register run');
-  await processWebhook(c.env, {
-    id,
-    type: 'github.check_run',
-    payload: {
-      action: 'completed',
-      repository: { full_name: repo, default_branch: metadata.default_branch },
-      check_run: {
-        name: failed.name,
-        head_sha: sha,
-        head_branch: metadata.default_branch,
-        conclusion: 'failure',
-        output: { text: failed.log },
+  await processWebhook(
+    c.env,
+    {
+      id,
+      type: 'github.check_run',
+      payload: {
+        action: 'completed',
+        repository: {
+          full_name: repo,
+          default_branch: metadata.default_branch,
+        },
+        check_run: {
+          name: failed.name,
+          head_sha: sha,
+          head_branch: metadata.default_branch,
+          conclusion: 'failure',
+          output: { text: failed.log },
+        },
       },
     },
-  });
+    `run-${crypto.randomUUID()}`,
+  );
   return c.json({ accepted: true }, 202);
 });
 app.post('/v1/beta/probe', async (c) => {
@@ -408,6 +415,7 @@ app.post('/webhooks/github', async (c) => {
 export async function processWebhook(
   env: ApiEnv,
   event: { id: string; type: string; payload: Record<string, unknown> },
+  operatorRunId?: string,
 ) {
   if (['github.issue_comment', 'github.commit_comment'].includes(event.type)) {
     await processComment(env, event);
@@ -472,10 +480,11 @@ export async function processWebhook(
       new TextEncoder().encode(`${repo}:${check.head_sha}:${check.name}`),
     );
     const id =
+      operatorRunId ??
       'run-' +
-      Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0'))
-        .join('')
-        .slice(0, 32);
+        Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0'))
+          .join('')
+          .slice(0, 32);
     const run = runSchema.parse({
       id,
       repo,
