@@ -721,3 +721,58 @@ it('preserves independent operator retry runs without changing the original fail
     verified: false,
   });
 });
+
+it('serves private audit snapshots only to owners in the matching organisation', async () => {
+  const { dashboardFixture } = await import('./fixtures/audit.js');
+  const bucket = await mf.getR2Bucket('ARTIFACTS', 'api');
+  const db = await mf.getD1Database('DB', 'api');
+  await db.exec(
+    "INSERT OR IGNORE INTO users(id,login) VALUES ('sam','sam'),('audit-reader','audit-reader'); INSERT OR IGNORE INTO memberships(id,user_id,org_id,role) VALUES ('sam:acme','sam','acme','owner'),('audit-reader:acme','audit-reader','acme','member'),('sam:greenci','sam','greenci','owner');",
+  );
+  const kv = await mf.getKVNamespace('SESSIONS', 'api');
+  const owner = crypto.randomUUID(),
+    reader = crypto.randomUUID(),
+    other = crypto.randomUUID();
+  for (const [token, userId, orgId] of [
+    [owner, 'sam', 'acme'],
+    [reader, 'audit-reader', 'acme'],
+    [other, 'sam', 'greenci'],
+  ])
+    await kv.put(
+      `session:${token}`,
+      JSON.stringify({ userId, orgId, csrf: crypto.randomUUID() }),
+    );
+  await bucket.put('audit/acme/current.json', JSON.stringify(dashboardFixture));
+  const read = (token?: string) =>
+    mf.dispatchFetch(
+      url + '/v1/audit',
+      token ? { headers: { Authorization: `Bearer ${token}` } } : {},
+    );
+  expect((await read()).status).toBe(401);
+  expect((await read(reader)).status).toBe(403);
+  const response = await read(owner);
+  expect(response.status).toBe(200);
+  expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+  expect(
+    ((await response.json()) as { audit: { org: string } }).audit.org,
+  ).toBe('acme');
+  expect(await (await read(other)).json()).toEqual({ audit: null });
+  await bucket.put(
+    'audit/acme/current.json',
+    JSON.stringify({
+      ...dashboardFixture,
+      org: 'greenci',
+      repositories: dashboardFixture.repositories.map((r) => ({
+        ...r,
+        repo: r.repo.replace('acme/', 'greenci/'),
+      })),
+      repairs: dashboardFixture.repairs.map((r) => ({
+        ...r,
+        repo: r.repo.replace('acme/', 'greenci/'),
+        pr: { ...r.pr, url: r.pr.url.replace('/acme/', '/greenci/') },
+      })),
+    }),
+  );
+  expect((await read(owner)).status).toBe(403);
+  await bucket.delete('audit/acme/current.json');
+});

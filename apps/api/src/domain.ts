@@ -8,6 +8,7 @@ import {
   runSchema,
   rulesSchema,
   actionSchema,
+  auditDashboardSchema,
   transition,
   redact,
 } from '@greenci/core';
@@ -77,6 +78,29 @@ app.use('/v1/*', async (c, next) => {
   const user = await session(c.req.raw, c.env);
   if (!user) return c.json({ error: copy.api.signIn }, 401);
   await next();
+});
+// Audit artifacts contain private names. Require owner membership and exact tenant scope.
+app.all('/v1/audit', async (c) => {
+  const config = loadConfig(c.env);
+  if (!['local', 'dev'].includes(config.APP_ENV)) return c.notFound();
+  const user = (await session(c.req.raw, c.env))!;
+  const owner = await c.env.DB.prepare(
+    'SELECT id FROM memberships WHERE user_id=? AND org_id=? AND role=?',
+  )
+    .bind(user.userId, user.orgId, 'owner')
+    .first();
+  if (!owner) return c.json({ error: copy.api.signIn }, 403);
+  if (c.req.method !== 'GET') return c.notFound();
+  const object = await c.env.ARTIFACTS.get(`audit/${user.orgId}/current.json`);
+  const headers = {
+    'Cache-Control': 'private, no-store',
+    Vary: 'Cookie, Authorization',
+  };
+  if (!object) return c.json({ audit: null }, 200, headers);
+  const audit = auditDashboardSchema.parse(await object.json());
+  if (audit.org !== user.orgId)
+    return c.json({ error: copy.api.signIn }, 403, headers);
+  return c.json({ audit }, 200, headers);
 });
 app.post('/v1/beta/import', async (c) => {
   const config = loadConfig(c.env),

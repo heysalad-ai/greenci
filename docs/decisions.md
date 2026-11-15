@@ -110,3 +110,11 @@ compared with a meter, so label voltage unverified and do not claim remaining mA
 runtime or charge state. Retain optional telemetry fields for older firmware
 rollback. Physical charging/protection and screen/battery-only acceptance remain
 separate hardware checks.
+
+## Read-only account audit
+
+Account-wide review uses a local deterministic GreenCI audit command with the existing authenticated GitHub CLI. The deployed dev App remains practice-only and no permissions are broadened. The transport is restricted to inventory, pinned trees/workflows and GraphQL queries; no model, source execution, repair, repository setting change or secret-alert payload is involved. Reports stay in ignored private local storage. This is explicitly a configuration/metadata baseline with coverage gaps, rather than a full vulnerability scan or a new CI run. The initial read-only audit stayed local; subsequent operator-authorised repairs and the dev dashboard are recorded separately.
+
+## Customer-visible audit and repair evidence
+
+The first audit dashboard extends the existing GreenCI shell rather than changing its identity. It serves validated private R2 snapshots only to owners in the session organisation, with real draft PR/head/check observations and independent local verification states. The current repair publisher uses an authorised operator's GitHub CLI connection, exact-parent/source-hash checks and narrow file/branch allowlists; the deployed practice App is not broadened. This is an operator-assisted review flow, not a claim that arbitrary repositories can already run repairs from the hosted UI. GitHub billing annotations at historical commits are kept separate from current PR checks; new check runs are observed directly. Private customer findings and repository identities stay in private artifacts, not in this public source tree.

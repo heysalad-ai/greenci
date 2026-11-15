@@ -138,3 +138,17 @@ The local browser fidelity/approval/deckless tests are separate evidence from th
 ### Final approval hardening update
 
 After the final regression check, deployed only the dev API from `958995178b5b8df706bc77e604981353c0e5522c`, version `2add735d-8c62-4611-9d64-de5730fe692b`. Approval size and the review payload now derive from actual file contents. The web remains at the version/source above. All 47 tests, the 100% core coverage gate, 18 builds and seven browser journeys pass. Repeated `node scripts/smoke-deployment.mjs dev`: API health, web health and approved landing/software plan all returned 200. Rechecked anonymous web/API Access redirects (302), then confirmed the local probe stopped. Hosted actions remain disabled; no sandbox, staging or production deployment occurred.
+
+## Private audit and draft-review dashboard — 2026-11-15
+
+Deployed only the existing `greenci-api-dev` and `greenci-web-dev` Workers. Public preview, staging, production, App installations and repository permissions were unchanged. Private audit/repair snapshots are stored in the existing dev artifacts bucket and are not committed or included in public assets.
+
+```sh
+corepack pnpm --filter @greenci/web build:worker
+corepack pnpm exec wrangler deploy --config apps/api/wrangler.beta.generated.jsonc --env dev
+corepack pnpm exec wrangler deploy --config apps/web/wrangler.jsonc --env dev
+# Upload a validated private organisation snapshot to its dev-only R2 key:
+corepack pnpm exec wrangler r2 object put greenci-artifacts-dev/audit/ORG/current.json --file PRIVATE_SNAPSHOT --remote --config apps/api/wrangler.beta.generated.jsonc --env dev
+```
+
+API version: `00e0e9a9-4181-4463-9ea0-d0751efbe742`. Final web version: `60a1ae27-9b26-47e3-9af3-d3e30951ae63`. Owner sign-in, authenticated real audit rendering, repository search and finding details were observed at `https://beta.greenci.dev/app/audit`. An anonymous audit request returns the Access redirect (302); the separate public site returns 200. Owner/member/tenant isolation and no-store behavior are covered by local Workers tests. Ten browser tests pass, including auth/error recovery and mobile overflow; the scoped first-viewport spacing correction received the visual review disposition `ship`. No whole-product security certification or hosted arbitrary-repository repair capability is implied.
