@@ -96,6 +96,28 @@ it('authenticates the real Workers relay, bounds releases and signs expiring com
       404,
     );
     expect(await (await poll()).json()).toEqual({ idle: true });
+    const withBattery = {
+      ...status,
+      battery: {
+        millivolts: 4020,
+        percent: 80,
+        nominalMah: 1500,
+        method: 'voltage_estimate',
+      },
+    };
+    expect((await poll(undefined, withBattery)).status).toBe(200);
+    const invalidBattery = {
+      ...withBattery,
+      battery: { ...withBattery.battery, percent: 101 },
+    };
+    expect((await poll(undefined, invalidBattery)).status).toBe(400);
+    const noBattery = {
+      ...withBattery,
+      battery: { ...withBattery.battery, millivolts: 0, percent: null },
+    };
+    expect((await poll(undefined, noBattery)).status).toBe(200);
+    expect((await poll()).status).toBe(200); // Legacy 0.3.9 rollback remains supported.
+
     expect((await command({ op: 'led1', value: 1 })).status).toBe(202);
     const signed = (await (await poll()).json()) as {
       seq: number;

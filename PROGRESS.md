@@ -126,3 +126,18 @@ See docs/device-ota.md and the companion firmware's evidence ledger. Physical
 bad-digest/power-cut injection, visible brightness, battery cold-start and actual
 microphone audio are not claimed by these results. The original GitHub repair
 history and public preview remain intact; no staging/production work.
+
+## Dev battery telemetry
+
+0.4.2 completed a real wireless update and healthy boot on ota_0. The page shows
+user-labelled 1500 mAh capacity and an explicitly unverified ADC-derived voltage
+(~2.69–2.70 V). That low reading has no percentage; a meter comparison is needed
+to distinguish a low cell from measurement error. The user confirmed direct LiPo
+connection and has no meter. No measured remaining mAh, runtime, charging state,
+battery-only acceptance or physical screen acceptance is claimed.
+
+Legacy telemetry remains accepted for rollback, invalid battery percentages are
+rejected, and the native battery test checks invalid/profile boundaries and
+monotonic coarse estimates. Lint, 20 typechecks, 76 service/unit tests, 100% core
+coverage, eight browser journeys and the target firmware build pass. Only the
+dev relay/web Workers changed; Access and the existing repair scope remain intact.

@@ -16,6 +16,14 @@ const heartbeat = z.object({
   led4: z.number(),
   healthy: z.boolean(),
   seenAt: z.number(),
+  battery: z
+    .object({
+      millivolts: z.number().min(0).max(10000),
+      percent: z.number().min(0).max(100).nullable(),
+      nominalMah: z.number().positive(),
+      method: z.literal('voltage_estimate'),
+    })
+    .optional(),
 });
 const responseSchema = z.object({
   status: heartbeat.nullable(),
@@ -171,6 +179,40 @@ export default function DevicePage() {
                 <dd>{new Date(state.status.seenAt).toLocaleTimeString()}</dd>
               </div>
             </dl>
+          )}
+          {state?.status?.battery && (
+            <section aria-label={copy.device.batteryVoltage}>
+              <dl className={styles.facts}>
+                <div>
+                  <dt>{copy.device.batteryVoltage}</dt>
+                  <dd>
+                    {(state.status.battery.millivolts / 1000).toFixed(2)}{' '}
+                    {copy.device.volts}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{copy.device.batteryCharge}</dt>
+                  <dd>
+                    {state.status.battery.percent === null ? (
+                      copy.device.batteryUnavailable
+                    ) : (
+                      <>
+                        {copy.device.batteryEstimate}{' '}
+                        {state.status.battery.percent}
+                        {copy.device.percent}
+                      </>
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{copy.device.batteryCapacity}</dt>
+                  <dd>
+                    {state.status.battery.nominalMah} {copy.device.mah}
+                  </dd>
+                </div>
+              </dl>
+              <p>{copy.device.batteryNote}</p>
+            </section>
           )}
           <div className={styles.controls}>
             {(['led1', 'led4'] as const).map((op) => (

@@ -99,3 +99,14 @@ The first live repair diagnosed the arithmetic defect but stopped at a tool-inpu
 ## Dev Wi-Fi pad control and OTA
 
 Use a narrow public machine gateway plus a relay Worker with no public routes. Existing Access/session/CSRF and owner membership protect the operator page/API; the physical pad gets only a per-device credential for outbound HTTPS polling and image downloads. Typed HMAC commands carry sequence, expiry and image digest/size/version, with sequence persisted before effects. A separate network task preserves local button/UI work and never exposes remote microphone capture or arbitrary execution. The first USB migration preserves NVS and installs dual OTA slots; a live recovery test exposed Arduino 3.3.11 auto-confirming pending boots before setup, so override verifyRollbackLater() and confirm only after the application health checks. The device also uses an explicit ESP-IDF v5.5.1 rollback-enabled bootloader. No eFuses, Secure Boot or encryption settings are changed. Public preview, GitHub repair guards and staging/production remain outside this change.
+
+## Battery values must distinguish measurement from a label
+
+Use the board's GPIO8 and documented 100k/100k divider without driving power or
+charging pins. Nominal 1500 mAh is a user-provided label, not measured capacity.
+Percentage is a coarse, explicitly approximate single-cell LiPo voltage heuristic;
+out-of-profile values return no percentage. The observed ~2.7 V has not been
+compared with a meter, so label voltage unverified and do not claim remaining mAh,
+runtime or charge state. Retain optional telemetry fields for older firmware
+rollback. Physical charging/protection and screen/battery-only acceptance remain
+separate hardware checks.

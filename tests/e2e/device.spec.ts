@@ -16,6 +16,12 @@ test('device page waits for the matching device acknowledgment', async ({
           led4: 0,
           healthy: true,
           seenAt: Date.now(),
+          battery: {
+            millivolts: 3980,
+            percent: 75,
+            nominalMah: 1500,
+            method: 'voltage_estimate',
+          },
         },
         // A stale status fetch can reach the UI before the pending-command fetch.
         pending: null,
@@ -31,6 +37,14 @@ test('device page waits for the matching device acknowledgment', async ({
   });
   await page.goto('/app/device');
   await expect(page.getByText('Pad connected over Wi-Fi')).toBeVisible();
+  await expect(page.getByText('3.98 V', { exact: true })).toBeVisible();
+  await expect(page.getByText('approx. 75%', { exact: true })).toBeVisible();
+  await expect(page.getByText('1500 mAh', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('remaining mAh and runtime are not measured', {
+      exact: false,
+    }),
+  ).toBeVisible();
   await page
     .getByRole('group', { name: 'Port 1 light' })
     .getByRole('button', { name: 'Minimum' })

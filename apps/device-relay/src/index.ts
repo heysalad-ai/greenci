@@ -34,6 +34,15 @@ const telemetry = z
     led1: z.number().int().min(0).max(20),
     led4: z.number().int().min(0).max(20),
     healthy: z.boolean(),
+    battery: z
+      .object({
+        millivolts: z.number().int().min(0).max(10000),
+        percent: z.number().int().min(0).max(100).nullable(),
+        nominalMah: z.number().int().positive().max(100000),
+        method: z.literal('voltage_estimate'),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 const hex = (a: ArrayBuffer) =>

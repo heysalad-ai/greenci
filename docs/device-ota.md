@@ -87,3 +87,23 @@ firmware evidence ledger; simulated checks are not physical evidence.
 
 The sanitized live-device ledger is also copied to
 [docs/evidence/device-ota-dev.json](evidence/device-ota-dev.json).
+
+## LiPo voltage and labelled capacity
+
+Firmware 0.4.2 adds GPIO8 battery-sense telemetry for the user-confirmed direct
+3.7 V LiPo connection, labelled 1500 mAh. The schematic/Arduino variant specify
+a 1/2 divider; the firmware uses the calibrated ADC API and filtered samples.
+The optional battery payload preserves compatibility with older rollback images.
+The beta page labels voltage **unverified**, separates labelled capacity from
+estimated charge, and never presents remaining mAh/runtime as measured.
+
+The live board reported approximately 2.69–2.70 V, which is unexpectedly low.
+No multimeter is available, so neither absolute accuracy nor cell charge is
+verified. Below 3.0 V or above 4.35 V, no percentage is provided. No inference
+that the LiPo is charged by USB, no new charging/protection behavior, and no
+battery-only runtime claim follows from this feature. Keep USB power available
+until the low reading can be checked. The manufacturer's connector is documented
+for AA/AAA packs. Physical screen visibility also remains unverified.
+
+Companion source checkpoint: `codex/greenci-wireless-ota` / `f0ef7df`.
+See [battery evidence](evidence/battery-dev.json) and the companion BATTERY.md.

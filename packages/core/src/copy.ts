@@ -1,6 +1,16 @@
 export const copy = {
   device: {
     title: 'Your GreenCI pad',
+    batteryVoltage: 'Voltage reading (unverified)',
+    batteryCharge: 'Estimated charge',
+    batteryCapacity: 'Labelled capacity',
+    batteryNote:
+      'Voltage has not been checked against a meter. Charge is estimated from voltage. Capacity comes from the battery label; remaining mAh and runtime are not measured.',
+    batteryUnavailable: 'Unavailable — verify voltage',
+    batteryEstimate: 'approx.',
+    volts: 'V',
+    mah: 'mAh',
+    percent: '%',
     note: 'Dev device AB8224. Wi-Fi controls and firmware updates. CI keys still run the local demo.',
     offline: 'Pad offline. Check power and Wi-Fi, then refresh.',
     online: 'Pad connected over Wi-Fi',
