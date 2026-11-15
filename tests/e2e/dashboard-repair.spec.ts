@@ -81,7 +81,10 @@ test('dashboard starts one pinned repair and shows a live draft when the server 
   ).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'Review draft PR', exact: true }),
-  ).toHaveAttribute('href', 'https://github.com/acme/repo/pull/2');
+    // Allow two five-second polling cycles plus response/render time on CI.
+  ).toHaveAttribute('href', 'https://github.com/acme/repo/pull/2', {
+    timeout: 15000,
+  });
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(
