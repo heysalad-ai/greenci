@@ -7,9 +7,13 @@ async function proxy(
   const { path } = await params;
   if (path.some((part) => !/^[-\w]+$/.test(part)))
     return new Response(null, { status: 404 });
-  const target =
-    path.join('/') === 'session' ? '__local/session' : `v1/${path.join('/')}`;
   const { env } = getCloudflareContext();
+  const target =
+    path.join('/') === 'session'
+      ? env.APP_ENV === 'local'
+        ? '__local/session'
+        : '__beta/session'
+      : `v1/${path.join('/')}`;
   const upstream = await env.API.fetch(
     `https://api/${target}${new URL(request.url).search}`,
     {

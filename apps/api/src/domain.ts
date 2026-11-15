@@ -1,5 +1,5 @@
-import { MockGitHubClient } from '@greenci/github';
-import { publishRun } from '@greenci/worker';
+import { GitHubAppClient, MockGitHubClient } from '@greenci/github';
+import { githubFor, probeBetaProviders, publishRun } from '@greenci/worker';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
@@ -78,6 +78,74 @@ app.use('/v1/*', async (c, next) => {
   if (!user) return c.json({ error: copy.api.signIn }, 401);
   await next();
 });
+app.post('/v1/beta/import', async (c) => {
+  const config = loadConfig(c.env),
+    user = (await session(c.req.raw, c.env))!;
+  if (config.APP_ENV !== 'dev' || config.BETA_ENABLED !== 'true')
+    return c.notFound();
+  const github = githubFor(c.env);
+  const repos = await github.repos();
+  const repo = repos.find((name) => name.split('/')[0] === user.orgId);
+  if (!repo || !(github instanceof GitHubAppClient)) return c.notFound();
+  console.info('Beta import: metadata');
+  const metadata = await github.metadata(repo),
+    sha = await github.head(repo, metadata.default_branch);
+  console.info('Beta import: checks');
+  const failed = (await github.checks(repo, sha)).find(
+    (check) => check.status === 'failed',
+  );
+  if (!failed) return c.json({ error: copy.beta.noFailure }, 409);
+  const id = `beta-import-${sha}-${Date.now()}`;
+  console.info('Beta import: register run');
+  await processWebhook(
+    c.env,
+    {
+      id,
+      type: 'github.check_run',
+      payload: {
+        action: 'completed',
+        repository: {
+          full_name: repo,
+          default_branch: metadata.default_branch,
+        },
+        check_run: {
+          name: failed.name,
+          head_sha: sha,
+          head_branch: metadata.default_branch,
+          conclusion: 'failure',
+          output: { text: failed.log },
+        },
+      },
+    },
+    `run-${crypto.randomUUID()}`,
+  );
+  return c.json({ accepted: true }, 202);
+});
+app.post('/v1/beta/probe', async (c) => {
+  const config = loadConfig(c.env);
+  if (config.APP_ENV !== 'dev' || config.BETA_ENABLED !== 'true')
+    return c.notFound();
+  const user = (await session(c.req.raw, c.env))!;
+  const github = githubFor(c.env);
+  for (const repo of await github.repos())
+    if (
+      repo.split('/')[0] !== user.orgId ||
+      !['write', 'admin'].includes(
+        await github.permission(repo, config.BETA_OWNER_LOGIN),
+      )
+    )
+      return c.json({ error: copy.api.signIn }, 403);
+  const proof = await probeBetaProviders(config);
+  await c.env.SESSIONS.put(
+    'beta:providers-ready',
+    JSON.stringify({
+      at: new Date().toISOString(),
+      model: config.OPENAI_AGENT_MODEL,
+    }),
+    { expirationTtl: 3600 },
+  );
+  return c.json(proof);
+});
 app.post('/v1/practice', async (c) => {
   const config = loadConfig(c.env);
   if (config.APP_ENV !== 'local' || config.GITHUB_MODE !== 'mock')
@@ -89,6 +157,34 @@ app.post('/v1/practice', async (c) => {
     'main',
   );
   return c.json({ accepted: true }, 202);
+});
+// A single dev pad, scoped to the beta owner and the existing Access/session boundary.
+app.all('/v1/device/*', async (c) => {
+  const config = loadConfig(c.env);
+  if (
+    config.APP_ENV !== 'dev' ||
+    config.BETA_ENABLED !== 'true' ||
+    !c.env.DEVICE_SERVICE
+  )
+    return c.notFound();
+  const user = (await session(c.req.raw, c.env))!;
+  const owner = await c.env.DB.prepare(
+    'SELECT id FROM memberships WHERE user_id=? AND org_id=? AND role=?',
+  )
+    .bind(user.userId, user.orgId, 'owner')
+    .first();
+  if (!owner) return c.json({ error: copy.api.signIn }, 403);
+  const part = c.req.path.slice('/v1/device/'.length);
+  if (!(
+    (part === 'status' && c.req.method === 'GET') ||
+    (['command', 'release'].includes(part) && c.req.method === 'POST')
+  ))
+    return c.notFound();
+  const size = Number(c.req.header('Content-Length') ?? 0);
+  if (size > (part === 'release' ? 0x1e0000 : 2048)) return c.body(null, 413);
+  const target = new URL('https://device.internal/operator/' + part);
+  target.search = new URL(c.req.url).search;
+  return c.env.DEVICE_SERVICE.fetch(new Request(target, c.req.raw));
 });
 app.get('/v1/repos', async (c) => {
   const user = (await session(c.req.raw, c.env))!;
@@ -120,6 +216,11 @@ app.post('/v1/repos/:owner/:repo/rules', async (c) => {
   if (!allowed) return c.notFound();
   const rules = rulesSchema.parse(await c.req.json()),
     at = new Date().toISOString();
+  if (
+    loadConfig(c.env).BETA_ENABLED === 'true' &&
+    (rules.autoMode || rules.autoRepair)
+  )
+    return c.json({ error: copy.beta.manual }, 400);
   await c.env.DB.prepare(
     'INSERT INTO repo_rules (id,repo_id,protected_paths,page_me_branches,max_diff_lines,auto_open_pr,allow_workflows,auto_mode,auto_repair,infra_threshold,flaky_threshold,risk_threshold,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET protected_paths=excluded.protected_paths,page_me_branches=excluded.page_me_branches,max_diff_lines=excluded.max_diff_lines,auto_open_pr=excluded.auto_open_pr,allow_workflows=excluded.allow_workflows,auto_mode=excluded.auto_mode,auto_repair=excluded.auto_repair,infra_threshold=excluded.infra_threshold,flaky_threshold=excluded.flaky_threshold,risk_threshold=excluded.risk_threshold,updated_at=excluded.updated_at',
   )
@@ -204,9 +305,16 @@ app.get('/v1/runs/:id/diff', async (c) => {
       ? `${run.approvalKey}.diff`
       : `${run.id}/fix-${run.attempts}.diff`,
   );
+  c.header('X-GreenCI-Revision', String(run.revision));
+  c.header('Cache-Control', 'no-store');
   return artifact ? c.text(await artifact.text()) : c.notFound();
 });
 app.post('/v1/runs/:id/actions', async (c) => {
+  if (
+    loadConfig(c.env).BETA_ENABLED === 'true' &&
+    !(await c.env.SESSIONS.get('beta:providers-ready'))
+  )
+    return c.json({ error: copy.beta.notReady }, 409);
   const user = (await session(c.req.raw, c.env))!,
     repository = new RunRepository(c.env.DB);
   const body = z
@@ -221,6 +329,14 @@ app.post('/v1/runs/:id/actions', async (c) => {
   } catch {
     return c.notFound();
   }
+  const betaConfig = loadConfig(c.env);
+  if (
+    betaConfig.BETA_ENABLED === 'true' &&
+    !['admin', 'write'].includes(
+      await githubFor(c.env).permission(run.repo, betaConfig.BETA_OWNER_LOGIN),
+    )
+  )
+    return c.json({ error: copy.api.signIn }, 403);
   try {
     transition(run, { type: body.action });
   } catch {
@@ -259,6 +375,9 @@ const webhookSchema = z.object({
       name: z.string(),
       head_sha: z.string(),
       head_branch: z.string().optional(),
+      check_suite: z
+        .object({ head_branch: z.string().nullable().optional() })
+        .optional(),
       conclusion: z.string().nullable(),
       output: z.object({ text: z.string().nullable().optional() }).optional(),
     })
@@ -287,6 +406,8 @@ app.post('/webhooks/github', async (c) => {
     .string()
     .regex(/^[\w-]{1,100}$/)
     .parse(c.req.header('X-GitHub-Delivery'));
+  if (c.req.header('X-GitHub-Event') === 'ping')
+    return c.json({ accepted: true });
   const event = z
     .enum([
       'check_run',
@@ -322,6 +443,7 @@ app.post('/webhooks/github', async (c) => {
 export async function processWebhook(
   env: ApiEnv,
   event: { id: string; type: string; payload: Record<string, unknown> },
+  operatorRunId?: string,
 ) {
   if (['github.issue_comment', 'github.commit_comment'].includes(event.type)) {
     await processComment(env, event);
@@ -355,7 +477,11 @@ export async function processWebhook(
   ) {
     const check = payload.check_run;
     // Ignore checks on our own fix branches; verification records those on the parent run.
-    if (check.head_branch?.startsWith('greenci/')) return;
+    const headBranch =
+      check.head_branch ??
+      check.check_suite?.head_branch ??
+      repositoryRow.default_branch;
+    if (headBranch.startsWith('greenci/fix-')) return;
     const rawRules = await env.DB.prepare(
       'SELECT * FROM repo_rules WHERE repo_id=?',
     )
@@ -382,16 +508,17 @@ export async function processWebhook(
       new TextEncoder().encode(`${repo}:${check.head_sha}:${check.name}`),
     );
     const id =
+      operatorRunId ??
       'run-' +
-      Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0'))
-        .join('')
-        .slice(0, 32);
+        Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0'))
+          .join('')
+          .slice(0, 32);
     const run = runSchema.parse({
       id,
       repo,
       orgId: repositoryRow.org_id,
       headSha: check.head_sha,
-      branch: check.head_branch ?? repositoryRow.default_branch,
+      branch: headBranch,
       failingCheckName: check.name,
       rules,
       startedBy: rules.autoMode ? 'auto' : 'web',
@@ -422,6 +549,36 @@ export async function processWebhook(
       await env.RUN_WORKFLOW.create({ id, params: { runId: id } });
     } catch {
       await env.RUN_WORKFLOW.get(id);
+    }
+  }
+  if (
+    event.type === 'github.pull_request' &&
+    payload.action === 'synchronize' &&
+    payload.pull_request
+  ) {
+    const repository = new RunRepository(env.DB);
+    for (const run of await repository.list(repositoryRow.org_id)) {
+      if (
+        run.repo !== repo ||
+        run.state !== 'pr_open' ||
+        run.prNumber !== payload.pull_request.number
+      )
+        continue;
+      const expectedSha = await (
+        await env.ARTIFACTS.get(`${run.id}/fix-${run.attempts}.sha`)
+      )?.text();
+      if (!expectedSha || expectedSha === payload.pull_request.head.sha)
+        continue;
+      const current = await repository.get(run.id),
+        next = transition(current.run, { type: 'route_failed' });
+      await repository.save(
+        next.run,
+        current.version,
+        event.id,
+        'pr_head_changed',
+        next.effects,
+      );
+      await publishRun(env, next.run, event.id);
     }
   }
   if (
@@ -527,13 +684,15 @@ async function processComment(
       .trim()
       .match(/^\/greenci (diagnose|repair|verify|approve)$/);
   if (!match) return;
-  const config = loadConfig(env);
-  if (config.APP_ENV !== 'local' || config.GITHUB_MODE !== 'mock')
-    throw new Error('GitHub App adapter is required');
-  const github = new MockGitHubClient(config.MOCK_GITHUB_URL),
+  const github = githubFor(env),
     repo = input.repository.full_name,
     permission = await github.permission(repo, input.comment.user.login),
     target = input.comment.commit_id ?? String(input.issue?.number ?? '');
+  if (
+    loadConfig(env).BETA_ENABLED === 'true' &&
+    !(await env.SESSIONS.get('beta:providers-ready'))
+  )
+    return;
   if (!['write', 'admin'].includes(permission)) {
     await github.comment(repo, target, copy.commentDenied);
     return;

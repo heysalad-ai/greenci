@@ -1,0 +1,46 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "greenci-sandbox-beta-local",
+  "main": "src/beta-bridge.ts",
+  "account_id": "67a17ada4efeee4480283035cc0c5f90",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "send_metrics": false,
+  "env": {
+    "dev": {
+      "name": "greenci-sandbox-beta-dev",
+      "workers_dev": true,
+      "preview_urls": false,
+      "containers": [
+        {
+          "class_name": "Sandbox",
+          "image": "docker.io/cloudflare/sandbox:0.12.14",
+          "max_instances": 1,
+          "instance_type": "basic",
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          { "name": "SANDBOX", "class_name": "Sandbox" },
+          // WarmPool 0.12.14 internally resolves the canonical Sandbox binding.
+          { "name": "Sandbox", "class_name": "Sandbox" },
+          { "name": "WARM_POOL", "class_name": "GreenCIPool" },
+        ],
+      },
+      "migrations": [
+        { "tag": "v1-beta", "new_sqlite_classes": ["Sandbox", "WarmPool"] },
+        {
+          "tag": "v2-beta-pool-singleflight",
+          "new_sqlite_classes": ["BetaWarmPool"],
+        },
+        {
+          "tag": "v3-beta-pool-reclaimed",
+          "new_sqlite_classes": ["GreenCIPool"],
+        },
+      ],
+      "vars": { "WARM_POOL_TARGET": "0", "WARM_POOL_MAX_INSTANCES": "1" },
+    },
+  },
+}

@@ -118,6 +118,11 @@ beforeAll(async () => {
       '',
     ),
   );
+  await db.exec(
+    (
+      await readFile('packages/db/migrations/0004_operator_retries.sql', 'utf8')
+    ).replace(/^--.*$/gm, ''),
+  );
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
@@ -683,3 +688,36 @@ it('owner-only auto mode diagnoses without a key and defaults back to manual', a
     ).status,
   ).toBe(404);
 }, 30_000);
+
+it('preserves independent operator retry runs without changing the original failed run', async () => {
+  const db = await mf.getD1Database('DB', 'api');
+  const repository = new RunRepository(db as unknown as D1Database);
+  const original = runSchema.parse({
+    id: 'operator-first',
+    repo: 'acme/retry-fixture',
+    orgId: 'acme',
+    headSha: 'unchanged-head',
+    branch: 'main',
+    failingCheckName: 'test',
+    state: 'handed_back',
+    attempts: 1,
+  });
+  await repository.create(original);
+  await repository.create({
+    ...original,
+    id: 'operator-retry',
+    state: 'failing',
+    attempts: 0,
+  });
+  expect((await repository.get('operator-first')).run).toMatchObject({
+    state: 'handed_back',
+    attempts: 1,
+    headSha: 'unchanged-head',
+  });
+  expect((await repository.get('operator-retry')).run).toMatchObject({
+    state: 'failing',
+    attempts: 0,
+    headSha: 'unchanged-head',
+    verified: false,
+  });
+});

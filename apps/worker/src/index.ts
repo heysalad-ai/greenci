@@ -72,4 +72,5 @@ export class RunWorkflow extends WorkflowEntrypoint<
     };
   }
 }
-export { publishRun } from './domain.js';
+export { githubFor, publishRun } from './domain.js';
+export { probeBetaProviders } from '@greenci/agent';

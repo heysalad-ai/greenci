@@ -1,0 +1,44 @@
+{
+  "firmware": "greenci-pad-0.4.3",
+  "device": "20:6E:F1:AB:82:24",
+  "diagnostic_groups": 16,
+  "documented_divider": 2,
+  "physical_resistor_values_measured": false,
+  "resolution_bits": 12,
+  "pin": 8,
+  "unit": 1,
+  "channel": 7,
+  "factory_calibration_available": true,
+  "calibration_conversions_ok": true,
+  "saturation_seen": false,
+  "max_arduino_sdk_difference_mv": 3,
+  "sdk_pin_mv_range": [1344, 1359],
+  "pin_mv_by_attenuation": {
+    "6": {
+      "arduino_median_mv": 1354.0,
+      "sdk_median_mv": 1355.0
+    },
+    "12": {
+      "arduino_median_mv": 1346.5,
+      "sdk_median_mv": 1347.0
+    }
+  },
+  "external_terminal_voltage_verified": false,
+  "zero_input_test": {
+    "performed": false,
+    "reason": "User confirmed device is permanently sealed and cannot disconnect LiPo."
+  },
+  "conclusion": "No obvious software scaling, calibration-wrapper, saturation or settling error found. Consistent ADC pin voltage is ~1.35 V; documented divider gives ~2.70 V. Cell-terminal voltage and actual fitted divider remain unverified without independent reference.",
+  "changes": "Replaced ineffective pre-initialization per-pin attenuation call with explicit global ADC attenuation, and added bounded USB-only comparison command. Normal attenuation restored after diagnostics. No voltage multiplier adjustment, power/charger GPIO write or eFuse write.",
+  "release": {
+    "bytes": 1185296,
+    "sha256": "d9bf2250f04bdd1b02036d72792af4193eaaa3b10e8466f47ae639c92d5e446d"
+  },
+  "normal_monitoring_restored": {
+    "firmware": "greenci-pad-0.4.3",
+    "healthy": true,
+    "observed_millivolts": 2690,
+    "normal_attenuation_db": 12,
+    "observed_utc": "2026-11-15T00:24:18Z"
+  }
+}

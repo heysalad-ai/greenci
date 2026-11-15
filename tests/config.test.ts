@@ -1,6 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { loadConfig, validateBindings } from '../packages/core/src/config.js';
 describe('Cloudflare configuration', () => {
+  it('allows explicit email-disabled private dev beta only', () => {
+    const env = {
+      APP_ENV: 'dev',
+      SANDBOX: 'cloudflare',
+      GITHUB_MODE: 'app',
+      EMAIL_PROVIDER: 'disabled',
+      BETA_ENABLED: 'true',
+      SCAFFOLD_ONLY: 'true',
+    };
+    expect(loadConfig(env).EMAIL_PROVIDER).toBe('disabled');
+    expect(() => loadConfig({ ...env, BETA_ENABLED: 'false' })).toThrow(
+      'EMAIL_PROVIDER',
+    );
+    expect(() => loadConfig({ ...env, EMAIL_PROVIDER: 'local' })).toThrow(
+      'EMAIL_PROVIDER',
+    );
+    expect(() => loadConfig({ ...env, APP_ENV: 'staging' })).toThrow(
+      'EMAIL_PROVIDER',
+    );
+  });
   it('defaults to Docker-free local fake providers', () => {
     expect(loadConfig({})).toMatchObject({
       APP_ENV: 'local',

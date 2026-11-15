@@ -8,4 +8,5 @@ export interface ApiEnv {
   DECK_SESSIONS: DurableObjectNamespace;
   RUN_WORKFLOW: Workflow<{ requiresApproval?: boolean; runId?: string }>;
   SANDBOX_SERVICE: Fetcher;
+  DEVICE_SERVICE?: Fetcher;
 }

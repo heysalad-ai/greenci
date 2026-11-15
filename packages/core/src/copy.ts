@@ -1,5 +1,72 @@
 export const copy = {
+  device: {
+    title: 'Your GreenCI pad',
+    batteryVoltage: 'Voltage reading (unverified)',
+    batteryCharge: 'Estimated charge',
+    batteryCapacity: 'Labelled capacity',
+    batteryNote:
+      'Voltage has not been checked against a meter. Charge is estimated from voltage. Capacity comes from the battery label; remaining mAh and runtime are not measured.',
+    batteryUnavailable: 'Unavailable — verify voltage',
+    batteryEstimate: 'approx.',
+    volts: 'V',
+    mah: 'mAh',
+    percent: '%',
+    note: 'Dev device AB8224. Wi-Fi controls and firmware updates. CI keys still run the local demo.',
+    offline: 'Pad offline. Check power and Wi-Fi, then refresh.',
+    online: 'Pad connected over Wi-Fi',
+    unavailable: 'Device service did not answer. Sign in again or try Refresh.',
+    refresh: 'Refresh',
+    home: 'Show home screen',
+    restart: 'Restart pad',
+    led1: 'Port 1 light',
+    led4: 'Port 4 light',
+    brightness: ['Off', 'Minimum', '5%', '20%'],
+    queued: 'Command queued. Waiting for the pad.',
+    applied: 'Pad acknowledged the command.',
+    rejected:
+      'Pad could not apply the command. Check its status and try again.',
+    updateTitle: 'Update firmware over Wi-Fi',
+    updateNote:
+      'Upload the application .bin built for this pad. Uploading prepares the release; Install sends it to the device.',
+    bytes: 'bytes',
+    file: 'Firmware file',
+    version: 'Firmware version',
+    versionHint: 'Use greenci-pad-0.3.1 format.',
+    upload: 'Prepare release',
+    install: 'Install prepared release',
+    prepared: 'Release prepared. Choose Install to update the pad.',
+    preparing: 'Preparing release…',
+    firmware: 'Firmware',
+    slot: 'Application slot',
+    result: 'Last result',
+    empty: 'No heartbeat received yet. Complete Wi-Fi setup first.',
+    noFile: 'Choose a valid application .bin and firmware version.',
+    healthy: 'Healthy boot confirmed',
+    pending: 'Waiting for healthy boot',
+  },
   name: 'GreenCI',
+  beta: {
+    manual:
+      'The first private beta uses manual Diagnose, Repair and Verify actions.',
+    notReady: 'Check the private beta setup before starting a repair.',
+    checkSetup: 'Check setup and load failing CI',
+    setupTitle: 'Create the private GreenCI Dev GitHub App',
+    setupScope:
+      'Owner: heysalad-ai. Install only on greenci-practice. Read checks and logs; write contents and pull requests. No administration or workflow-write permission is requested.',
+    setupKeys:
+      'GitHub generates the app key and webhook secret. This local setup sends them directly to the dev Worker secret store without displaying or saving their values. It also pairs a generated sandbox credential with the API.',
+    setupAction: 'Create private GitHub App on GitHub',
+    setupComplete:
+      'GitHub setup complete. Return to Codex. No credential value was displayed or saved locally.',
+    setupFailure:
+      'Setup did not complete. No credential value was logged. Return to Codex to continue.',
+    setupState: 'Setup state did not match.',
+    noFailure:
+      'No failing check is available yet. Wait for CI to finish, then retry.',
+    ready: 'A failing check is ready. Press Diagnose.',
+    repoDetail:
+      'This repository is connected through the private beta GitHub App.',
+  },
   publicPreview: {
     title: 'GreenCI public preview',
     notice:

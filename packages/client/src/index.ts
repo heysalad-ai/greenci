@@ -75,4 +75,6 @@ export function createActionClient(options: {
 export const sessionResponseSchema = z.object({
   csrf: z.string().uuid(),
   orgId: z.string(),
+  mode: z.literal('beta').optional(),
+  repo: z.string().optional(),
 });

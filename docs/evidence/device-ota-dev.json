@@ -1,0 +1,135 @@
+{
+  "device": "20:6E:F1:AB:82:24",
+  "board": "AXMT-MTX0013 / ESP32-S3",
+  "mapping": {
+    "P1": "button + LED",
+    "P2": "ST7735 display, rotation 1",
+    "P3": "PDM microphone, local only",
+    "P4": "button + LED"
+  },
+  "backup": {
+    "bytes": 4194304,
+    "sha256": "045b38991fb9df8fefec4640c8d66fe37dc4101e049fa95e1fd7fc62252129b9",
+    "device_digest_verified": true,
+    "private": true,
+    "NVS_not_parsed": true
+  },
+  "bootloader": {
+    "esp_idf": "v5.5.1",
+    "target": "esp32s3",
+    "rollback_enabled": true,
+    "secure_boot_enabled": false,
+    "flash_encryption_enabled": false,
+    "image_size": 20240,
+    "sha256": "e45014d8fb3315ab77a8fcad05f2f2ef27b7401a279dbcd4a19ab0e130c29227"
+  },
+  "boot_verification_hook": {
+    "symbol": "verifyRollbackLater",
+    "linkage": "strong T, checked in ELF",
+    "behavior": "defer Arduino automatic confirmation until application hardware/relay health"
+  },
+  "successful_wireless_updates": [
+    {
+      "from": "0.3.2",
+      "to": "0.3.3",
+      "slot_from": "ota_0",
+      "slot_to": "ota_1",
+      "healthy": true
+    },
+    {
+      "from": "0.3.4",
+      "to": "0.3.5",
+      "slot_from": "ota_0",
+      "slot_to": "ota_1",
+      "healthy": true
+    },
+    {
+      "from": "0.3.6",
+      "to": "0.3.7",
+      "slot_from": "ota_0",
+      "slot_to": "ota_1",
+      "healthy": true
+    },
+    {
+      "from": "0.3.7",
+      "to": "0.3.9",
+      "slot_from": "ota_1",
+      "slot_to": "ota_0",
+      "healthy": true
+    }
+  ],
+  "recovery": {
+    "test_version": "0.3.8",
+    "test_sha256": "1c96fe5ff0a14a0bdb2576c4355fc10212a052f52cc44fa5a475eb2c31389e10",
+    "trial_sequence": 7,
+    "trial_state": 4,
+    "trial_state_name": "ESP_OTA_IMG_ABORTED",
+    "fallback_sequence": 6,
+    "fallback_state": 2,
+    "fallback_state_name": "ESP_OTA_IMG_VALID",
+    "fallback_version": "0.3.7",
+    "fallback_slot": "ota_1",
+    "fallback_online_healthy": true,
+    "reset_trigger": "not captured; aborted unconfirmed trial and automatic fallback are device-metadata verified",
+    "software_120_second_deadline": "implemented, not separately timed in this test"
+  },
+  "failed_attempts": [
+    {
+      "description": "First pull update failed; previous application remained selected. Corrected HTTP streaming to decode chunked responses before bounded SHA/OTA writes."
+    },
+    {
+      "description": "Early fault builds auto-confirmed before application health checks because Arduino verifyRollbackLater defaulted false. Corrected using the strong hook override."
+    }
+  ],
+  "final_image": {
+    "firmware": "greenci-pad-0.3.9",
+    "bytes": 1173248,
+    "sha256": "719f4408b17beab3af2446d702b3aa407355792e065d2513f6c5cb28b791d024",
+    "compiled": true,
+    "hosted_device_verified": true,
+    "active_slot": "ota_0",
+    "healthy": true,
+    "observed_at_utc": "2026-11-14T19:49:09Z"
+  },
+  "checks": {
+    "service_unit_tests": 76,
+    "browser_tests": 8,
+    "typechecked_packages": 20,
+    "built_packages": 20,
+    "core_coverage_percent": 100,
+    "firmware_python_tests": 14,
+    "native_logic_test": "PASS",
+    "setup_lint": "PASS",
+    "access_unauthenticated_app": 302,
+    "device_poll_without_credential": 401,
+    "public_operator_route": 404
+  },
+  "remaining_physical_checks": [
+    "Exact perceived brightness requires user observation.",
+    "Battery/cold-start and real microphone audio are not verified.",
+    "Deliberate image digest mismatch and abrupt power cut were not injected on the physical device."
+  ],
+  "scope": "Cloudflare dev only. No staging/production deployment, no Access policy removal, no real provider call from tests.",
+  "controls": {
+    "home": "device acknowledged applied",
+    "restart": "returned online on 0.3.9 with boot result and healthy confirmation",
+    "led1": "device reported Minimum (value 1)",
+    "led4": "device reported Minimum (value 1)",
+    "observed_at_utc": "2026-11-14T19:53:18Z",
+    "physical_perceived_brightness": "not independently observed"
+  },
+  "cloud_versions": {
+    "web": "f9657fe1-d36e-4d0f-af3d-5a35919af34b",
+    "api": "1e9dba00-0035-45f2-b1a2-7510e391560b",
+    "relay": "9191a60a-3cd1-4fe0-9399-544458b0dcc9",
+    "gateway": "b4eb931a-6996-424a-bb16-2e10dc519ec7"
+  },
+  "cleanup": {
+    "one_time_provisioning_server": "closed",
+    "retired_R2_images": [
+      "0.3.8 recovery test",
+      "0.3.6 early recovery test",
+      "first failed 0.3.2 transfer release"
+    ]
+  }
+}

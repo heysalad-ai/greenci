@@ -1,5 +1,9 @@
 # Decisions
 
+## Private beta — one owner, one repository and live proof before repair
+
+Start with the requested private heysalad-ai/greenci-practice repository, not a product repository. Its zero-dependency CI fails on an intentional source defect and cannot be repaired by editing tests because the first beta write allowlist is src/**. Use a company-owned GitHub App with short-lived repository-scoped tokens, existing private Cloudflare Access with signed-assertion validation and a single configured owner. Keep automatic actions off and require a real model/sandbox setup probe before accepting repair actions. A separate signed-webhook ingress preserves API Access. Use the version-matched official Sandbox registry image with Internet disabled, no warm instances and capacity one; no local Docker install is necessary. The ordinary repair model is separate from Cyber; model visibility does not prove Daybreak/model/IP eligibility. No live repair is claimed before the actual failing-to-passing CI and draft PR evidence exists.
+
 ## Public preview — keep the private runtime separate
 
 Publish a dedicated dev-only static Worker in HeySalad Inc., rather than removing Cloudflare Access from the existing development app. This gives the requested public link without exposing the API or a simulated sign-in as a live product. The landing keeps the approved visual composition, removes unconfigured commerce/testimonial placeholders, and links to explicitly noninteractive M5 captures. The new Worker has only ASSETS; request allowlisting and a no-script/no-connection CSP enforce its read-only boundary. No staging or production deployment is needed.
@@ -87,3 +91,22 @@ The official @cloudflare/sandbox/bridge adapter and a private dev-only container
 ## M4.5 — approval payloads are derived, not model-authored
 
 A final review reproduced an approval-size bypass in the pre-activation SDK adapter: a model could describe a large patch with a small diff string. The regression test fails against the previous committed adapter and passes after deriving a conservative before/after line count from the actual original snapshot and proposed file contents. The approval screen renders those contents as a deterministic review diff; it does not trust a model-authored diff. Actual verification and PR eligibility still use the real git comparison and fresh check results. No hosted action was enabled while this was corrected.
+
+Private-beta runtime validation found that Workers rejects fetch `redirect: "error"`. Access signing-key requests and controlled provider requests now use manual redirects and reject non-success statuses. A workerd regression verifies a signed session with the default fetch transport and rejects a signing-key redirect. The beta-only generated profile enables `global_fetch_strictly_public` because the official Sandbox client uses HTTP to the bearer-protected bridge in the same account; Cloudflare documents this requirement for error 1042 at https://developers.cloudflare.com/workers/runtime-apis/fetch/. The beta bridge also supplies the canonical `Sandbox` binding used internally by WarmPool 0.12.14 and exports ContainerProxy. Temporary SDK startup instrumentation was removed after observing actual container execution.
+
+The first live repair diagnosed the arithmetic defect but stopped at a tool-input guard before any GitHub write. Responses uses the SDK's native apply_patch tool; filtering capability tools to function tools had removed it. The adapter now retains native patches and validates both source/destination paths at the actual editor boundary, with beta writes restricted to src/** and protected/large edits still requiring approval. Unsupported function calls are rejected without execution and receive bounded policy feedback so the model can choose an allowed tool. SDK behavior reference: https://openai.github.io/openai-agents-js/openai/agents-core/type-aliases/toolguardrailbehavior/. Explicit private-beta imports receive independent run IDs, preserving failed execution history. The supporting migration replaces the old commit/check unique index with a regular lookup index; automatic webhook deduplication remains enforced by deterministic primary run IDs. Reimports of one CI SHA are excluded from default-branch history so duplicate observations do not become false recurring-failure evidence.
+
+## Dev Wi-Fi pad control and OTA
+
+Use a narrow public machine gateway plus a relay Worker with no public routes. Existing Access/session/CSRF and owner membership protect the operator page/API; the physical pad gets only a per-device credential for outbound HTTPS polling and image downloads. Typed HMAC commands carry sequence, expiry and image digest/size/version, with sequence persisted before effects. A separate network task preserves local button/UI work and never exposes remote microphone capture or arbitrary execution. The first USB migration preserves NVS and installs dual OTA slots; a live recovery test exposed Arduino 3.3.11 auto-confirming pending boots before setup, so override verifyRollbackLater() and confirm only after the application health checks. The device also uses an explicit ESP-IDF v5.5.1 rollback-enabled bootloader. No eFuses, Secure Boot or encryption settings are changed. Public preview, GitHub repair guards and staging/production remain outside this change.
+
+## Battery values must distinguish measurement from a label
+
+Use the board's GPIO8 and documented 100k/100k divider without driving power or
+charging pins. Nominal 1500 mAh is a user-provided label, not measured capacity.
+Percentage is a coarse, explicitly approximate single-cell LiPo voltage heuristic;
+out-of-profile values return no percentage. The observed ~2.7 V has not been
+compared with a meter, so label voltage unverified and do not claim remaining mAh,
+runtime or charge state. Retain optional telemetry fields for older firmware
+rollback. Physical charging/protection and screen/battery-only acceptance remain
+separate hardware checks.

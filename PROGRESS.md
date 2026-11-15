@@ -1,8 +1,16 @@
 # Progress
 
+## Custom domains — verified, 14 November 2026
+
+HTTPS is active for greenci.dev (public preview dev Worker) and beta.greenci.dev (private web dev Worker). Deployed API version 2e8ed1c8-3429-47db-beb8-f47af2d52f3a only to dev with the beta canonical origin. Signed custom-host session creation lists the real practice repository; dashboard and run detail load the real draft PR and 1/1 passing check. Anonymous beta/API routes still require Access with the same audience. Public HTTPS smoke passes. A user-approved temporary preference for the ISP's existing secondary DNS server enabled browser verification while its primary cached old DNS; original automatic DNS is restored. Cold requests through the stale ISP cache can still lag. No policy, secret, staging/production deployment, new repair or merge changed. Full evidence: [docs/custom-domains.md](docs/custom-domains.md).
+
+## Private beta — real repair verified, 14 November 2026
+
+Fixed signed Workers session validation, contained sandbox startup and guarded native SDK patches. The installed GitHub App is restricted to `heysalad-ai/greenci-practice`; the existing OpenAI secret powered a real `gpt-6-sol` diagnosis and repair. Run `run-b0359999-a4ce-4e38-9937-3f71a044d550` verified GitHub checks on repair SHA `c3ac958f7a4509e3ed6ab017e85d33df44e3553e` and the App opened [draft PR #1](https://github.com/heysalad-ai/greenci-practice/pull/1). Only `src/add.mjs` changed; push and PR CI pass, and the default branch is unchanged. The first failed attempt remains recorded; independent operator retries preserve history. Lint, 18 typechecks, 74 tests, 100% core coverage, 18 builds and seven browser journeys pass. Private API/web and the retry migration are deployed only to dev; Access and the public preview remain intact. No PR was merged or approved. Cyber visibility returned 404, so Cyber inference remains disabled. Exact live evidence and versions: [docs/private-beta.md](docs/private-beta.md).
+
 ## Public site preview — 14 November 2026
 
-The user selected a public preview first. A separate dev-only static Worker publishes the landing and clearly labeled M5 screen captures, while the existing private web/API services retain Access. No live GitHub/model/repair or commerce capability is enabled. See docs/public-preview.md for the build, checks and deployment record.
+The user selected a public preview first. A separate dev-only static Worker publishes the landing and clearly labeled M5 screen captures, while the existing private web/API services retain Access. The public preview has no live GitHub/model/repair or commerce capability. See docs/public-preview.md for the build, checks and deployment record.
 
 - [x] Design system, screens and build brief committed
 - [x] M0 Scaffold
@@ -97,3 +105,50 @@ Added the domain tables, additive D1 migration, validated run repository with op
 ## M4 — authenticated API, Workflows and fake agent
 
 Signed webhooks create idempotent runs; authenticated API actions drive durable Diagnose/Repair/Verify jobs against real local fixture git and CI. All four journeys pass, including migration approval, honest miss and out-of-scope handback. D1 stores domain history, R2 stores logs/diffs, org rooms publish scoped updates and SSE. OpenAPI includes domain run/action schemas. Guards and verification are enforced again at the GitHub boundary. Lint/typecheck, 36 tests, 100% core coverage, 16 builds and four browser tests pass. Deployment Actions are prepared; GitHub environment credentials/review configuration remain a human setup step. See docs/acceptance-m4.md. M4.5 is next. Live dev remains health-only until external integrations exist; no staging/production activity.
+
+## Dev Wi-Fi pad control and OTA
+
+Added owner/session/CSRF-protected device controls at `/app/device`, a public
+credential-protected machine gateway, and a relay with no public route. Existing
+Cloudflare Access stays enabled; only dev resources were deployed. The standalone
+Genesis Mini pad completed real Wi-Fi updates, including final 0.3.7 → 0.3.9
+(ota_1 → ota_0), and reported a healthy boot. An unconfirmed 0.3.8 trial was
+metadata-verified ABORTED while the healthy 0.3.7 fallback remained VALID. Arduino's
+default early OTA auto-confirm was overridden so application checks own health.
+The companion firmware keeps the original display/pin/LED defaults, uses a fresh
+private recovery backup and dual application slots, and requires an idle lease
+before OTA. Remote microphone capture and real CI key dispatch are not exposed.
+
+Validation: lint, 20 package typechecks/builds, 76 unit/runtime tests, 100% core
+coverage, eight browser tests, and 14 firmware/setup Python tests pass. Live
+unauthenticated app/device/operator responses remain 302/401/404 respectively.
+See docs/device-ota.md and the companion firmware's evidence ledger. Physical
+bad-digest/power-cut injection, visible brightness, battery cold-start and actual
+microphone audio are not claimed by these results. The original GitHub repair
+history and public preview remain intact; no staging/production work.
+
+## Dev battery telemetry
+
+0.4.2 completed a real wireless update and healthy boot on ota_0. The page shows
+user-labelled 1500 mAh capacity and an explicitly unverified ADC-derived voltage
+(~2.69–2.70 V). That low reading has no percentage; a meter comparison is needed
+to distinguish a low cell from measurement error. The user confirmed direct LiPo
+connection and has no meter. No measured remaining mAh, runtime, charging state,
+battery-only acceptance or physical screen acceptance is claimed.
+
+Legacy telemetry remains accepted for rollback, invalid battery percentages are
+rejected, and the native battery test checks invalid/profile boundaries and
+monotonic coarse estimates. Lint, 20 typechecks, 76 service/unit tests, 100% core
+coverage, eight browser journeys and the target firmware build pass. Only the
+dev relay/web Workers changed; Access and the existing repair scope remain intact.
+
+## Sealed-pad voltage scaling audit
+
+0.4.3 is live/healthy after a wireless update. Factory calibration worked across
+16 diagnostic groups; two ADC ranges and Arduino/ESP-IDF conversion paths agree
+with ~1.35 V at GPIO8, or ~2.7 V under the documented divider. No obvious software
+scale error, saturation or substantial settling error was found. The setup call
+is now explicit; no multiplier was guessed and normal sampling is restored.
+The sealed pack could not be disconnected and no meter is available, so actual
+cell voltage and fitted divider values remain unverified. No public Worker or
+Access changes were needed. See docs/evidence/voltage-audit-dev.json.

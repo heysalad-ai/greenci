@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { expect, it } from 'vitest';
 import { SdkAgentProvider } from '../packages/agent/src/sdk.js';
 import { loadConfig, runSchema } from '../packages/core/src/index.js';
@@ -68,4 +69,86 @@ it('requires approval from actual before/after size even if the fixture model re
   expect(result.files).toEqual([]);
   expect(result.diff).toContain('-original line 219');
   expect(result.diff).toContain("+export const fixtureDate = '2027-10-31'");
+});
+
+it('recognizes SDK freeform patch fields and validates both paths in moves', async () => {
+  const { toolPaths } = await import('../packages/agent/src/sdk.js');
+  expect(
+    toolPaths({
+      patch:
+        '*** Begin Patch\n*** Update File: /workspace/src/add.mjs\n*** Move to: src/sum.mjs\n@@\n-old\n+new\n*** End Patch',
+    }),
+  ).toEqual(['src/add.mjs', 'src/sum.mjs']);
+  expect(() =>
+    toolPaths({
+      patch:
+        '*** Begin Patch\n*** Update File: /workspace/../secrets\n*** End Patch',
+    }),
+  ).toThrow();
+});
+
+it('guards native Responses patch edits at the editor boundary, including beta write scope', async () => {
+  const { vi } = await import('vitest');
+  const { guardNativePatchTool } = await import('../packages/agent/src/sdk.js');
+  type NativeTool = Parameters<typeof guardNativePatchTool>[0];
+  // Resolve the actual SDK from its owning workspace instead of adding a duplicate root dependency.
+  const { applyPatchTool, RunContext } = createRequire(
+    new URL('../packages/agent/package.json', import.meta.url),
+  )('@openai/agents') as {
+    applyPatchTool(options: { editor: NativeTool['editor'] }): NativeTool;
+    RunContext: new () => Parameters<NativeTool['needsApproval']>[0];
+  };
+  const editor = {
+    createFile: vi.fn(async () => {}),
+    updateFile: vi.fn(async () => {}),
+    deleteFile: vi.fn(async () => {}),
+  };
+  const rules = context().run.rules;
+  const guarded = guardNativePatchTool(applyPatchTool({ editor }), rules, [
+    'src/**',
+  ]);
+  expect(guarded.type).toBe('apply_patch');
+  await guarded.editor.updateFile({
+    type: 'update_file',
+    path: '/workspace/src/add.mjs',
+    diff: '@@\n-old\n+new',
+  });
+  expect(editor.updateFile).toHaveBeenCalledWith(
+    expect.objectContaining({ path: 'src/add.mjs' }),
+    undefined,
+  );
+  for (const file of [
+    '/etc/passwd',
+    '/workspace/../secret',
+    'src/.env',
+    'test.mjs',
+    '.github/workflows/ci.yml',
+  ]) {
+    expect(() =>
+      guarded.editor.updateFile({
+        type: 'update_file',
+        path: file,
+        diff: '@@\n-old\n+new',
+      }),
+    ).toThrow();
+  }
+  expect(editor.updateFile).toHaveBeenCalledTimes(1);
+  const local = guardNativePatchTool(applyPatchTool({ editor }), {
+    ...rules,
+    protectedPaths: ['migrations/**'],
+  });
+  expect(
+    await local.needsApproval(new RunContext(), {
+      type: 'update_file',
+      path: 'migrations/001.sql',
+      diff: '@@\n-old\n+new',
+    }),
+  ).toBe(true);
+  expect(
+    await guarded.needsApproval(new RunContext(), {
+      type: 'update_file',
+      path: 'src/add.mjs',
+      diff: '@@\n-old\n+new',
+    }),
+  ).toBe(false);
 });

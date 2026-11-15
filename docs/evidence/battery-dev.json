@@ -1,0 +1,52 @@
+{
+  "firmware": "greenci-pad-0.4.2",
+  "device": "20:6E:F1:AB:82:24",
+  "profile": {
+    "nominalVolts": 3.7,
+    "nominalMah": 1500,
+    "source": "user battery label",
+    "connection": "user-confirmed direct Genesis Mini battery connector"
+  },
+  "sensor": {
+    "gpio": 8,
+    "divider": 2,
+    "schematic": "SCH_MTX0013 revision 1; R9/R5 100k each",
+    "method": "Arduino calibrated ADC API, median of nine, filtered"
+  },
+  "observed_041": {
+    "millivolts": 2690,
+    "healthyBoot": true,
+    "slot": "ota_1"
+  },
+  "absolute_voltage_verified": false,
+  "multimeter_available": false,
+  "physical_screen_verified": false,
+  "guard": "Readings below 3.0 V or above 4.35 V have no percentage. Unverified voltage is not a measured state of charge or remaining capacity.",
+  "checks": {
+    "cpp_battery_model": "PASS",
+    "unit_runtime_tests": 76,
+    "browser_tests": 8,
+    "typechecked_packages": 20,
+    "core_coverage_percent": 100
+  },
+  "final_live_042_verified": true,
+  "scope": "Dev only. No USB flash, battery charging/power-control changes, eFuse changes or staging/production deployment.",
+  "observed_042": {
+    "millivolts_range": [2690, 2700],
+    "percent": null,
+    "nominalMah": 1500,
+    "slot": "ota_0",
+    "healthyBoot": true,
+    "observed_at_utc": "2026-11-14T23:58:07Z",
+    "cell_voltage_independently_verified": false
+  },
+  "release": {
+    "bytes": 1184304,
+    "sha256": "dba40c5e4a5f8883d20849a76012475a3af1460c7735253104faf8085933b3d6"
+  },
+  "cloud_versions": {
+    "relay": "edbd86c1-cfee-465b-9d3f-96420774dbdb",
+    "web": "0f8b6655-c4f8-412f-9654-615debc08000"
+  },
+  "initial_attempt": "0.4.0 was not accepted as live-healthy evidence; 0.3.9 recovered. A monitored 0.4.1 boot proved sampling, rendering calls and authenticated network polling. No unobserved failure cause is claimed."
+}
