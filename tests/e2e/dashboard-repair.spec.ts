@@ -148,7 +148,9 @@ test('unsupported repos cannot start and failed starts preserve the idempotency 
   ).toBeDisabled();
   await page.getByLabel('Connected repository').selectOption('acme/repo');
   await page.getByRole('button', { name: 'Start repair', exact: true }).click();
-  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'The repair could not start.' }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Start repair', exact: true }).click();
   await expect.poll(() => count).toBe(2);
   expect(keys[0]).toBe(keys[1]);
