@@ -141,3 +141,14 @@ rejected, and the native battery test checks invalid/profile boundaries and
 monotonic coarse estimates. Lint, 20 typechecks, 76 service/unit tests, 100% core
 coverage, eight browser journeys and the target firmware build pass. Only the
 dev relay/web Workers changed; Access and the existing repair scope remain intact.
+
+## Sealed-pad voltage scaling audit
+
+0.4.3 is live/healthy after a wireless update. Factory calibration worked across
+16 diagnostic groups; two ADC ranges and Arduino/ESP-IDF conversion paths agree
+with ~1.35 V at GPIO8, or ~2.7 V under the documented divider. No obvious software
+scale error, saturation or substantial settling error was found. The setup call
+is now explicit; no multiplier was guessed and normal sampling is restored.
+The sealed pack could not be disconnected and no meter is available, so actual
+cell voltage and fitted divider values remain unverified. No public Worker or
+Access changes were needed. See docs/evidence/voltage-audit-dev.json.

@@ -107,3 +107,24 @@ for AA/AAA packs. Physical screen visibility also remains unverified.
 
 Companion source checkpoint: `codex/greenci-wireless-ota` / `f0ef7df`.
 See [battery evidence](evidence/battery-dev.json) and the companion BATTERY.md.
+
+## Voltage scaling audit — 0.4.3
+
+A live audit found no obvious software scaling/calibration-wrapper error. Across
+16 groups, GPIO8/ADC1_CH7 raw samples at 12-bit resolution converted to 1344–1359
+mV using factory curve fitting. Arduino and explicit ESP-IDF conversion differed
+by at most 3 mV. Both 6 dB and 12 dB ranges were unsaturated, and settled sampling
+did not expose a large sampling error. The documented 2:1 divider yields ~2.7 V.
+
+The earlier per-pin attenuation call preceded channel initialization. It was
+ineffective, but the default already matched the intended range; replacing it
+with explicit global setup did not change the result to 3.7 V. No arbitrary
+voltage correction factor was applied. A bounded USB-only BATTERY DIAG command
+now compares raw counts and both conversion paths and restores normal sampling.
+
+The user cannot disconnect the LiPo because the device is permanently sealed.
+A disconnected-input test, physical resistor measurements and independent
+cell-terminal voltage measurements were therefore unavailable. ADC-method
+agreement is not independent metrology. The app retains its unverified-voltage
+label and withholds percentage at this reading. Source checkpoint: 65d9c0e.
+See [voltage audit evidence](evidence/voltage-audit-dev.json).
