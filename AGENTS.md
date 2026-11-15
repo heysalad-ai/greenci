@@ -11,8 +11,8 @@ GreenCI is a physical command deck for AI coding agents: one command key and thr
 
 ## Safety rules (never break these)
 
-1. Push only to `greenci/*` branches. Never push to a default or protected branch.
-2. Never merge or approve a pull request.
+1. Push working changes only to `greenci/*` branches. Update default or protected branches through pull requests, not direct pushes.
+2. Comment on PRs with meaningful progress, verification results and remaining blockers. Merge reviewed, in-scope PRs frequently once required checks pass and repository merge requirements are satisfied. Never bypass required reviews or failing checks. A later task-specific restriction takes precedence.
 3. Never read, log or modify secrets or `.env*` files, and never send them to a model.
 4. Never claim a fix is verified unless every verify check passed.
 5. Never call a real LLM or real GitHub from tests. Use `AGENT_PROVIDER=fake` and `GITHUB_MODE=mock`.
@@ -20,6 +20,9 @@ GreenCI is a physical command deck for AI coding agents: one command key and thr
 
 ## How to work
 
+- Work in small, reviewable chunks targeting roughly 500 changed lines; exceed that when a coherent change needs it, and explain why in the PR.
+- Keep the merge cycle short: implement, verify, comment, merge eligible PRs, then clean up merged working branches and temporary task artifacts. Preserve user files, evidence and unfinished work.
+- Prefer Safari for browser work when practical; use another supported browser when Safari cannot complete the task reliably.
 - Milestones are in `docs/CODEX_PROMPT.md` §11. Finish one, run `pnpm lint && pnpm typecheck && pnpm test` (plus `pnpm e2e` from M5), update `PROGRESS.md`, commit.
 - Decisions you had to make go in `docs/decisions.md`, one paragraph each.
 - Keep every user-facing string in `packages/core/src/copy.ts`.
