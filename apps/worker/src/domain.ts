@@ -123,6 +123,12 @@ export async function domainWorkflow(
   );
   let sequence = 0;
   for (;;) {
+    if (
+      run.rules.autoMode &&
+      run.rules.autoRepair &&
+      ['out_of_scope', 'not_verified'].includes(run.state)
+    )
+      return { id, state: run.state };
     if (['merged', 'handed_back', 'stopped', 'pr_open'].includes(run.state))
       return { id, state: run.state };
     const n = ++sequence;

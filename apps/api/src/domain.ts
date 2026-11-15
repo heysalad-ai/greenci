@@ -1,3 +1,8 @@
+import {
+  repairOptions,
+  dashboardRuns,
+  startDashboardRepair,
+} from './dashboard-repairs.js';
 import { GitHubAppClient, MockGitHubClient } from '@greenci/github';
 import { githubFor, probeBetaProviders, publishRun } from '@greenci/worker';
 import { OpenAPIHono } from '@hono/zod-openapi';
@@ -101,6 +106,68 @@ app.all('/v1/audit', async (c) => {
   if (audit.org !== user.orgId)
     return c.json({ error: copy.api.signIn }, 403, headers);
   return c.json({ audit }, 200, headers);
+});
+app.use('/v1/audit/*', async (c, next) => {
+  const config = loadConfig(c.env),
+    user = (await session(c.req.raw, c.env))!;
+  if (
+    config.APP_ENV !== 'local' &&
+    !(
+      config.APP_ENV === 'dev' &&
+      config.BETA_ENABLED === 'true' &&
+      config.GITHUB_MODE === 'app' &&
+      config.AGENT_PROVIDER === 'openai' &&
+      config.SANDBOX_CLIENT === 'cloudflare'
+    )
+  )
+    return c.notFound();
+  const owner = await c.env.DB.prepare(
+    'SELECT id FROM memberships WHERE user_id=? AND org_id=? AND role=?',
+  )
+    .bind(user.userId, user.orgId, 'owner')
+    .first();
+  if (!owner) return c.json({ error: copy.api.signIn }, 403);
+  c.header('Cache-Control', 'private, no-store');
+  await next();
+});
+app.get('/v1/audit/options', async (c) =>
+  c.json({
+    repos: await repairOptions(c.env, (await session(c.req.raw, c.env))!.orgId),
+  }),
+);
+app.get('/v1/audit/repairs', async (c) =>
+  c.json({
+    runs: await dashboardRuns(c.env, (await session(c.req.raw, c.env))!.orgId),
+  }),
+);
+app.post('/v1/audit/repairs', async (c) => {
+  if (Number(c.req.header('Content-Length') ?? 0) > 2048)
+    return c.body(null, 413);
+  const text = await c.req.text();
+  if (text.length > 2048) return c.body(null, 413);
+  const user = (await session(c.req.raw, c.env))!;
+  try {
+    return c.json(
+      {
+        run: await startDashboardRepair(
+          c.env,
+          user.orgId,
+          user.userId,
+          JSON.parse(text),
+        ),
+      },
+      202,
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error &&
+      Object.values(copy.dashboardRepair).some(
+        (value) => value === error.message,
+      )
+        ? error.message
+        : copy.dashboardRepair.failed;
+    return c.json({ error: message }, 409);
+  }
 });
 app.post('/v1/beta/import', async (c) => {
   const config = loadConfig(c.env),

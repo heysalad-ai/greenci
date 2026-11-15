@@ -152,3 +152,11 @@ corepack pnpm exec wrangler r2 object put greenci-artifacts-dev/audit/ORG/curren
 ```
 
 API version: `00e0e9a9-4181-4463-9ea0-d0751efbe742`. Final web version: `60a1ae27-9b26-47e3-9af3-d3e30951ae63`. Owner sign-in, authenticated real audit rendering, repository search and finding details were observed at `https://beta.greenci.dev/app/audit`. An anonymous audit request returns the Access redirect (302); the separate public site returns 200. Owner/member/tenant isolation and no-store behavior are covered by local Workers tests. Ten browser tests pass, including auth/error recovery and mobile overflow; the scoped first-viewport spacing correction received the visual review disposition `ship`. No whole-product security certification or hosted arbitrary-repository repair capability is implied.
+
+## Dashboard-started hosted repairs — 2026-11-15
+
+Applied only additive migration `0005_dashboard_repairs.sql` to the existing dev database. Deployed only `greenci-api-dev` (version `23729aba-f912-4f51-af6f-c1c176c95d6a`) and `greenci-web-dev` (version `08ecec92-06fe-482a-8615-d44b6826218e`) using the existing beta API config and web dev config. Access, App installation scope, public preview, staging and production were unchanged.
+
+The authenticated owner selected the connected practice repository and clicked Start repair. The hosted OpenAI workflow continued after navigation away, verified its source-only patch and opened an App-authored draft PR. Both GitHub test checks passed; the default commit was unchanged and the PR remained unmerged. Private run IDs, provider trace, repository/PR evidence and captures remain under ignored `.data/`. The final API deployment adds atomic slot/run admission; its local workflow regression passed after that hardening. No second live repair was created for the hardening deployment.
+
+Final local checks: lint, workspace typecheck and all 20 builds pass; 98 unit/integration tests, 100% core coverage and 12 browser journeys pass. Anonymous dashboard and API repair-options requests return Access redirects (302); the public site returns 200. The authenticated deployed dashboard shows the real completed run and draft-review link. This validates the connected source-only beta profile, not arbitrary repository/framework repair.

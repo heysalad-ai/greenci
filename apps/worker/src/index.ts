@@ -8,13 +8,18 @@ import { domainWorkflow, applyEvent, type RunEnv } from './domain.js';
 const paramsSchema = z.object({
   requiresApproval: z.boolean().default(false),
   runId: z.string().optional(),
+  dashboard: z.boolean().default(false),
 });
 export class RunWorkflow extends WorkflowEntrypoint<
   RunEnv,
-  { requiresApproval?: boolean; runId?: string }
+  { requiresApproval?: boolean; runId?: string; dashboard?: boolean }
 > {
   async run(
-    event: WorkflowEvent<{ requiresApproval?: boolean; runId?: string }>,
+    event: WorkflowEvent<{
+      requiresApproval?: boolean;
+      runId?: string;
+      dashboard?: boolean;
+    }>,
     step: WorkflowStep,
   ) {
     const params = paramsSchema.parse(event.payload);
@@ -27,7 +32,7 @@ export class RunWorkflow extends WorkflowEntrypoint<
           step,
         );
       } catch {
-        return step.do('Hand failed job back', async () => {
+        return await step.do('Hand failed job back', async () => {
           const run = await applyEvent(
             this.env,
             id,
@@ -41,6 +46,15 @@ export class RunWorkflow extends WorkflowEntrypoint<
               'The job could not complete. Review the run before retrying.',
           };
         });
+      } finally {
+        if (params.dashboard)
+          await step.do('Release dashboard repair slot', async () => {
+            await this.env.DB.prepare(
+              'UPDATE dashboard_repairs SET active=0 WHERE id=?',
+            )
+              .bind(id)
+              .run();
+          });
       }
     }
     let sequence = 0;

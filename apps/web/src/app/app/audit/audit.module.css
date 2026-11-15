@@ -276,3 +276,70 @@
     padding-block: var(--space-4);
   }
 }
+
+.launch {
+  border-block: 1px solid var(--line);
+  margin-block: var(--space-5);
+  padding-block: var(--space-5);
+}
+.launch h2 {
+  font: 650 28px/32px var(--font-display);
+  margin: 0;
+}
+.launch > p {
+  max-width: 72ch;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+.launchForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: end;
+  margin-block: var(--space-4);
+}
+.launchForm label {
+  display: grid;
+  gap: var(--space-2);
+  font-size: 13px;
+  max-width: 100%;
+}
+.launchForm select {
+  font: 15px/23px var(--font-sans);
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  max-width: 100%;
+}
+.selected {
+  overflow-wrap: anywhere;
+}
+.live {
+  border-top: 1px solid var(--line);
+  margin-top: var(--space-5);
+}
+.liveRow {
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.liveRow > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+.liveRow strong {
+  overflow-wrap: anywhere;
+}
+.liveRow > a,
+.liveRow > button {
+  margin: 0 var(--space-2) var(--space-2) 0;
+}
+
+.live:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: var(--space-2);
+}

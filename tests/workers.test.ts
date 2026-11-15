@@ -123,6 +123,16 @@ beforeAll(async () => {
       await readFile('packages/db/migrations/0004_operator_retries.sql', 'utf8')
     ).replace(/^--.*$/gm, ''),
   );
+  await db.exec(
+    (
+      await readFile(
+        'packages/db/migrations/0005_dashboard_repairs.sql',
+        'utf8',
+      )
+    )
+      .replace(/^--.*$/gm, '')
+      .replace(/\n/g, ' '),
+  );
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
@@ -776,3 +786,124 @@ it('serves private audit snapshots only to owners in the matching organisation',
   expect((await read(owner)).status).toBe(403);
   await bucket.delete('audit/acme/current.json');
 });
+
+it('starts an owner-requested dashboard repair once and runs the fake hosted pipeline to a PR', async () => {
+  const db = await mf.getD1Database('DB', 'api');
+  await db.exec(
+    "INSERT OR IGNORE INTO memberships(id,user_id,org_id,role) VALUES ('sam:greenci','sam','greenci','owner'); INSERT OR IGNORE INTO repos(id,org_id,full_name,default_branch,watched) VALUES ('greenci/practice','greenci','greenci/practice','main',1);",
+  );
+  // Existing mock CI executes the seeded failing fixture; this is never live GitHub.
+  const checks = await mockClient.runChecks('greenci/practice', 'main');
+  const auth = (await (
+    await request('/__local/session', { orgId: 'greenci' })
+  ).json()) as { token: string; csrf: string };
+  const headers = {
+    Authorization: `Bearer ${auth.token}`,
+    'Content-Type': 'application/json',
+  };
+  const get = (path: string) => mf.dispatchFetch(url + path, { headers });
+  expect((await request('/v1/audit/options')).status).toBe(401);
+  const optionResponse = await get('/v1/audit/options');
+  const optionBody = await optionResponse.json();
+  expect({ status: optionResponse.status, body: optionBody }).toMatchObject({
+    status: 200,
+  });
+  const options = optionBody as {
+    repos: { repo: string; available: boolean; sha: string }[];
+  };
+  expect(
+    options.repos.find((r) => r.repo === 'greenci/practice')?.available,
+  ).toBe(true);
+  const body = {
+    repo: 'greenci/practice',
+    sha: checks[0]!.sha,
+    requestId: crypto.randomUUID(),
+  };
+  const post = (
+    value: unknown,
+    authHeaders: Record<string, string> = headers,
+  ) =>
+    mf.dispatchFetch(url + '/v1/audit/repairs', {
+      method: 'POST',
+      headers: authHeaders,
+      body: JSON.stringify(value),
+    });
+  expect((await post({ ...body, repo: 'acme/payments' })).status).toBe(409);
+  expect((await post({ ...body, sha: 'f'.repeat(40) })).status).toBe(409);
+  expect(
+    (
+      await post(body, {
+        'Content-Type': 'application/json',
+        Cookie: `greenci_session=${auth.token}`,
+      })
+    ).status,
+  ).toBe(401);
+  await db
+    .prepare(
+      'INSERT INTO dashboard_repairs(id,org_id,user_id,repo,head_sha,active,created_at) VALUES (?,?,?,?,?,1,?)',
+    )
+    .bind(
+      'busy-fixture',
+      'greenci',
+      'sam',
+      'greenci/practice',
+      body.sha,
+      new Date().toISOString(),
+    )
+    .run();
+  const busy = await post(body);
+  expect(busy.status).toBe(409);
+  expect(await busy.json()).toEqual({
+    error:
+      'A repair is already active in this workspace. Review it before starting another.',
+  });
+  await db
+    .prepare('DELETE FROM dashboard_repairs WHERE id=?')
+    .bind('busy-fixture')
+    .run();
+  const reader = crypto.randomUUID();
+  await db.exec(
+    "INSERT OR IGNORE INTO users(id,login) VALUES ('dashboard-reader','reader'); INSERT OR IGNORE INTO memberships(id,user_id,org_id,role) VALUES ('dashboard-reader:greenci','dashboard-reader','greenci','member');",
+  );
+  await (
+    await mf.getKVNamespace('SESSIONS', 'api')
+  ).put(
+    `session:${reader}`,
+    JSON.stringify({
+      userId: 'dashboard-reader',
+      orgId: 'greenci',
+      csrf: crypto.randomUUID(),
+    }),
+  );
+  expect(
+    (
+      await post(body, {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${reader}`,
+      })
+    ).status,
+  ).toBe(403);
+  const started = await post(body);
+  expect(started.status).toBe(202);
+  const first = (await started.json()) as { run: { id: string } };
+  const repeated = await post(body);
+  expect(repeated.status).toBe(202);
+  expect(((await repeated.json()) as { run: { id: string } }).run.id).toBe(
+    first.run.id,
+  );
+  const complete = await waitForRun(first.run.id, 'pr_open');
+  expect(complete.verified).toBe(true);
+  expect(complete.prNumber).toBeGreaterThan(0);
+  expect(complete.prUrl).toBe(
+    `http://localhost:4001/repos/greenci/practice/pulls/${complete.prNumber}/view`,
+  );
+  const list = (await (await get('/v1/audit/repairs')).json()) as {
+    runs: { id: string }[];
+  };
+  expect(list.runs.filter((r) => r.id === first.run.id)).toHaveLength(1);
+  const row = await db
+    .prepare('SELECT active FROM dashboard_repairs WHERE id=?')
+    .bind(first.run.id)
+    .first<{ active: number }>();
+  expect(row?.active).toBe(0);
+}, 30000);

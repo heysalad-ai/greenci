@@ -32,10 +32,10 @@ export class RunRepository {
       runSchema.parse(JSON.parse(rowSchema.parse(row).snapshot)),
     );
   }
-  async create(input: Run) {
+  async create(input: Run, dashboardUserId?: string) {
     const run = runSchema.parse(input),
       at = new Date().toISOString();
-    await this.db
+    const insert = this.db
       .prepare(
         'INSERT OR IGNORE INTO runs (id,repo_id,org_id,head_sha,branch,failing_check_name,state,attempts,started_by,snapshot,version,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,0,?,?)',
       )
@@ -52,8 +52,17 @@ export class RunRepository {
         JSON.stringify(run),
         at,
         at,
-      )
-      .run();
+      );
+    if (dashboardUserId) {
+      await this.db.batch([
+        this.db
+          .prepare(
+            'INSERT INTO dashboard_repairs (id,org_id,user_id,repo,head_sha,active,created_at) VALUES (?,?,?,?,?,1,?)',
+          )
+          .bind(run.id, run.orgId, dashboardUserId, run.repo, run.headSha, at),
+        insert,
+      ]);
+    } else await insert.run();
     return this.get(run.id);
   }
   async save(

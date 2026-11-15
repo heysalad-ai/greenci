@@ -28,6 +28,13 @@ export function label(run: Run): string {
 
 /** Which on-screen key is usable for this run right now. */
 export function canPress(run: Run, key: PhaseKey): boolean {
+  // Dashboard workflows own phase progression; manual keys must not race them.
+  if (
+    run.id.startsWith('dashboard-') &&
+    run.rules.autoMode &&
+    run.rules.autoRepair
+  )
+    return false;
   if (key === 'diagnose') return run.state === 'failing';
   if (key === 'repair')
     return run.state === 'diagnosed' || run.state === 'not_verified';
