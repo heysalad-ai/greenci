@@ -5,6 +5,8 @@ import { Banner, Button, StatusChip } from '@greenci/ui';
 import { SideNav, TopBar } from '../shell';
 import shell from '../app.module.css';
 import styles from './audit.module.css';
+import StartRepair from './start-repair';
+import { sessionResponseSchema } from '@greenci/client';
 const c = copy.auditDashboard;
 type Filter = 'all' | 'original' | 'failing' | 'security';
 export default function AuditPage() {
@@ -41,6 +43,23 @@ export default function AuditPage() {
       setLoading(false);
     }
   }, []);
+  async function signIn() {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/client/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) throw new Error();
+      const session = sessionResponseSchema.parse(await response.json());
+      sessionStorage.setItem('greenci-csrf', session.csrf);
+      await refresh();
+    } catch {
+      setError(copy.auditDashboard.unavailable);
+      setLoading(false);
+    }
+  }
   useEffect(() => {
     void refresh();
   }, [refresh]);
@@ -92,7 +111,14 @@ export default function AuditPage() {
           </div>
           {auth && (
             <Banner tone="wait" title={c.signIn}>
-              <a href="/start">{c.signIn}</a>
+              <Button
+                variant="secondary"
+                small
+                disabled={loading}
+                onClick={() => void signIn()}
+              >
+                {c.signIn}
+              </Button>
             </Banner>
           )}
           {error && (
@@ -103,6 +129,7 @@ export default function AuditPage() {
           {!loading && !data && !auth && !error && <p>{c.empty}</p>}
           {data && (
             <>
+              <StartRepair />
               <div className={styles.snapshot}>
                 <strong>{c.snapshot}</strong>
                 <time dateTime={data.observedAt}>

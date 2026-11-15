@@ -98,7 +98,7 @@ test('audit dashboard recovers from errors and keeps signed-out results private'
   );
   await page.goto('/app/audit');
   await expect(
-    page.getByRole('link', { name: 'Sign in to view private results' }),
+    page.getByRole('button', { name: 'Sign in to view private results' }),
   ).toBeVisible();
   await expect(page.getByText('acme/payments', { exact: true })).toHaveCount(0);
   status = 503;

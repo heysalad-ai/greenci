@@ -1,4 +1,33 @@
 export const copy = {
+  dashboardRepair: {
+    title: 'Start a repair',
+    repo: 'Connected repository',
+    start: 'Start repair',
+    starting: 'Starting repair…',
+    refresh: 'Refresh connected repos',
+    description:
+      'Diagnose the current failing check, prepare a source fix, verify it and open a draft PR. Protected changes pause for your review. Nothing merges automatically.',
+    scope:
+      'Only connected repositories with a supported source-repair test profile can run here. Dependency and workflow changes are not supported by this profile.',
+    empty: 'No connected repositories are available for a repair.',
+    progress: 'Live dashboard repairs',
+    review: 'Review run',
+    draft: 'Review draft PR',
+    retry: 'Retry start',
+    unavailable:
+      'The repair service did not answer. Refresh or retry the same start request.',
+    notConnected: 'This repository is not connected for repairs.',
+    noHead: 'The default commit could not be pinned.',
+    noFailure: 'No failing check is available on the default commit.',
+    unsupported: 'This repository needs a supported repair test profile.',
+    stale:
+      'The default commit changed. Refresh connected repos before starting.',
+    busy: 'A repair is already active in this workspace. Review it before starting another.',
+    queued:
+      'Repair accepted. You can close this page; the run continues in dev.',
+    failed:
+      'The repair could not start. Review the run or retry the same request.',
+  },
   auditDashboard: {
     title: 'Repository health',
     intro: 'Review the findings. Follow each repair to its draft PR.',
