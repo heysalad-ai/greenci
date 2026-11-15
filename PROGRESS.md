@@ -152,3 +152,11 @@ is now explicit; no multiplier was guessed and normal sampling is restored.
 The sealed pack could not be disconnected and no meter is available, so actual
 cell voltage and fitted divider values remain unverified. No public Worker or
 Access changes were needed. See docs/evidence/voltage-audit-dev.json.
+
+## Local account-wide baseline audit (2026-11-15)
+
+Added `pnpm audit:github` for read-only inventory, pinned default commits, observed CI rollups, dependency alert counts, classic branch protection metadata, security-feature status and static workflow/configuration checks. Fake transport tests cover pagination, forbidden endpoints/mutations, privileged checkout, shell interpolation, immutable actions, missing checks, truncated trees and API-denial/partial-response coverage. Reports remain private under ignored `.data/github-audit/`; no audited repository is modified and no dev App installation is expanded. This remains a baseline: full source analysis, fresh builds, rulesets, exploitability and runtime security are not verified. The initial read-only audit stayed local; the later owner-authorised repair/dashboard work is recorded below.
+
+## Dev audit dashboard and first security repair batch (2026-11-15)
+
+Added private owner/org-scoped audit snapshots, `/app/audit` with searchable inventory, findings and real draft-review links, and a guarded operator-assisted repair branch publisher. Initial security/runtime repairs were prepared as draft PRs in three owner-authorised repositories. Private repository names, findings, PR details and per-repair verification evidence remain in private dev R2/local artifacts and are excluded from this public source tree. Local verification is separate from actual PR check status; external-provider failures are not claimed fixed. Default branches, settings and App permissions remain unchanged. Dev deployment keeps Access/session/owner/tenant protections; no merge or staging/production deployment occurred.

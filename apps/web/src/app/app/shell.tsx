@@ -17,8 +17,8 @@ const navIcons = {
 type NavKey = keyof typeof navIcons;
 const navHref: Record<NavKey, string> = {
   runs: '/app',
-  prs: '/app?filter=pr',
-  repos: '/start',
+  prs: '/app/audit#repair-title',
+  repos: '/app/audit',
   deck: '/app/device',
   rules: '/docs#safety',
   settings: '/docs',
@@ -27,12 +27,14 @@ const navHref: Record<NavKey, string> = {
 export function TopBar({
   deckOnline,
   children,
+  compact = false,
 }: {
+  compact?: boolean;
   deckOnline: boolean;
   children?: ReactNode;
 }) {
   return (
-    <header className={styles.topbar}>
+    <header className={`${styles.topbar} ${compact ? styles.compact : ''}`}>
       <Link href="/app" aria-label={copy.name}>
         <Logo />
       </Link>
