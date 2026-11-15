@@ -1,7 +1,12 @@
 import { GitHubAppClient } from '@greenci/github';
 import { copy, loadConfig, runSchema } from '@greenci/core';
 import { RunRepository } from '@greenci/db';
-import { githubFor, probeBetaProviders } from '@greenci/worker';
+import {
+  githubFor,
+  workspaceGithub,
+  probeBetaProviders,
+} from '@greenci/worker';
+import { invitedIdentity } from './invite-auth.js';
 import type { ApiEnv } from './env.js';
 const c = copy.dashboardRepair;
 import {
@@ -12,27 +17,42 @@ import {
 export async function repairOptions(env: ApiEnv, org: string) {
   const config = loadConfig(env),
     github = githubFor(env);
-  const repos = (await github.repos())
-    .filter((repo) => repo.split('/')[0] === org)
+  const connected = org.startsWith('invite-')
+    ? (
+        await env.DB.prepare('SELECT repo FROM beta_connections WHERE org_id=?')
+          .bind(org)
+          .all<{ repo: string }>()
+      ).results.map((r) => r.repo)
+    : await github.repos();
+  const identity = org.startsWith('invite-')
+    ? await env.DB.prepare(
+        'SELECT u.login FROM users u JOIN memberships m ON u.id=m.user_id WHERE m.org_id=?',
+      )
+        .bind(org)
+        .first<{ login: string }>()
+    : null;
+  const repos = connected
+    .filter((repo) => org.startsWith('invite-') || repo.split('/')[0] === org)
     .slice(0, 20);
   const options = [];
   for (const repo of repos) {
     try {
+      const scopedGithub = await workspaceGithub(env, org, repo);
       const row = await env.DB.prepare(
         'SELECT default_branch FROM repos WHERE full_name=? AND org_id=?',
       )
         .bind(repo, org)
         .first<{ default_branch: string }>();
       const branch =
-        github instanceof GitHubAppClient
-          ? (await github.metadata(repo)).default_branch
+        scopedGithub instanceof GitHubAppClient
+          ? (await scopedGithub.metadata(repo)).default_branch
           : (row?.default_branch ?? 'main');
       options.push({
         ...(await inspectRepair(
-          github,
+          scopedGithub,
           repo,
           branch,
-          config.BETA_OWNER_LOGIN || 'sam',
+          identity?.login || config.BETA_OWNER_LOGIN || 'sam',
         )),
         available: true,
         reason: '',
@@ -81,7 +101,11 @@ export async function startDashboardRepair(
   const config = loadConfig(env),
     body = startRepairSchema.parse(input),
     id = `dashboard-${org}-${body.requestId}`;
-  if (body.repo.split('/')[0] !== org) throw new Error(c.notConnected);
+  if (!org.startsWith('invite-') && body.repo.split('/')[0] !== org)
+    throw new Error(c.notConnected);
+  const identity = userId.startsWith('github:')
+    ? await invitedIdentity(env, userId)
+    : null;
   const existing = await env.DB.prepare(
     'SELECT id,repo,head_sha,user_id FROM dashboard_repairs WHERE id=? AND org_id=?',
   )
@@ -95,7 +119,7 @@ export async function startDashboardRepair(
   )
     throw new Error(c.stale);
   if (!existing) {
-    const github = githubFor(env);
+    const github = await workspaceGithub(env, org, body.repo);
     if (!(await github.repos()).includes(body.repo))
       throw new Error(c.notConnected);
     const row = await env.DB.prepare(
@@ -112,10 +136,18 @@ export async function startDashboardRepair(
       github,
       body.repo,
       branch,
-      config.BETA_OWNER_LOGIN || 'sam',
+      identity?.login || config.BETA_OWNER_LOGIN || 'sam',
     );
     if (inspected.sha !== body.sha) throw new Error(c.stale);
     // Source-only beta profile. Repo-level automation settings are never modified.
+    if (identity) {
+      const count = await env.DB.prepare(
+        'SELECT COUNT(*) AS n FROM dashboard_repairs WHERE org_id=? AND created_at>?',
+      )
+        .bind(org, new Date(Date.now() - 86400000).toISOString())
+        .first<{ n: number }>();
+      if ((count?.n ?? 0) >= 2) throw new Error(copy.inviteBeta.quota);
+    }
     const run = runSchema.parse({
       id,
       repo: body.repo,

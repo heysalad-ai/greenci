@@ -1,0 +1,315 @@
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { z } from 'zod';
+import Link from 'next/link';
+import { copy } from '@greenci/core';
+import { Button, Logo } from '@greenci/ui';
+import styles from './beta.module.css';
+const c = copy.inviteBeta;
+const meSchema = z.object({
+  csrf: z.string(),
+  orgId: z.string(),
+  login: z.string(),
+  admin: z.boolean(),
+  installUrl: z.url().nullable(),
+});
+const reposSchema = z.object({
+  repos: z.array(
+    z.object({
+      full_name: z.string(),
+      default_branch: z.string(),
+      installationId: z.number(),
+    }),
+  ),
+});
+const invitesSchema = z.object({
+  invites: z.array(
+    z.object({
+      id: z.string(),
+      email: z.string(),
+      login: z.string(),
+      expires_at: z.string(),
+      revoked: z.number(),
+    }),
+  ),
+});
+export default function BetaPage() {
+  const [me, setMe] = useState<z.infer<typeof meSchema> | null>(null),
+    [repos, setRepos] = useState<z.infer<typeof reposSchema>['repos']>([]),
+    [invites, setInvites] = useState<z.infer<typeof invitesSchema>['invites']>(
+      [],
+    );
+  const [code, setCode] = useState(''),
+    [email, setEmail] = useState(''),
+    [login, setLogin] = useState(''),
+    [repo, setRepo] = useState(''),
+    [shared, setShared] = useState(''),
+    [message, setMessage] = useState(''),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    [loading, setLoading] = useState(true);
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch('/api/client/invite/me', {
+        cache: 'no-store',
+      });
+      if (response.ok) {
+        const data = meSchema.parse(await response.json());
+        setMe(data);
+        sessionStorage.setItem('greenci-csrf', data.csrf);
+      } else if (response.status !== 401) setError(c.unavailable);
+    } catch {
+      setError(c.failed);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+    if (new URLSearchParams(window.location.search).has('error'))
+      setError(c.failed);
+  }, [load]);
+  async function post(path: string, body: unknown) {
+    const response = await fetch(`/api/client/invite/${path}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': me?.csrf ?? '',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok)
+      throw new Error(response.status === 503 ? c.unavailable : c.failed);
+    return response.json() as Promise<unknown>;
+  }
+  async function action(work: () => Promise<void>) {
+    setBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      await work();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : c.failed);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function refreshRepos() {
+    const response = await fetch('/api/client/invite/repositories', {
+      cache: 'no-store',
+    });
+    if (!response.ok) throw new Error(c.failed);
+    const rows = reposSchema.parse(await response.json()).repos;
+    setRepos(rows);
+    setRepo(rows[0]?.full_name ?? '');
+  }
+  async function refreshInvites() {
+    const response = await fetch('/api/client/invite/admin/invites', {
+      cache: 'no-store',
+    });
+    if (!response.ok) throw new Error(c.failed);
+    setInvites(invitesSchema.parse(await response.json()).invites);
+  }
+  useEffect(() => {
+    if (me?.admin) void action(refreshInvites);
+  }, [me?.admin]);
+  return (
+    <main className={styles.page}>
+      <header>
+        <Link href="/" aria-label="GreenCI">
+          <Logo />
+        </Link>
+        <Link href="/app/audit">{c.dashboard}</Link>
+      </header>
+      <section className={styles.panel} aria-labelledby="beta-title">
+        <h1 id="beta-title">{c.title}</h1>
+        <p>{c.intro}</p>
+        <p className={styles.note}>{c.profile}</p>
+        <p className={styles.note}>{c.limits}</p>
+        {error && <p role="alert">{error}</p>}
+        {message && <p role="status">{message}</p>}
+        {loading ? (
+          <p role="status">{c.loading}</p>
+        ) : !me ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void action(async () => {
+                const result = z
+                  .object({ url: z.url() })
+                  .parse(await post('start', { code: code.trim() }));
+                window.location.assign(result.url);
+              });
+            }}
+          >
+            <label htmlFor="invite-code">{c.code}</label>
+            <input
+              id="invite-code"
+              required
+              autoComplete="off"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+            <Button type="submit" disabled={busy || code.trim().length < 32}>
+              {busy ? c.loading : c.signIn}
+            </Button>
+          </form>
+        ) : (
+          <>
+            <p>
+              {c.signedIn}: <strong>{me.login}</strong>
+            </p>
+            {!me.admin && (
+              <section
+                className={styles.connection}
+                aria-labelledby="connect-title"
+              >
+                <h2 id="connect-title">{c.connectTitle}</h2>
+                {me.installUrl && (
+                  <a
+                    href={me.installUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {c.install}
+                  </a>
+                )}
+                <Button
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => void action(refreshRepos)}
+                >
+                  {c.refresh}
+                </Button>
+                {!repos.length ? (
+                  <p>{c.empty}</p>
+                ) : (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void action(async () => {
+                        const row = repos.find((x) => x.full_name === repo);
+                        if (!row) throw new Error(c.failed);
+                        await post('connect', {
+                          repo,
+                          installationId: row.installationId,
+                        });
+                        setMessage(c.connected);
+                      });
+                    }}
+                  >
+                    <label htmlFor="repo">{c.repo}</label>
+                    <select
+                      id="repo"
+                      value={repo}
+                      onChange={(e) => setRepo(e.target.value)}
+                    >
+                      {repos.map((r) => (
+                        <option key={r.full_name} value={r.full_name}>
+                          {r.full_name}
+                        </option>
+                      ))}
+                    </select>
+                    <Button type="submit" disabled={busy}>
+                      {c.connect}
+                    </Button>
+                  </form>
+                )}
+              </section>
+            )}
+            {me.admin && (
+              <section
+                className={styles.connection}
+                aria-labelledby="invite-admin"
+              >
+                <h2 id="invite-admin">{c.admin}</h2>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void action(async () => {
+                      const result = z
+                        .object({ code: z.string() })
+                        .parse(await post('admin/invites', { email, login }));
+                      setShared(result.code);
+                      await refreshInvites();
+                    });
+                  }}
+                >
+                  <label htmlFor="email">{c.email}</label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <label htmlFor="login">{c.login}</label>
+                  <input
+                    id="login"
+                    required
+                    pattern="[a-zA-Z0-9-]{1,39}"
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
+                  />
+                  <Button type="submit" disabled={busy}>
+                    {c.create}
+                  </Button>
+                </form>
+                {shared && (
+                  <div role="status">
+                    <p>{c.invitation}</p>
+                    <code className={styles.code}>{shared}</code>
+                  </div>
+                )}
+                <h3>{c.invites}</h3>
+                {invites.map((i) => (
+                  <div className={styles.invite} key={i.id}>
+                    <span>
+                      {i.login} · {i.email}
+                      <br />
+                      <time dateTime={i.expires_at}>
+                        {new Date(i.expires_at).toLocaleString()}
+                      </time>
+                    </span>
+                    {i.revoked ? (
+                      <span>{c.revoked}</span>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        disabled={busy}
+                        onClick={() =>
+                          void action(async () => {
+                            await post('admin/revoke', { id: i.id });
+                            await refreshInvites();
+                          })
+                        }
+                      >
+                        {c.revoke}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </section>
+            )}
+            <div className={styles.actions}>
+              <Link href="/app/audit">{c.dashboard}</Link>
+              <Button
+                variant="secondary"
+                disabled={busy}
+                onClick={() =>
+                  void action(async () => {
+                    await post('logout', {});
+                    setMe(null);
+                    sessionStorage.removeItem('greenci-csrf');
+                  })
+                }
+              >
+                {c.logout}
+              </Button>
+            </div>
+          </>
+        )}
+      </section>
+    </main>
+  );
+}

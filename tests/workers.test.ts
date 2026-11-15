@@ -100,7 +100,9 @@ beforeAll(async () => {
   mockServer = await buildServer({ root: path.join(temporary, 'mock-repos') });
   const mockUrl = await mockServer.listen({ host: '127.0.0.1', port: 0 });
   mockClient = new MockGitHubClient(mockUrl);
-  mf = new Miniflare(makeRuntime({ MOCK_GITHUB_URL: mockUrl }));
+  mf = new Miniflare(
+    makeRuntime({ MOCK_GITHUB_URL: mockUrl, INVITE_BETA_ENABLED: 'true' }),
+  );
   const db = await mf.getD1Database('DB', 'api');
   const sql = (
     await readFile('packages/db/migrations/0001_platform.sql', 'utf8')
@@ -133,6 +135,16 @@ beforeAll(async () => {
       .replace(/^--.*$/gm, '')
       .replace(/\n/g, ' '),
   );
+  const inviteMigration = await readFile(
+    'packages/db/migrations/0006_invite_beta.sql',
+    'utf8',
+  );
+  const [tables, trigger] = inviteMigration.split(
+    '-- Enforce the admission cap',
+  );
+  await db.exec(tables!.replace(/--[^\n]*/g, '').replace(/\n/g, ' '));
+  for (const statement of trigger!.split('CREATE TRIGGER').slice(1))
+    await db.prepare('CREATE TRIGGER' + statement).run();
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
@@ -907,3 +919,162 @@ it('starts an owner-requested dashboard repair once and runs the fake hosted pip
     .first<{ active: number }>();
   expect(row?.active).toBe(0);
 }, 30000);
+
+it('runs an invited workspace repair with scoped credentials, tenant denial and revocation', async () => {
+  const db = await mf.getD1Database('DB', 'api'),
+    kv = await mf.getKVNamespace('SESSIONS', 'api');
+  const at = new Date().toISOString(),
+    expires = new Date(Date.now() + 86400000).toISOString(),
+    invite = crypto.randomUUID();
+  await db
+    .prepare(
+      'INSERT INTO beta_invites (id,token_hash,email,login,expires_at,github_id,created_at) VALUES (?,?,?,?,?,?,?)',
+    )
+    .bind(
+      invite,
+      'fixture-hash',
+      'outside@example.test',
+      'sam',
+      expires,
+      '42',
+      at,
+    )
+    .run();
+  await db.exec(
+    "INSERT INTO users(id,login,github_id) VALUES ('github:42','sam','42'); INSERT INTO orgs(id,login) VALUES ('invite-42','outsider'); INSERT INTO memberships(id,user_id,org_id,role) VALUES ('github:42:invite-42','github:42','invite-42','owner'); UPDATE repos SET org_id='invite-42' WHERE full_name='greenci/practice';",
+  );
+  await db
+    .prepare(
+      'INSERT INTO beta_identities (user_id,invite_id,github_id,login,access_sub,email) VALUES (?,?,?,?,?,?)',
+    )
+    .bind(
+      'github:42',
+      invite,
+      '42',
+      'sam',
+      'fixture-sub',
+      'outside@example.test',
+    )
+    .run();
+  await db
+    .prepare(
+      'INSERT INTO beta_connections (repo,org_id,user_id,installation_id,default_branch,created_at) VALUES (?,?,?,?,?,?)',
+    )
+    .bind('greenci/practice', 'invite-42', 'github:42', '123', 'main', at)
+    .run();
+  const token = crypto.randomUUID(),
+    other = crypto.randomUUID();
+  await kv.put(
+    `session:${token}`,
+    JSON.stringify({
+      userId: 'github:42',
+      orgId: 'invite-42',
+      csrf: 'fixture-csrf',
+    }),
+  );
+  await kv.put(
+    `session:${other}`,
+    JSON.stringify({ userId: 'sam', orgId: 'greenci', csrf: 'owner-csrf' }),
+  );
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+  const get = (path: string) => mf.dispatchFetch(url + path, { headers });
+  const post = (path: string, body: unknown) =>
+    mf.dispatchFetch(url + path, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+  for (const path of ['/v1/device/status', '/v1/beta/probe', '/v1/events'])
+    expect((await get(path)).status).toBe(404);
+  expect(
+    (await post('/v1/repos/greenci/practice/rules', { autoMode: true })).status,
+  ).toBe(404);
+  expect((await get('/v1/invite/admin/invites')).status).toBe(403);
+  const checks = await mockClient.runChecks('greenci/practice', 'main');
+  const options = await get('/v1/audit/options');
+  expect(options.status).toBe(200);
+  expect(await options.json()).toMatchObject({
+    repos: [{ repo: 'greenci/practice', available: true }],
+  });
+  const requestId = crypto.randomUUID();
+  const start = await post('/v1/audit/repairs', {
+    repo: 'greenci/practice',
+    sha: checks[0]!.sha,
+    requestId,
+  });
+  expect({
+    status: start.status,
+    body: await start.clone().json(),
+  }).toMatchObject({ status: 202 });
+  const { run } = (await start.json()) as { run: { id: string } };
+  await expect
+    .poll(
+      async () => {
+        const row = await db
+          .prepare('SELECT state FROM runs WHERE id=?')
+          .bind(run.id)
+          .first<{ state: string }>();
+        return row?.state;
+      },
+      { timeout: 20000, interval: 100 },
+    )
+    .toBe('pr_open');
+  const current = await get(`/v1/runs/${run.id}`);
+  expect(await current.json()).toMatchObject({
+    orgId: 'invite-42',
+    verified: true,
+    state: 'pr_open',
+  });
+  const forbidden = await mf.dispatchFetch(url + `/v1/runs/${run.id}`, {
+    headers: { Authorization: `Bearer ${other}` },
+  });
+  expect(forbidden.status).toBe(404);
+  expect(
+    (await post(`/v1/runs/${run.id}/actions`, { action: 'repair' })).status,
+  ).toBe(409);
+  await db
+    .prepare(
+      'INSERT INTO dashboard_repairs (id,org_id,user_id,repo,head_sha,active,created_at) VALUES (?,?,?,?,?,0,?)',
+    )
+    .bind(
+      'fixture-second',
+      'invite-42',
+      'github:42',
+      'greenci/practice',
+      checks[0]!.sha,
+      at,
+    )
+    .run();
+  expect(
+    (
+      await post('/v1/audit/repairs', {
+        repo: 'greenci/practice',
+        sha: checks[0]!.sha,
+        requestId: crypto.randomUUID(),
+      })
+    ).status,
+  ).toBe(409);
+  await expect(
+    db
+      .prepare(
+        'INSERT INTO dashboard_repairs (id,org_id,user_id,repo,head_sha,active,created_at) VALUES (?,?,?,?,?,0,?)',
+      )
+      .bind(
+        'fixture-third',
+        'invite-42',
+        'github:42',
+        'greenci/practice',
+        checks[0]!.sha,
+        at,
+      )
+      .run(),
+  ).rejects.toThrow('Beta repair admission limit');
+  await db
+    .prepare('UPDATE beta_invites SET revoked=1 WHERE id=?')
+    .bind(invite)
+    .run();
+  expect((await get('/v1/audit/repairs')).status).toBe(401);
+});

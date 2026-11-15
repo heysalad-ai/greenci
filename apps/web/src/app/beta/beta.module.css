@@ -1,0 +1,100 @@
+.page {
+  max-width: 960px;
+  margin: auto;
+  padding: var(--space-6);
+  color: var(--ink);
+}
+.page header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+}
+.page a {
+  color: var(--brand-ink);
+  text-underline-offset: 0.2em;
+}
+.panel {
+  max-width: 720px;
+  margin: auto;
+  display: grid;
+  gap: var(--space-5);
+}
+.panel :is(h1, h2, h3, p) {
+  margin: 0;
+}
+.panel h1 {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 1.1;
+}
+.panel h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+}
+.panel p {
+  line-height: 1.6;
+  max-width: 70ch;
+}
+.note {
+  color: var(--ink-muted);
+}
+.panel form,
+.connection {
+  display: grid;
+  gap: var(--space-3);
+}
+.connection {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-6);
+  margin-top: var(--space-3);
+}
+.panel input,
+.panel select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.panel button {
+  justify-self: start;
+}
+.page :is(a, input, select, button):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.actions,
+.invite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.invite {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-4);
+  overflow-wrap: anywhere;
+}
+.code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+}
+@media (max-width: 600px) {
+  .page {
+    padding: var(--space-4);
+  }
+  .page header {
+    align-items: flex-start;
+  }
+  .panel h1 {
+    font-size: 28px;
+  }
+}

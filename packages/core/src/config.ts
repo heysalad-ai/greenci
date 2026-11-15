@@ -1,6 +1,10 @@
 import { z } from 'zod';
 export const configSchema = z.object({
   SCAFFOLD_ONLY: z.enum(['true', 'false']).default('false'),
+  INVITE_BETA_ENABLED: z.enum(['true', 'false']).default('false'),
+  GITHUB_CLIENT_ID: z.string().default(''),
+  GITHUB_CLIENT_SECRET: z.string().default(''),
+  GITHUB_APP_SLUG: z.string().default(''),
   BETA_ENABLED: z.enum(['true', 'false']).default('false'),
   APP_ENV: z.enum(['local', 'dev', 'staging', 'prod']).default('local'),
   GITHUB_MODE: z.enum(['mock', 'app']).default('mock'),

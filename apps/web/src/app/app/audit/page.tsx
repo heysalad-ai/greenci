@@ -127,9 +127,9 @@ export default function AuditPage() {
             </Banner>
           )}
           {!loading && !data && !auth && !error && <p>{c.empty}</p>}
+          {!loading && !auth && !error && <StartRepair />}
           {data && (
             <>
-              <StartRepair />
               <div className={styles.snapshot}>
                 <strong>{c.snapshot}</strong>
                 <time dateTime={data.observedAt}>

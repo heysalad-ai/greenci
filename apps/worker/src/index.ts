@@ -88,3 +88,5 @@ export class RunWorkflow extends WorkflowEntrypoint<
 }
 export { githubFor, publishRun } from './domain.js';
 export { probeBetaProviders } from '@greenci/agent';
+
+export { workspaceGithub, runGithub } from './workspace-github.js';

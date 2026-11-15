@@ -92,7 +92,9 @@ export default function StartRepair() {
           .safeParse(await response.json());
         throw new Error(
           body.success &&
-            Object.values(c).some((value) => value === body.data.error)
+            [...Object.values(c), ...Object.values(copy.inviteBeta)].some(
+              (value) => value === body.data.error,
+            )
             ? body.data.error
             : c.failed,
         );

@@ -1,4 +1,44 @@
 export const copy = {
+  inviteBeta: {
+    title: 'Join the GreenCI dev beta',
+    intro:
+      'Use your invitation and GitHub account to connect a repository. Repairs open draft PRs for your review. Nothing merges automatically.',
+    code: 'Invitation code',
+    signIn: 'Continue with GitHub',
+    signedIn: 'GitHub connected',
+    loading: 'Working…',
+    failed:
+      'This step could not complete. Check your invitation, sign in again or retry.',
+    unavailable:
+      'GitHub beta sign-in is not configured yet. Ask the beta operator to finish setup.',
+    connectTitle: 'Connect a repository',
+    install: 'Install GreenCI Dev on selected repositories',
+    refresh: 'Refresh GitHub repositories',
+    repo: 'Repository',
+    connect: 'Connect repository',
+    connected:
+      'Repository connected. Check its repair eligibility on the dashboard.',
+    dashboard: 'Open repair dashboard',
+    logout: 'Sign out',
+    profile:
+      'This beta supports source fixes with dependency-free test.mjs tests. Dependencies and workflows need a separate reviewed profile. Code and check logs are sent to the configured OpenAI provider during a requested repair.',
+    empty:
+      'No writable installed repositories found. Install the App on a selected repository, then refresh. An organisation owner may need to approve installation.',
+    admin: 'Invite a beta tester',
+    email: 'Access email',
+    login: 'GitHub username',
+    create: 'Create seven-day invitation',
+    invitation:
+      'Share this code privately after admitting the same email through Access. It expires in seven days.',
+    revoke: 'Revoke invitation',
+    invites: 'Invitations',
+    revoked: 'Revoked',
+    active: 'Active',
+    limits:
+      'Up to five repositories and two repair starts per workspace in 24 hours.',
+    quota:
+      'The beta allows two repair starts per workspace in 24 hours. Try again later.',
+  },
   dashboardRepair: {
     title: 'Start a repair',
     repo: 'Connected repository',

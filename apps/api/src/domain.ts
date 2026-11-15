@@ -1,10 +1,16 @@
+import { session } from './session.js';
 import {
   repairOptions,
   dashboardRuns,
   startDashboardRepair,
 } from './dashboard-repairs.js';
 import { GitHubAppClient, MockGitHubClient } from '@greenci/github';
-import { githubFor, probeBetaProviders, publishRun } from '@greenci/worker';
+import {
+  githubFor,
+  runGithub,
+  probeBetaProviders,
+  publishRun,
+} from '@greenci/worker';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { z } from 'zod';
 import {
@@ -21,38 +27,7 @@ import { RunRepository } from '@greenci/db';
 import { verifyWebhook } from '@greenci/github';
 import { setCookie } from 'hono/cookie';
 import type { ApiEnv } from './env.js';
-const sessionSchema = z.object({
-  userId: z.string(),
-  orgId: z.string(),
-  csrf: z.string(),
-});
 const app = new OpenAPIHono<{ Bindings: ApiEnv }>();
-async function session(request: Request, env: ApiEnv) {
-  const header = request.headers.get('Authorization');
-  const token = header?.startsWith('Bearer ')
-    ? header.slice(7)
-    : request.headers
-        .get('Cookie')
-        ?.match(/(?:^|;\s*)greenci_session=([^;]+)/)?.[1];
-  if (!token || !/^[a-f0-9-]{36}$/.test(token)) return null;
-  const raw = await env.SESSIONS.get(`session:${token}`);
-  if (!raw) return null;
-  const result = sessionSchema.safeParse(JSON.parse(raw));
-  if (!result.success) return null;
-  const member = await env.DB.prepare(
-    'SELECT id FROM memberships WHERE user_id=? AND org_id=?',
-  )
-    .bind(result.data.userId, result.data.orgId)
-    .first();
-  if (!member) return null;
-  if (
-    !['GET', 'HEAD'].includes(request.method) &&
-    !header &&
-    request.headers.get('X-CSRF-Token') !== result.data.csrf
-  )
-    return null;
-  return result.data;
-}
 app.post('/__local/session', async (c) => {
   if (loadConfig(c.env).APP_ENV !== 'local') return c.notFound();
   const body = z
@@ -82,6 +57,14 @@ app.post('/__local/session', async (c) => {
 app.use('/v1/*', async (c, next) => {
   const user = await session(c.req.raw, c.env);
   if (!user) return c.json({ error: copy.api.signIn }, 401);
+  if (user.userId.startsWith('github:')) {
+    const allowed =
+      /^\/v1\/(audit(?:\/(?:options|repairs))?|runs(?:\/[^/]+(?:\/(?:events|decisions|diff|actions))?)?|repos)$/.test(
+        c.req.path,
+      );
+    if (!allowed) return c.notFound();
+    c.header('Cache-Control', 'private, no-store');
+  }
   await next();
 });
 // Audit artifacts contain private names. Require owner membership and exact tenant scope.
@@ -161,9 +144,10 @@ app.post('/v1/audit/repairs', async (c) => {
   } catch (error) {
     const message =
       error instanceof Error &&
-      Object.values(copy.dashboardRepair).some(
-        (value) => value === error.message,
-      )
+      [
+        ...Object.values(copy.dashboardRepair),
+        ...Object.values(copy.inviteBeta),
+      ].some((value) => value === error.message)
         ? error.message
         : copy.dashboardRepair.failed;
     return c.json({ error: message }, 409);
@@ -420,11 +404,26 @@ app.post('/v1/runs/:id/actions', async (c) => {
   } catch {
     return c.notFound();
   }
+  if (
+    run.id.startsWith('dashboard-') &&
+    run.rules.autoMode &&
+    ['diagnose', 'repair', 'verify'].includes(body.action)
+  )
+    return c.json({ error: copy.api.illegalAction }, 409);
   const betaConfig = loadConfig(c.env);
   if (
     betaConfig.BETA_ENABLED === 'true' &&
     !['admin', 'write'].includes(
-      await githubFor(c.env).permission(run.repo, betaConfig.BETA_OWNER_LOGIN),
+      await (
+        await runGithub(c.env, run)
+      ).permission(
+        run.repo,
+        (
+          await c.env.DB.prepare('SELECT login FROM users WHERE id=?')
+            .bind(user.userId)
+            .first<{ login: string }>()
+        )?.login ?? betaConfig.BETA_OWNER_LOGIN,
+      ),
     )
   )
     return c.json({ error: copy.api.signIn }, 403);
@@ -775,6 +774,13 @@ async function processComment(
       .trim()
       .match(/^\/greenci (diagnose|repair|verify|approve)$/);
   if (!match) return;
+  if (
+    loadConfig(env).INVITE_BETA_ENABLED === 'true' &&
+    (await env.DB.prepare('SELECT repo FROM beta_connections WHERE repo=?')
+      .bind(input.repository.full_name)
+      .first())
+  )
+    return;
   const github = githubFor(env),
     repo = input.repository.full_name,
     permission = await github.permission(repo, input.comment.user.login),
