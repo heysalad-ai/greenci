@@ -6,6 +6,7 @@ const sessionSchema = z.object({
   userId: z.string(),
   orgId: z.string(),
   csrf: z.string(),
+  emailAccountId: z.uuid().optional(),
 });
 export async function session(request: Request, env: ApiEnv) {
   const header = request.headers.get('Authorization');
@@ -31,6 +32,23 @@ export async function session(request: Request, env: ApiEnv) {
     request.headers.get('X-CSRF-Token') !== result.data.csrf
   )
     return null;
+  if (result.data.emailAccountId || result.data.userId.startsWith('email:')) {
+    const cfg = loadConfig(env);
+    if (cfg.EMAIL_AUTH_ENABLED !== 'true' || !result.data.emailAccountId)
+      return null;
+    const account = await env.DB.prepare(
+      'SELECT github_user_id,revoked FROM email_accounts WHERE id=?',
+    )
+      .bind(result.data.emailAccountId)
+      .first<{ github_user_id: string | null; revoked: number }>();
+    if (
+      !account ||
+      account.revoked ||
+      (account.github_user_id ?? `email:${result.data.emailAccountId}`) !==
+        result.data.userId
+    )
+      return null;
+  }
   if (result.data.userId.startsWith('github:')) {
     try {
       const cfg = loadConfig(env);

@@ -62,6 +62,7 @@ beforeAll(async () => {
     '0005_dashboard_repairs.sql',
     '0006_invite_beta.sql',
     '0007_public_beta.sql',
+    '0008_email_auth.sql',
   ]) {
     const text = (
       await readFile(`packages/db/migrations/${name}`, 'utf8')
@@ -272,7 +273,7 @@ it('bounds outstanding public OAuth states in the database', async () => {
   await env.DB.prepare('DELETE FROM beta_oauth_states').run();
   for (let n = 0; n < 100; n++)
     await env.DB.prepare(
-      "INSERT INTO beta_oauth_states VALUES (?,?,?,?,?,?,?,0,'public')",
+      "INSERT INTO beta_oauth_states (state_hash,browser_hash,invite_id,access_sub,email,verifier,expires_at,used,admission) VALUES (?,?,?,?,?,?,?,0,'public')",
     )
       .bind(
         `state-${n}`,

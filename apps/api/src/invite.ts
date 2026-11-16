@@ -26,6 +26,7 @@ const stateSchema = z.object({
   email: z.string(),
   verifier: z.string(),
   admission: z.enum(['invite', 'public']),
+  email_account_id: z.string().nullable().optional(),
 });
 const cpy = copy.inviteBeta;
 export function inviteRoutes(
@@ -160,7 +161,7 @@ export function inviteRoutes(
             { team: cfg.BETA_ACCESS_TEAM, audience: cfg.BETA_ACCESS_AUD },
           );
       const raw = await c.env.DB.prepare(
-        'UPDATE beta_oauth_states SET used=1 WHERE state_hash=? AND browser_hash=? AND access_sub=? AND email=? AND expires_at>? AND used=0 RETURNING invite_id,access_sub,email,verifier,admission',
+        'UPDATE beta_oauth_states SET used=1 WHERE state_hash=? AND browser_hash=? AND access_sub=? AND email=? AND expires_at>? AND used=0 RETURNING invite_id,access_sub,email,verifier,admission,email_account_id',
       )
         .bind(
           await digest(query.state),
@@ -172,6 +173,15 @@ export function inviteRoutes(
         .first();
       stage = 'state';
       const state = stateSchema.parse(raw);
+      if (state.email_account_id) {
+        const linking = await session(c.req.raw, c.env);
+        if (
+          !publicFlow ||
+          linking?.emailAccountId !== state.email_account_id ||
+          linking.userId !== `email:${state.email_account_id}`
+        )
+          throw new Error('Email linking session changed');
+      }
       let invite = publicFlow
         ? null
         : inviteSchema.parse(
@@ -252,12 +262,27 @@ export function inviteRoutes(
       const bound = await invitedIdentity(c.env, userId);
       if (bound.access_sub !== access.sub || bound.invite_id !== invite.id)
         throw new Error('Identity binding conflict');
+      if (state.email_account_id) {
+        const linked = await c.env.DB.prepare(
+          'UPDATE email_accounts SET github_user_id=? WHERE id=? AND github_user_id IS NULL AND revoked=0 RETURNING id',
+        )
+          .bind(userId, state.email_account_id)
+          .first();
+        if (!linked) throw new Error('Email identity already linked');
+      }
       stage = 'session';
       const token = crypto.randomUUID(),
         csrf = crypto.randomUUID();
       await c.env.SESSIONS.put(
         `session:${token}`,
-        JSON.stringify({ userId, orgId, csrf }),
+        JSON.stringify({
+          userId,
+          orgId,
+          csrf,
+          ...(state.email_account_id
+            ? { emailAccountId: state.email_account_id }
+            : {}),
+        }),
         { expirationTtl: 3600 },
       );
       await c.env.SESSIONS.put(
@@ -303,20 +328,36 @@ export function inviteRoutes(
     const user = (await session(c.req.raw, c.env))!,
       cfg = loadConfig(c.env);
     const identity = await c.env.DB.prepare(
-      'SELECT login FROM users WHERE id=?',
+      'SELECT login,github_id FROM users WHERE id=?',
     )
       .bind(user.userId)
-      .first<{ login: string }>();
+      .first<{ login: string; github_id: string | null }>();
+    const email = user.emailAccountId
+      ? await c.env.DB.prepare('SELECT email FROM email_accounts WHERE id=?')
+          .bind(user.emailAccountId)
+          .first<{ email: string }>()
+      : null;
+    const githubAuth = authSchema.safeParse(
+      JSON.parse(
+        (await c.env.SESSIONS.get(`github-user:${user.userId}`)) ?? 'null',
+      ),
+    );
     return c.json({
+      githubAuthorized:
+        githubAuth.success && githubAuth.data.expires > Date.now(),
+      email: email?.email ?? null,
+      authMethod: user.emailAccountId ? 'email' : 'github',
+      githubConnected: Boolean(identity?.github_id),
       csrf: user.csrf,
       orgId: user.orgId,
       login: identity?.login ?? '',
       admin:
         user.userId.startsWith('access:') &&
         identity?.login === cfg.BETA_OWNER_LOGIN,
-      installUrl: cfg.GITHUB_APP_SLUG
-        ? `https://github.com/apps/${cfg.GITHUB_APP_SLUG}/installations/new`
-        : null,
+      installUrl:
+        identity?.github_id && cfg.GITHUB_APP_SLUG
+          ? `https://github.com/apps/${cfg.GITHUB_APP_SLUG}/installations/new`
+          : null,
     });
   });
   app.get('/v1/invite/repositories', async (c) => {

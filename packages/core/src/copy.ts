@@ -1,8 +1,33 @@
 export const copy = {
+  emailAuth: {
+    title: 'Sign up or sign in with email',
+    detail: 'We’ll email you a one-time code. No password needed.',
+    email: 'Email address',
+    send: 'Email me a code',
+    code: 'Eight-digit code',
+    verify: 'Verify and continue',
+    sent: 'Check your inbox. Enter the code here within ten minutes.',
+    change: 'Use a different email',
+    signedIn: 'Signed in with email',
+    link: 'Connect GitHub',
+    linkDetail:
+      'Your email account is ready. Connect GitHub to choose repositories and request repairs.',
+    linked: 'GitHub connected',
+    subject: 'Your GreenCI sign-in code',
+    emailIntro: 'Use this code to sign up or sign in to the GreenCI dev beta:',
+    emailExpiry:
+      'This code expires in ten minutes. Enter it only on app.greenci.dev. If you did not request it, ignore this email.',
+    failed: 'That code could not be verified. Check it or request a new code.',
+    invalidEmail: 'Enter a valid email address.',
+    unavailable:
+      'Email sign-in is unavailable. Retry later or continue with GitHub.',
+    rate: 'Too many sign-in requests. Wait fifteen minutes and try again.',
+    working: 'Working…',
+  },
   publicBeta: {
     title: 'Try GreenCI',
     intro:
-      'Sign in with GitHub, connect a repository and request a repair. Review the verified change in a draft pull request. Nothing merges automatically.',
+      'Sign in with email or GitHub, connect a repository and request a repair. Review the verified change in a draft pull request. Nothing merges automatically.',
     profile:
       'This beta supports source fixes with dependency-free Node test.mjs tests. Dependency and workflow repairs are not supported. When you request a repair, repository source and check logs are sent to OpenAI.',
     limits:
@@ -346,7 +371,7 @@ export const copy = {
       {
         id: 'public-beta',
         title: 'Beta limits and data use',
-        body: 'GreenCI reads checks and source from repositories you select, then writes a repair branch and draft pull request. Requested repairs send source and check logs to OpenAI. Run records, logs and diffs are stored in Cloudflare for review. Automatic artifact deletion is not enabled in this beta. Request deletion or support through the GreenCI GitHub issues page without posting private code, logs or credentials. Removing the GitHub App installation stops its repository access. Signing out removes the short-lived GitHub user token; it does not delete run records or stop an already running repair.',
+        body: 'Email sign-in uses a ten-minute, single-use code and stores your verified email address in Cloudflare. Connecting GitHub is a separate consent step; accounts are never linked just because emails match. GreenCI reads checks and source from repositories you select, then writes a repair branch and draft pull request. Requested repairs send source and check logs to OpenAI. Run records, logs and diffs are stored in Cloudflare for review. Automatic artifact deletion is not enabled in this beta. Request deletion or support through the GreenCI GitHub issues page without posting private code, logs or credentials. Removing the GitHub App installation stops its repository access. Signing out removes this browser’s GreenCI session and the short-lived GitHub user token; it does not delete run records or stop an already running repair.',
       },
     ],
   },

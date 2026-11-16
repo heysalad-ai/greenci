@@ -103,6 +103,7 @@ beforeAll(async () => {
     '0002_domain.sql',
     '0005_dashboard_repairs.sql',
     '0006_invite_beta.sql',
+    '0008_email_auth.sql',
   ]) {
     // exec handles individual lines; preserve the trigger's internal semicolon as one SQL statement.
     const sql = await readFile(`packages/db/migrations/${name}`, 'utf8');
