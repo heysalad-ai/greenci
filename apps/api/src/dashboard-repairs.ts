@@ -1,5 +1,5 @@
 import { GitHubAppClient } from '@greenci/github';
-import { copy, loadConfig, runSchema } from '@greenci/core';
+import { copy, dailyRepairLimit, loadConfig, runSchema } from '@greenci/core';
 import { RunRepository } from '@greenci/db';
 import {
   githubFor,
@@ -146,7 +146,8 @@ export async function startDashboardRepair(
       )
         .bind(org, new Date(Date.now() - 86400000).toISOString())
         .first<{ n: number }>();
-      if ((count?.n ?? 0) >= 2) throw new Error(copy.inviteBeta.quota);
+      if ((count?.n ?? 0) >= dailyRepairLimit(config, identity.login))
+        throw new Error(copy.inviteBeta.quota);
     }
     const run = runSchema.parse({
       id,

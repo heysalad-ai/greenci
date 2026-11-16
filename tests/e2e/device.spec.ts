@@ -57,3 +57,33 @@ test('device page waits for the matching device acknowledgment', async ({
   await page.getByRole('button', { name: 'Refresh', exact: true }).click();
   await expect(page.getByText('Pad acknowledged the command.')).toBeVisible();
 });
+
+test('the shared connection badge rejects stale and unauthorized device status', async ({
+  page,
+}) => {
+  let fresh = true,
+    authorized = true;
+  await page.route('**/api/client/device/status', async (route) => {
+    await route.fulfill(
+      authorized
+        ? {
+            json: { status: { healthy: true, seenAt: fresh ? Date.now() : 0 } },
+          }
+        : { status: 403, json: { error: 'Unavailable' } },
+    );
+  });
+  await page.goto('/app');
+  await expect(page.getByText('Deck online', { exact: true })).toBeVisible();
+  fresh = false;
+  await expect(
+    page.getByText('No deck connected', { exact: true }),
+  ).toBeVisible({ timeout: 10000 });
+  fresh = true;
+  await expect(page.getByText('Deck online', { exact: true })).toBeVisible({
+    timeout: 10000,
+  });
+  authorized = false;
+  await expect(
+    page.getByText('No deck connected', { exact: true }),
+  ).toBeVisible({ timeout: 10000 });
+});

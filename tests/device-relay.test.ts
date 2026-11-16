@@ -90,6 +90,10 @@ it('authenticates the real Workers relay, bounds releases and signs expiring com
       { op: 'mic' },
       { op: 'led1', value: 100 },
       { op: 'shell', value: 'rm' },
+      { op: 'run', value: 7 },
+      { op: 'run', value: -1 },
+      { op: 'run', value: 1.5 },
+      { op: 'run', value: 4, merge: true },
     ])
       expect((await command(body)).status).toBe(400);
     expect((await command({ op: 'ota', sha: 'b'.repeat(64) })).status).toBe(
@@ -148,6 +152,25 @@ it('authenticates the real Workers relay, bounds releases and signs expiring com
     );
     expect(await (await poll(undefined, { ...status, ack: 1 })).json()).toEqual(
       { idle: true },
+    );
+    expect((await command({ op: 'run', value: 3 })).status).toBe(202);
+    const mirrored = (await (await poll()).json()) as typeof signed;
+    expect(mirrored.op).toBe('run');
+    expect(mirrored.value).toBe(3);
+    expect(mirrored.mac).toBe(
+      createHmac('sha256', key)
+        .update(
+          [
+            mirrored.seq,
+            mirrored.op,
+            mirrored.value,
+            mirrored.sha,
+            mirrored.size,
+            mirrored.version,
+            mirrored.expires,
+          ].join('\n'),
+        )
+        .digest('hex'),
     );
     const image = new Uint8Array(512);
     image[0] = 0xe9;

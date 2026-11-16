@@ -1,3 +1,4 @@
+import { ownsDevPad } from './device-owner.js';
 import { session } from './session.js';
 import {
   repairOptions,
@@ -243,11 +244,7 @@ app.all('/v1/device/*', async (c) => {
   )
     return c.notFound();
   const user = (await session(c.req.raw, c.env))!;
-  const owner = await c.env.DB.prepare(
-    'SELECT id FROM memberships WHERE user_id=? AND org_id=? AND role=?',
-  )
-    .bind(user.userId, user.orgId, 'owner')
-    .first();
+  const owner = await ownsDevPad(c.env, config, user);
   if (!owner) return c.json({ error: copy.api.signIn }, 403);
   const part = c.req.path.slice('/v1/device/'.length);
   if (!(

@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { z } from 'zod';
 import { copy } from '@greenci/core';
 import { CommandField, Logo, StatusChip } from '@greenci/ui';
 import styles from './app.module.css';
@@ -33,6 +34,41 @@ export function TopBar({
   deckOnline: boolean;
   children?: ReactNode;
 }) {
+  const [deviceOnline, setDeviceOnline] = useState(false);
+  useEffect(() => {
+    let active = true;
+    const refresh = async () => {
+      try {
+        const response = await fetch('/api/client/device/status');
+        if (!response.ok) {
+          if (active) setDeviceOnline(false);
+          return;
+        }
+        const body = z
+          .object({
+            status: z
+              .object({ healthy: z.boolean(), seenAt: z.number() })
+              .nullable(),
+          })
+          .parse(await response.json());
+        if (active)
+          setDeviceOnline(
+            Boolean(
+              body.status?.healthy && Date.now() - body.status.seenAt < 20000,
+            ),
+          );
+      } catch {
+        if (active) setDeviceOnline(false);
+      }
+    };
+    void refresh();
+    const timer = setInterval(() => void refresh(), 5000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, []);
+  const connected = deckOnline || deviceOnline;
   return (
     <header className={`${styles.topbar} ${compact ? styles.compact : ''}`}>
       <Link href="/app" aria-label={copy.name}>
@@ -43,8 +79,8 @@ export function TopBar({
         <CommandField />
       </div>
       <div className={styles.topRight}>
-        <StatusChip tone={deckOnline ? 'pass' : 'idle'}>
-          {deckOnline ? copy.app.deckOnline : copy.app.deckNone}
+        <StatusChip tone={connected ? 'pass' : 'idle'}>
+          {connected ? copy.app.deckOnline : copy.app.deckNone}
         </StatusChip>
         <span className={styles.avatar} aria-hidden="true">
           GC

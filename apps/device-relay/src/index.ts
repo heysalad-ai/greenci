@@ -21,6 +21,10 @@ const command = z.discriminatedUnion('op', [
     })
     .strict(),
   z.object({ op: z.enum(['home', 'reboot']) }).strict(),
+  // Bounded, display-only real-run mirror. Never starts repairs or merges PRs.
+  z
+    .object({ op: z.literal('run'), value: z.number().int().min(0).max(6) })
+    .strict(),
   z
     .object({ op: z.literal('ota'), sha: z.string().regex(/^[a-f0-9]{64}$/) })
     .strict(),

@@ -93,6 +93,7 @@
       "name": "greenci-api-dev",
       "vars": {
         "APP_ENV": "dev",
+        "DEV_OWNER_DAILY_REPAIRS": "3",
         "GITHUB_MODE": "app",
         "AGENT_PROVIDER": "fake",
         "SANDBOX": "cloudflare",
