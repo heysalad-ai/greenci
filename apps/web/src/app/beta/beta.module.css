@@ -114,3 +114,7 @@
   border-bottom: 1px solid var(--line);
   padding-bottom: var(--space-6);
 }
+
+.account {
+  overflow-wrap: anywhere;
+}

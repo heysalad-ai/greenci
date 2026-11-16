@@ -224,7 +224,7 @@ export default function BetaPage() {
           </>
         ) : (
           <>
-            <p>
+            <p className={styles.account}>
               {me.email ? copy.emailAuth.signedIn : c.signedIn}:{' '}
               <strong>{me.email || me.login}</strong>
             </p>
@@ -405,6 +405,10 @@ export default function BetaPage() {
                   void action(async () => {
                     await post('logout', {});
                     setMe(null);
+                    setRepos([]);
+                    setRepo('');
+                    setInvites([]);
+                    setShared('');
                     sessionStorage.removeItem('greenci-csrf');
                   })
                 }
