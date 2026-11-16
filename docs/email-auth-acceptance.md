@@ -10,4 +10,8 @@ Before implementation:
 - Deploy dev only, preserve Access on operator/API and all repair draft boundaries. Proof: dev deployment IDs and anonymous Access redirects.
 - Codes never appear in API responses, hosted logs, URLs or artifacts. Local delivery uses the existing local-only email outbox. Proof: response/log review and test-only delivery spy.
 
-Status: implementation in progress. Live delivery and Windows evidence are required; local fixtures alone are insufficient.
+Local verification: PASS — lint/typecheck, 139 tests, 19 browser journeys and 100% core coverage. Browser tests exercise registration, sign-out, returning login, wrong codes, send errors, separate GitHub consent and narrow-screen rendering. Security API tests cover browser binding, expiry, replay/concurrent use, attempt limits, revoked accounts, CSRF and changed-session linking. Existing GitHub journeys pass.
+
+Hosted dev: migration 0008 applied to greenci-dev; API bb36d201-e725-4bdb-b387-f55417c47ee2; public frontend fac889a4-cad0-41a3-835a-aa3f851f3630; protected frontend 1699880e-dcb9-4e06-ab05-8f078aa61b76. Public web/API health returns ok; public mode reports emailSignup true. Anonymous protected frontend and API still return 302 Access redirects. Cloudflare marks email.dev.greenci.dev sending Enabled and DNS Configured. No staging/production, provider-secret or repository-permission changes.
+
+Windows Edge InPrivate: live signup form rendered. Requested a real code for the existing controlled test alias and observed the successful code-entry screen. User inbox verification is pending, so live account creation, sign-out and returning login are NOT yet verified. Recording and phone mirroring are stopped. No codes are saved in artifacts. Local fixtures alone are not Windows acceptance.
