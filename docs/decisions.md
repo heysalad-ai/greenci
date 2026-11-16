@@ -150,3 +150,7 @@ A frontend-only public mode presents GitHub signup on a separate customer origin
 ## Gate the marketing signup link on hosted acceptance
 
 The existing static public site gains an opt-in notice linking to the pinned customer app URL. The default build stays a preview. This keeps discoverability prepared without claiming that signup is open before the separate app and GitHub callback have passed hosted verification. It adds no service binding, account capability, new component or design token.
+
+## Public dev availability and acceptance evidence
+
+The user explicitly requested signup for anyone and authorised the dev-only real repair. Public customer-mode OAuth, repository connection and a real draft repair are now observed with the operator's account. This permits the requested functional beta entry and marketing link while preserving independent external-user acceptance as an unfulfilled evidence requirement. Do not present owner-run, fixture or UI-review evidence as an independent tester, and do not promote dev availability to production readiness. The default workspace label is generic because real customer sessions must not be labelled as practice data.

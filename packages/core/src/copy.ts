@@ -428,7 +428,7 @@ export const copy = {
       rules: 'Rules',
       settings: 'Settings',
     },
-    org: 'Practice workspace',
+    org: 'Your workspace',
     runTitle: (check: string, branch: string) => `${check} failed on ${branch}`,
     navLabel: 'Main',
     greetingRed: (n: number) =>
