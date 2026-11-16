@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import Link from 'next/link';
 import { copy } from '@greenci/core';
-import { Button, Logo } from '@greenci/ui';
+import { Button, GitHubIcon, Icon, Logo } from '@greenci/ui';
 import styles from './beta.module.css';
 const base = copy.inviteBeta;
 const meSchema = z.object({
@@ -134,7 +134,10 @@ export default function BetaPage() {
         <Link href="/" aria-label="GreenCI">
           <Logo />
         </Link>
-        <Link href="/app/audit">{c.dashboard}</Link>
+        <Link className="gc-btn gc-btn--secondary" href="/app/audit">
+          <Icon name="repair" />
+          {c.dashboard}
+        </Link>
       </header>
       <section className={styles.panel} aria-labelledby="beta-title">
         <h1 id="beta-title">{c.title}</h1>
@@ -186,6 +189,7 @@ export default function BetaPage() {
                   busy || (mode !== 'public' && code.trim().length < 32)
                 }
               >
+                {busy ? <Icon name="spinner" /> : <GitHubIcon />}
                 {busy ? c.loading : c.signIn}
               </Button>
             </form>
@@ -193,10 +197,12 @@ export default function BetaPage() {
               <p className={styles.note}>
                 {copy.publicBeta.templateDetail}{' '}
                 <a
+                  className="gc-inline-link"
                   href={copy.publicBeta.templateUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <GitHubIcon />
                   {copy.publicBeta.template}
                 </a>
               </p>
@@ -215,10 +221,12 @@ export default function BetaPage() {
                 <h2 id="connect-title">{c.connectTitle}</h2>
                 {me.installUrl && (
                   <a
+                    className="gc-btn gc-btn--secondary"
                     href={me.installUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
+                    <GitHubIcon />
                     {c.install}
                   </a>
                 )}
@@ -227,6 +235,7 @@ export default function BetaPage() {
                   disabled={busy}
                   onClick={() => void action(refreshRepos)}
                 >
+                  <GitHubIcon />
                   {c.refresh}
                 </Button>
                 {!repos.length ? (
@@ -259,6 +268,7 @@ export default function BetaPage() {
                       ))}
                     </select>
                     <Button type="submit" disabled={busy}>
+                      <GitHubIcon />
                       {c.connect}
                     </Button>
                   </form>
@@ -340,7 +350,10 @@ export default function BetaPage() {
               </section>
             )}
             <div className={styles.actions}>
-              <Link href="/app/audit">{c.dashboard}</Link>
+              <Link className="gc-btn gc-btn--secondary" href="/app/audit">
+                <Icon name="repair" />
+                {c.dashboard}
+              </Link>
               <Button
                 variant="secondary"
                 disabled={busy}

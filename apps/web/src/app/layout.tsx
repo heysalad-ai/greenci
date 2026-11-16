@@ -1,6 +1,7 @@
 import '../../../../design-system/tokens.css';
 import '../../../../design-system/components.css';
 import './fonts.css';
+import './action-links.css';
 import type { ReactNode } from 'react';
 import { copy } from '@greenci/core';
 export const metadata = { title: copy.name };

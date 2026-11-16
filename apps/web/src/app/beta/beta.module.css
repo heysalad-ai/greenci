@@ -9,6 +9,7 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-4);
+  flex-wrap: wrap;
   margin-bottom: var(--space-7);
 }
 .page a {
@@ -97,4 +98,12 @@
   .panel h1 {
     font-size: 28px;
   }
+}
+
+.page a:global(.gc-btn) {
+  color: var(--ink);
+  text-decoration: none;
+}
+.page header > a:first-child {
+  flex-shrink: 0;
 }
