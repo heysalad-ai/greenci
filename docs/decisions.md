@@ -138,3 +138,7 @@ The browser must receive OAuth callback redirects together with the API's sessio
 ## Workers-safe OAuth transport and bounded diagnostics
 
 Call global fetch through a wrapper, as the installation client already does, rather than storing the Workers native function as a client method. A bundled Worker with a fixture outbound service reproduces the token exchange failure with the old default and passes exchange plus identity lookup after the change. Callback rejection logs contain only a fixed stage and allowlisted provider reason; raw error text, provider bodies, authorization codes, tokens and request headers are excluded. Provider error responses are rejected even if they also contain a token field.
+
+## Separate public admission from operator Access
+
+Public self-service uses GitHub identity plus the existing browser-bound single-use PKCE flow on a separately pinned dev origin. It reuses tenant-isolated connection/repair machinery while recording admission mode, so public disablement and revocation also stop background GitHub phases. Private Access-bound identities are not silently upgraded. Public repair capacity is capped transactionally at twenty admitted starts across all public accounts per rolling day, in addition to existing workspace caps; outstanding public OAuth state is capped independently. This is a constrained beta candidate, not permission to expose the operator host or deploy production. The schema, admission logic and security fixtures form one coherent review chunk slightly above the usual 500-line target.

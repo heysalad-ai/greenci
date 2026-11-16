@@ -70,3 +70,17 @@ it.each(['connected=1', 'error=signin'])(
     );
   },
 );
+it('overwrites a supplied internal client address with the edge address', async () => {
+  await GET(
+    new Request('https://web/api/client/invite/callback', {
+      headers: {
+        'X-GreenCI-Client-IP': 'forged',
+        'CF-Connecting-IP': '198.51.100.17',
+      },
+    }),
+    { params: Promise.resolve({ path: ['invite', 'callback'] }) },
+  );
+  expect(apiFetch.mock.lastCall?.[1].headers['X-GreenCI-Client-IP']).toBe(
+    '198.51.100.17',
+  );
+});

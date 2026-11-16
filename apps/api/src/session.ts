@@ -39,7 +39,9 @@ export async function session(request: Request, env: ApiEnv) {
         !['local', 'dev'].includes(cfg.APP_ENV)
       )
         return null;
-      await invitedIdentity(env, result.data.userId);
+      const identity = await invitedIdentity(env, result.data.userId);
+      if (identity.admission === 'public' && cfg.PUBLIC_BETA_ENABLED !== 'true')
+        return null;
     } catch {
       return null;
     }

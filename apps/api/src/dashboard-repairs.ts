@@ -172,8 +172,18 @@ export async function startDashboardRepair(
     });
     try {
       await new RunRepository(env.DB).create(run, userId);
-    } catch {
+    } catch (error) {
       // D1 batch admission is atomic: no orphan slot or run survives a conflict.
+      if (
+        error instanceof Error &&
+        error.message.includes('Public repair capacity')
+      )
+        throw new Error(copy.inviteBeta.publicCapacity);
+      if (
+        error instanceof Error &&
+        error.message.includes('Beta repair admission limit')
+      )
+        throw new Error(copy.inviteBeta.quota);
       const duplicate = await env.DB.prepare(
         'SELECT repo,head_sha,user_id FROM dashboard_repairs WHERE id=? AND org_id=?',
       )

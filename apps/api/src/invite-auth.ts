@@ -32,6 +32,7 @@ export async function invitedIdentity(env: Pick<ApiEnv, 'DB'>, userId: string) {
       email: string;
       expires_at: string;
       revoked: number;
+      admission: 'invite' | 'public';
     }>();
   if (!row || !freshInvite(row))
     throw new Error('Invitation expired or revoked');

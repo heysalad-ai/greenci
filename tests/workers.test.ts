@@ -145,6 +145,16 @@ beforeAll(async () => {
   await db.exec(tables!.replace(/--[^\n]*/g, '').replace(/\n/g, ' '));
   for (const statement of trigger!.split('CREATE TRIGGER').slice(1))
     await db.prepare('CREATE TRIGGER' + statement).run();
+  const publicMigration = await readFile(
+    'packages/db/migrations/0007_public_beta.sql',
+    'utf8',
+  );
+  const [publicColumns, ...publicTriggers] = publicMigration
+    .replace(/--[^\n]*/g, '')
+    .split('CREATE TRIGGER');
+  await db.exec(publicColumns!.replace(/--[^\n]*/g, '').replace(/\n/g, ' '));
+  for (const statement of publicTriggers)
+    await db.prepare('CREATE TRIGGER' + statement).run();
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();
