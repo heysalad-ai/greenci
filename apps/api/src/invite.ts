@@ -3,7 +3,11 @@ import { bodyLimit } from 'hono/body-limit';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
 import { z } from 'zod';
 import { copy, loadConfig } from '@greenci/core';
-import { GitHubInviteClient, identitySchema } from '@greenci/github';
+import {
+  GitHubInviteClient,
+  GitHubOAuthError,
+  identitySchema,
+} from '@greenci/github';
 import { verifyBetaAccess } from './access.js';
 import { session } from './session.js';
 import {
@@ -125,6 +129,9 @@ export function inviteRoutes(
   });
   app.get('/v1/invite/callback', async (c) => {
     const cfg = loadConfig(c.env);
+    let stage:
+      'request' | 'state' | 'exchange' | 'identity' | 'binding' | 'session' =
+      'request';
     try {
       const query = z
         .object({ state: z.uuid(), code: z.string().min(1).max(512) })
@@ -147,6 +154,7 @@ export function inviteRoutes(
           new Date().toISOString(),
         )
         .first();
+      stage = 'state';
       const state = stateSchema.parse(raw),
         invite = inviteSchema.parse(
           await c.env.DB.prepare('SELECT * FROM beta_invites WHERE id=?')
@@ -154,15 +162,18 @@ export function inviteRoutes(
             .first(),
         );
       if (!freshInvite(invite)) throw new Error('Not invited');
-      const result = await client(c.env).exchange(query.code, state.verifier),
-        identity = identitySchema.parse(
-          await client(c.env).get('/user', result.access_token),
-        );
+      stage = 'exchange';
+      const result = await client(c.env).exchange(query.code, state.verifier);
+      stage = 'identity';
+      const identity = identitySchema.parse(
+        await client(c.env).get('/user', result.access_token),
+      );
       if (
         identity.login.toLowerCase() !== invite.login.toLowerCase() ||
         (invite.github_id && invite.github_id !== String(identity.id))
       )
         throw new Error('Wrong GitHub account');
+      stage = 'binding';
       const userId = `github:${identity.id}`,
         orgId = `invite-${identity.id}`,
         at = new Date().toISOString();
@@ -212,6 +223,7 @@ export function inviteRoutes(
       const bound = await invitedIdentity(c.env, userId);
       if (bound.access_sub !== access.sub || bound.invite_id !== invite.id)
         throw new Error('Identity binding conflict');
+      stage = 'session';
       const token = crypto.randomUUID(),
         csrf = crypto.randomUUID();
       await c.env.SESSIONS.put(
@@ -237,7 +249,11 @@ export function inviteRoutes(
       });
       deleteCookie(c, 'greenci_oauth', { path: '/' });
       return c.redirect(`${cfg.WEB_URL}/beta?connected=1`);
-    } catch {
+    } catch (error) {
+      console.warn('Beta OAuth rejected', {
+        stage,
+        reason: error instanceof GitHubOAuthError ? error.reason : 'rejected',
+      });
       deleteCookie(c, 'greenci_oauth', { path: '/' });
       return c.redirect(`${cfg.WEB_URL}/beta?error=signin`);
     }
