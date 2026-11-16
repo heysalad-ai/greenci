@@ -1,4 +1,27 @@
 export const copy = {
+  publicBeta: {
+    title: 'Try GreenCI',
+    intro:
+      'Sign in with GitHub, connect a repository and request a repair. Review the verified change in a draft pull request. Nothing merges automatically.',
+    profile:
+      'This beta supports source fixes with dependency-free Node test.mjs tests. Dependency and workflow repairs are not supported. When you request a repair, repository source and check logs are sent to OpenAI.',
+    limits:
+      'Up to five repositories and two repair starts per workspace in 24 hours. The public beta accepts twenty repair starts in total per 24 hours.',
+    failed: 'This step could not complete. Retry it or sign in again.',
+    busy: 'The beta is busy. Retry sign-in in a moment.',
+    unavailable: 'Sign-in is temporarily unavailable. Retry in a moment.',
+    retry: 'Retry sign-in',
+    install: 'Install GreenCI on selected repositories',
+    dataLink: 'Beta limits and data use',
+    support: 'Contact the beta team on GitHub',
+    supportUrl: 'https://github.com/heysalad-ai/greenci/issues/new/choose',
+    manageAccess: 'Manage GitHub App access',
+    manageAccessUrl: 'https://github.com/settings/installations',
+    template: 'Create a practice repository',
+    templateUrl: 'https://github.com/heysalad-ai/greenci-starter/generate',
+    templateDetail:
+      'Need a supported repository? Create your own copy of the practice template, then connect it.',
+  },
   inviteBeta: {
     title: 'Join the GreenCI dev beta',
     intro:
@@ -65,8 +88,7 @@ export const copy = {
     stale:
       'The default commit changed. Refresh connected repos before starting.',
     busy: 'A repair is already active in this workspace. Review it before starting another.',
-    queued:
-      'Repair accepted. You can close this page; the run continues in dev.',
+    queued: 'Repair accepted. You can close this page; the run continues.',
     failed:
       'The repair could not start. Review the run or retry the same request.',
   },
@@ -310,12 +332,17 @@ export const copy = {
       {
         id: 'safety',
         title: 'You stay the reviewer.',
-        body: 'GreenCI writes to its own greenci/* branches. It never merges a pull request, pushes to main, or reads secrets. Protected changes pause for your approval.',
+        body: 'GreenCI writes to its own greenci/* branches. It never merges a pull request or pushes to main. Verification runs before a draft PR opens. Protected changes pause for your approval.',
       },
       {
         id: 'progress',
         title: 'Current preview',
-        body: 'The local practice journey works with example repositories. The hosted preview is not connected to your GitHub repositories yet. Prices, dates and quotes remain placeholders.',
+        body: 'The beta connects selected GitHub repositories and runs source repairs with dependency-free Node tests. Dependencies, workflows and other build systems need a separate repair profile.',
+      },
+      {
+        id: 'public-beta',
+        title: 'Beta limits and data use',
+        body: 'GreenCI reads checks and source from repositories you select, then writes a repair branch and draft pull request. Requested repairs send source and check logs to OpenAI. Run records, logs and diffs are stored in Cloudflare for review. Automatic artifact deletion is not enabled in this beta. Request deletion or support through the GreenCI GitHub issues page without posting private code, logs or credentials. Removing the GitHub App installation stops its repository access. Signing out removes the short-lived GitHub user token; it does not delete run records or stop an already running repair.',
       },
     ],
   },
@@ -341,7 +368,7 @@ export const copy = {
   practiceDetail: 'Has one failing test, on purpose',
   practiceTitle: 'Your practice repo is red. Press Diagnose.',
   practiceStart: 'Start the practice run',
-  previewNotConnected: 'This preview is not connected to GitHub yet.',
+  previewNotConnected: 'Your session is unavailable. Sign in to continue.',
   working: 'Working…',
   dashboard: 'Your builds',
   empty: 'All green. Nothing to fix.',

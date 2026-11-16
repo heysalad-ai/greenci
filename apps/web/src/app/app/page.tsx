@@ -218,9 +218,12 @@ function Dashboard() {
               </div>
             )}
             {error && (
-              <p role="alert" className={styles.alert}>
-                {error}
-              </p>
+              <>
+                <p role="alert" className={styles.alert}>
+                  {error}
+                </p>
+                <Link href="/beta">{copy.inviteBeta.signIn}</Link>
+              </>
             )}
           </section>
         </main>

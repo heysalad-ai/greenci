@@ -142,3 +142,7 @@ Call global fetch through a wrapper, as the installation client already does, ra
 ## Separate public admission from operator Access
 
 Public self-service uses GitHub identity plus the existing browser-bound single-use PKCE flow on a separately pinned dev origin. It reuses tenant-isolated connection/repair machinery while recording admission mode, so public disablement and revocation also stop background GitHub phases. Private Access-bound identities are not silently upgraded. Public repair capacity is capped transactionally at twenty admitted starts across all public accounts per rolling day, in addition to existing workspace caps; outstanding public OAuth state is capped independently. This is a constrained beta candidate, not permission to expose the operator host or deploy production. The schema, admission logic and security fixtures form one coherent review chunk slightly above the usual 500-line target.
+
+## Public customer entry without exposing operator Access
+
+A frontend-only public mode presents GitHub signup on a separate customer origin while preserving the private invitation and operator UI on the existing beta host. Public root and legacy onboarding redirect to the same signup entry. Startup failures hide the signup action rather than guessing a mode. Existing brand tokens and components remain authoritative; data use, retained artifacts, actual repair-profile limits and support are visible before consent. Browser fixtures prove UI states, not real external acceptance.

@@ -7,6 +7,7 @@ import shell from '../app.module.css';
 import styles from './audit.module.css';
 import StartRepair from './start-repair';
 import { sessionResponseSchema } from '@greenci/client';
+import { z } from 'zod';
 const c = copy.auditDashboard;
 type Filter = 'all' | 'original' | 'failing' | 'security';
 export default function AuditPage() {
@@ -46,6 +47,15 @@ export default function AuditPage() {
   async function signIn() {
     setLoading(true);
     try {
+      const modeResponse = await fetch('/api/beta-mode', { cache: 'no-store' });
+      if (!modeResponse.ok) throw new Error();
+      if (
+        z.object({ publicSignup: z.boolean() }).parse(await modeResponse.json())
+          .publicSignup
+      ) {
+        window.location.assign('/beta');
+        return;
+      }
       const response = await fetch('/api/client/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
