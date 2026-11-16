@@ -6,6 +6,12 @@ process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 const output = '.data/public-preview/assets';
 mkdirSync(`${output}/screens`, { recursive: true });
 const p = copy.publicPreview;
+const betaLink = process.env.GREENCI_PUBLIC_BETA_LINK === 'true';
+if (
+  process.env.GREENCI_PUBLIC_BETA_LINK &&
+  !['true', 'false'].includes(process.env.GREENCI_PUBLIC_BETA_LINK)
+)
+  throw new Error('GREENCI_PUBLIC_BETA_LINK must be true or false');
 const escape = (value: string) =>
   value.replace(
     /[&<>"']/g,
@@ -35,7 +41,9 @@ cpSync('apps/web/public/brand', `${output}/brand`, { recursive: true });
 cpSync('apps/web/public/fonts', `${output}/fonts`, { recursive: true });
 for (const screen of p.screens)
   cpSync(`docs/fidelity/${screen.file}`, `${output}/screens/${screen.file}`);
-const notice = `<aside class="preview-notice">${escape(p.notice)} <a href="/preview">${escape(p.open)}</a></aside>`;
+const notice = betaLink
+  ? `<aside class="preview-notice">${escape(p.betaNotice)} <a href="${escape(p.betaUrl)}">${escape(p.betaOpen)}</a></aside>`
+  : `<aside class="preview-notice">${escape(p.notice)} <a href="/preview">${escape(p.open)}</a></aside>`;
 const document = (body: string, title: string) =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(title)}</title><meta name="description" content="${escape(p.detail)}"><link rel="icon" href="/brand/logos/greenci-favicon.svg"><link rel="stylesheet" href="/styles.css"></head><body>${notice}${body}</body></html>`;
 let landing = screenCopy.landingHtml.replace(

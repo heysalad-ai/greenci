@@ -276,6 +276,10 @@ export const copy = {
   },
   publicPreview: {
     title: 'GreenCI public preview',
+    betaNotice:
+      'The software beta is open for supported GitHub repositories. Review every repair in a draft PR.',
+    betaOpen: 'Try the software beta',
+    betaUrl: 'https://app.greenci.dev/beta',
     notice:
       'Public preview. Explore the design; GitHub connections, repairs and orders are not available here.',
     open: 'View product preview',

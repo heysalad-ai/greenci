@@ -198,3 +198,9 @@ Added opt-in public GitHub admission on a separately configured dev origin, with
 Added a separate public frontend mode with direct GitHub sign-in, explicit source-only repair scope, OpenAI data-use disclosure, capacity feedback, support and practice-template links. Public root and legacy onboarding route to the signup page; private invitation/operator behavior remains. Configuration failures hide signup and offer retry. No public deployment or Access change has been performed.
 
 Validation: lint, typecheck, 129 unit/integration tests, all 20 builds and 17 browser journeys passed. Six desktop/mobile/focus/capacity/docs captures were inspected. The independent UI finish review returned `ship` for this bounded UI scope; the documenter found no design-system changes needed. Detector tooling was unavailable, and fixture evidence does not establish hosted public sign-in or independent customer repair acceptance.
+
+## Dev deployment preparation and marketing entry (2026-11-16)
+
+Reviewed admission/onboarding/rollout implementation PRs #10–#12 were merged into the existing beta feature branch with passing GitHub CI; main remains unchanged. Applied additive dev migration 0007 and deployed the reviewed API with public admission disabled, version `70383c7a-52b3-4d32-a347-06f77df45fcb`. Authenticated API/web health and landing smoke passed; anonymous operator/API requests still redirect to Access. The public app is not deployed.
+
+Prepared an opt-in static marketing notice linking only to the pinned public beta entry. Default preview behavior remains unchanged; the link variant must not publish before hosted acceptance. Both preview builds passed and desktop/390px mobile renders were inspected without overflow. The scoped independent finish review returned `ship`. GitHub physical authentication, public callback setup, credential replacement/retirement verification and a real independent external repair remain unverified release gates.
