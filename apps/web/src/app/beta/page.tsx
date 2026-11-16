@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { copy } from '@greenci/core';
 import { Button, Logo } from '@greenci/ui';
 import styles from './beta.module.css';
-const c = copy.inviteBeta;
+const base = copy.inviteBeta;
 const meSchema = z.object({
   csrf: z.string(),
   orgId: z.string(),
@@ -34,6 +34,10 @@ const invitesSchema = z.object({
   ),
 });
 export default function BetaPage() {
+  const [mode, setMode] = useState<
+    'loading' | 'invite' | 'public' | 'unavailable'
+  >('loading');
+  const c = mode === 'invite' ? base : { ...base, ...copy.publicBeta };
   const [me, setMe] = useState<z.infer<typeof meSchema> | null>(null),
     [repos, setRepos] = useState<z.infer<typeof reposSchema>['repos']>([]),
     [invites, setInvites] = useState<z.infer<typeof invitesSchema>['invites']>(
@@ -49,25 +53,35 @@ export default function BetaPage() {
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true);
   const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
     try {
-      const response = await fetch('/api/client/invite/me', {
-        cache: 'no-store',
-      });
+      const [configuration, response] = await Promise.all([
+        fetch('/api/beta-mode', { cache: 'no-store' }),
+        fetch('/api/client/invite/me', { cache: 'no-store' }),
+      ]);
+      if (!configuration.ok) throw new Error();
+      const { publicSignup } = z
+        .object({ publicSignup: z.boolean() })
+        .parse(await configuration.json());
+      setMode(publicSignup ? 'public' : 'invite');
+      const feedback = publicSignup ? copy.publicBeta : base;
+      if (new URLSearchParams(window.location.search).has('error'))
+        setError(feedback.failed);
       if (response.ok) {
         const data = meSchema.parse(await response.json());
         setMe(data);
         sessionStorage.setItem('greenci-csrf', data.csrf);
-      } else if (response.status !== 401) setError(c.unavailable);
+      } else if (response.status !== 401) setError(feedback.unavailable);
     } catch {
-      setError(c.failed);
+      setMode('unavailable');
+      setError(copy.publicBeta.unavailable);
     } finally {
       setLoading(false);
     }
   }, []);
   useEffect(() => {
     void load();
-    if (new URLSearchParams(window.location.search).has('error'))
-      setError(c.failed);
   }, [load]);
   async function post(path: string, body: unknown) {
     const response = await fetch(`/api/client/invite/${path}`, {
@@ -78,6 +92,7 @@ export default function BetaPage() {
       },
       body: JSON.stringify(body),
     });
+    if (response.status === 429) throw new Error(copy.publicBeta.busy);
     if (!response.ok)
       throw new Error(response.status === 503 ? c.unavailable : c.failed);
     return response.json() as Promise<unknown>;
@@ -126,34 +141,67 @@ export default function BetaPage() {
         <p>{c.intro}</p>
         <p className={styles.note}>{c.profile}</p>
         <p className={styles.note}>{c.limits}</p>
+        {mode === 'public' && (
+          <Link href="/docs#public-beta">{copy.publicBeta.dataLink}</Link>
+        )}
         {error && <p role="alert">{error}</p>}
         {message && <p role="status">{message}</p>}
         {loading ? (
           <p role="status">{c.loading}</p>
+        ) : mode === 'unavailable' ? (
+          <Button onClick={() => void load()}>{copy.publicBeta.retry}</Button>
         ) : !me ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void action(async () => {
-                const result = z
-                  .object({ url: z.url() })
-                  .parse(await post('start', { code: code.trim() }));
-                window.location.assign(result.url);
-              });
-            }}
-          >
-            <label htmlFor="invite-code">{c.code}</label>
-            <input
-              id="invite-code"
-              required
-              autoComplete="off"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-            <Button type="submit" disabled={busy || code.trim().length < 32}>
-              {busy ? c.loading : c.signIn}
-            </Button>
-          </form>
+          <>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void action(async () => {
+                  const result = z
+                    .object({ url: z.url() })
+                    .parse(
+                      await post(
+                        mode === 'public' ? 'public/start' : 'start',
+                        mode === 'public' ? {} : { code: code.trim() },
+                      ),
+                    );
+                  window.location.assign(result.url);
+                });
+              }}
+            >
+              {mode !== 'public' && (
+                <>
+                  <label htmlFor="invite-code">{c.code}</label>
+                  <input
+                    id="invite-code"
+                    required
+                    autoComplete="off"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                  />
+                </>
+              )}
+              <Button
+                type="submit"
+                disabled={
+                  busy || (mode !== 'public' && code.trim().length < 32)
+                }
+              >
+                {busy ? c.loading : c.signIn}
+              </Button>
+            </form>
+            {mode === 'public' && (
+              <p className={styles.note}>
+                {copy.publicBeta.templateDetail}{' '}
+                <a
+                  href={copy.publicBeta.templateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {copy.publicBeta.template}
+                </a>
+              </p>
+            )}
+          </>
         ) : (
           <>
             <p>

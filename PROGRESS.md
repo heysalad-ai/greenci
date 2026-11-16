@@ -192,3 +192,9 @@ Hosted owner acceptance now passes on dev: a fresh GitHub authorization returns 
 ## Public self-service admission candidate (2026-11-16)
 
 Added opt-in public GitHub admission on a separately configured dev origin, without invitation codes or Cloudflare Access identity in that flow. Existing private invitations retain Access binding; public signup cannot silently convert them. Stable GitHub IDs preserve public-account revocation, short-lived browser state and PKCE remain mandatory, and public disablement invalidates sessions and background phases. Additive migration 0007 bounds outstanding public OAuth states and public repair admissions across workspaces; existing five-repository/two-repair workspace limits remain. Local gates pass: lint, types, 123 tests and 20 builds. This backend candidate is not deployed or publicly enabled; UI, release configuration and independent external acceptance remain in progress.
+
+## Public self-service onboarding candidate (2026-11-16)
+
+Added a separate public frontend mode with direct GitHub sign-in, explicit source-only repair scope, OpenAI data-use disclosure, capacity feedback, support and practice-template links. Public root and legacy onboarding route to the signup page; private invitation/operator behavior remains. Configuration failures hide signup and offer retry. No public deployment or Access change has been performed.
+
+Validation: lint, typecheck, 129 unit/integration tests, all 20 builds and 17 browser journeys passed. Six desktop/mobile/focus/capacity/docs captures were inspected. The independent UI finish review returned `ship` for this bounded UI scope; the documenter found no design-system changes needed. Detector tooling was unavailable, and fixture evidence does not establish hosted public sign-in or independent customer repair acceptance.
