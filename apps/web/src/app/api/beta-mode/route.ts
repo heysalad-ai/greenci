@@ -3,7 +3,12 @@ export const dynamic = 'force-dynamic';
 export function GET() {
   const { env } = getCloudflareContext();
   return Response.json(
-    { publicSignup: env.PUBLIC_BETA_FRONTEND === 'true' },
+    {
+      publicSignup: env.PUBLIC_BETA_FRONTEND === 'true',
+      emailSignup:
+        env.PUBLIC_BETA_FRONTEND === 'true' &&
+        env.EMAIL_AUTH_FRONTEND === 'true',
+    },
     { headers: { 'Cache-Control': 'private, no-store' } },
   );
 }

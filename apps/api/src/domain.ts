@@ -57,7 +57,7 @@ app.post('/__local/session', async (c) => {
 app.use('/v1/*', async (c, next) => {
   const user = await session(c.req.raw, c.env);
   if (!user) return c.json({ error: copy.api.signIn }, 401);
-  if (user.userId.startsWith('github:')) {
+  if (user.userId.startsWith('github:') || user.userId.startsWith('email:')) {
     const allowed =
       /^\/v1\/(audit(?:\/(?:options|repairs))?|runs(?:\/[^/]+(?:\/(?:events|decisions|diff|actions))?)?|repos)$/.test(
         c.req.path,

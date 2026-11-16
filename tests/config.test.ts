@@ -171,3 +171,17 @@ it('rejects the removed Anthropic provider explicitly', () => {
     'AGENT_PROVIDER',
   );
 });
+
+it('email authentication requires the dev public-beta admission boundary', () => {
+  expect(() => loadConfig({ EMAIL_AUTH_ENABLED: 'true' })).toThrow(
+    'Email authentication requires the dev public beta',
+  );
+  expect(
+    loadConfig({
+      EMAIL_AUTH_ENABLED: 'true',
+      PUBLIC_BETA_ENABLED: 'true',
+      INVITE_BETA_ENABLED: 'true',
+      PUBLIC_BETA_URL: 'https://public.example',
+    }).EMAIL_AUTH_ENABLED,
+  ).toBe('true');
+});

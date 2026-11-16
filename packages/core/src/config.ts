@@ -4,6 +4,8 @@ export const configSchema = z.object({
   INVITE_BETA_ENABLED: z.enum(['true', 'false']).default('false'),
   PUBLIC_BETA_ENABLED: z.enum(['true', 'false']).default('false'),
   PUBLIC_BETA_URL: z.string().default(''),
+  EMAIL_AUTH_ENABLED: z.enum(['true', 'false']).default('false'),
+  EMAIL_AUTH_FROM: z.email().default('no-reply@email.dev.greenci.dev'),
   GITHUB_CLIENT_ID: z.string().default(''),
   GITHUB_CLIENT_SECRET: z.string().default(''),
   GITHUB_APP_SLUG: z.string().default(''),
@@ -65,6 +67,11 @@ export function loadConfig(env: Record<string, unknown>): Config {
         'Public beta requires a separate dev origin and invite beta infrastructure',
       );
   }
+  if (
+    config.EMAIL_AUTH_ENABLED === 'true' &&
+    config.PUBLIC_BETA_ENABLED !== 'true'
+  )
+    throw new Error('Email authentication requires the dev public beta');
   config.OPENAI_AGENT_MODEL = config.OPENAI_AGENT_MODEL || config.OPENAI_MODEL;
   if (config.APP_ENV !== 'local' && config.SANDBOX === 'none')
     throw new Error('SANDBOX=none is permitted only locally');

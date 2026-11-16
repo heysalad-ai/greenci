@@ -89,7 +89,18 @@ for (const url of [
 }
 // Only the dev API is a target; encrypted provider secrets are preserved remotely.
 source.env = { dev: source.env.dev };
-Object.assign(vars, { PUBLIC_BETA_ENABLED: 'true', PUBLIC_BETA_URL: origin });
+Object.assign(vars, {
+  PUBLIC_BETA_ENABLED: 'true',
+  PUBLIC_BETA_URL: origin,
+  EMAIL_AUTH_ENABLED: 'true',
+  EMAIL_AUTH_FROM: 'no-reply@email.dev.greenci.dev',
+});
+source.env.dev.send_email = [
+  {
+    name: 'AUTH_EMAIL',
+    allowed_sender_addresses: ['no-reply@email.dev.greenci.dev'],
+  },
+];
 await writeFile(
   'apps/api/wrangler.public-beta.generated.jsonc',
   JSON.stringify(source, null, 2) + '\n',

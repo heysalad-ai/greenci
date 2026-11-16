@@ -10,6 +10,7 @@ export async function beginAuthorization(
   access: { sub: string; email: string },
   admission: 'invite' | 'public',
   origin: string,
+  emailAccountId?: string,
 ) {
   const cfg = loadConfig(c.env);
   const state = crypto.randomUUID(),
@@ -27,7 +28,7 @@ export async function beginAuthorization(
     .bind(new Date().toISOString())
     .run();
   await c.env.DB.prepare(
-    'INSERT INTO beta_oauth_states (state_hash,browser_hash,invite_id,access_sub,email,verifier,expires_at,admission) VALUES (?,?,?,?,?,?,?,?)',
+    'INSERT INTO beta_oauth_states (state_hash,browser_hash,invite_id,access_sub,email,verifier,expires_at,admission,email_account_id) VALUES (?,?,?,?,?,?,?,?,?)',
   )
     .bind(
       await digest(state),
@@ -38,6 +39,7 @@ export async function beginAuthorization(
       verifier,
       new Date(Date.now() + 600000).toISOString(),
       admission,
+      emailAccountId ?? null,
     )
     .run();
   setCookie(c, 'greenci_oauth', browser, {
