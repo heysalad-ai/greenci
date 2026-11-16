@@ -17,12 +17,15 @@ import {
   invitedIdentity,
 } from './invite-auth.js';
 import type { ApiEnv } from './env.js';
+import { beginAuthorization } from './oauth-start.js';
+import { publicAdmission } from './public-admission.js';
 const authSchema = z.object({ token: z.string(), expires: z.number() });
 const stateSchema = z.object({
   invite_id: z.string(),
   access_sub: z.string(),
   email: z.string(),
   verifier: z.string(),
+  admission: z.enum(['invite', 'public']),
 });
 const cpy = copy.inviteBeta;
 export function inviteRoutes(
@@ -80,55 +83,45 @@ export function inviteRoutes(
         invite.email.toLowerCase() !== access.email.toLowerCase()
       )
         throw new Error('Not invited');
-      const state = crypto.randomUUID(),
-        browser = crypto.randomUUID(),
-        verifier = crypto.randomUUID() + crypto.randomUUID();
-      const challenge = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(verifier),
+      return await beginAuthorization(
+        c,
+        invite.id,
+        access,
+        'invite',
+        cfg.WEB_URL,
       );
-      const encoded = btoa(String.fromCharCode(...new Uint8Array(challenge)))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-      await c.env.DB.prepare('DELETE FROM beta_oauth_states WHERE expires_at<?')
-        .bind(new Date().toISOString())
-        .run();
-      await c.env.DB.prepare(
-        'INSERT INTO beta_oauth_states (state_hash,browser_hash,invite_id,access_sub,email,verifier,expires_at) VALUES (?,?,?,?,?,?,?)',
-      )
-        .bind(
-          await digest(state),
-          await digest(browser),
-          invite.id,
-          access.sub,
-          access.email.toLowerCase(),
-          verifier,
-          new Date(Date.now() + 600000).toISOString(),
-        )
-        .run();
-      setCookie(c, 'greenci_oauth', browser, {
-        httpOnly: true,
-        secure: cfg.APP_ENV !== 'local',
-        sameSite: 'Lax',
-        path: '/',
-        maxAge: 600,
-      });
-      const target = new URL('https://github.com/login/oauth/authorize');
-      target.search = new URLSearchParams({
-        client_id: cfg.GITHUB_CLIENT_ID,
-        redirect_uri: `${cfg.WEB_URL}/api/client/invite/callback`,
-        state,
-        code_challenge: encoded,
-        code_challenge_method: 'S256',
-      }).toString();
-      return c.json({ url: target.toString() });
     } catch {
       return c.json({ error: cpy.failed }, 403);
     }
   });
+  app.post('/v1/invite/public/start', async (c) => {
+    const cfg = loadConfig(c.env);
+    if (cfg.PUBLIC_BETA_ENABLED !== 'true') return c.notFound();
+    if (c.req.header('Origin') !== cfg.PUBLIC_BETA_URL)
+      return c.json({ error: cpy.failed }, 403);
+    if (!cfg.GITHUB_CLIENT_ID || !cfg.GITHUB_CLIENT_SECRET)
+      return c.json({ error: cpy.unavailable }, 503);
+    try {
+      z.object({})
+        .strict()
+        .parse(await c.req.json());
+      return await beginAuthorization(
+        c,
+        'public',
+        { sub: 'public', email: 'public@greenci.invalid' },
+        'public',
+        cfg.PUBLIC_BETA_URL,
+      );
+    } catch (error) {
+      return c.json(
+        { error: cpy.failed },
+        error instanceof z.ZodError ? 400 : 429,
+      );
+    }
+  });
   app.get('/v1/invite/callback', async (c) => {
     const cfg = loadConfig(c.env);
+    let flowOrigin = cfg.WEB_URL;
     let stage:
       'request' | 'state' | 'exchange' | 'identity' | 'binding' | 'session' =
       'request';
@@ -137,14 +130,32 @@ export function inviteRoutes(
         .object({ state: z.uuid(), code: z.string().min(1).max(512) })
         .parse(c.req.query());
       const browser = getCookie(c, 'greenci_oauth') ?? '';
-      const access = await (options.verifyAccess ?? verifyBetaAccess)(
-        c.req.header('Cf-Access-Jwt-Assertion') ??
-          getCookie(c, 'CF_Authorization') ??
-          '',
-        { team: cfg.BETA_ACCESS_TEAM, audience: cfg.BETA_ACCESS_AUD },
-      );
+      const marker = await c.env.DB.prepare(
+        'SELECT admission FROM beta_oauth_states WHERE state_hash=? AND browser_hash=? AND expires_at>? AND used=0',
+      )
+        .bind(
+          await digest(query.state),
+          await digest(browser),
+          new Date().toISOString(),
+        )
+        .first<{ admission: string }>();
+      if (!marker) throw new Error('Invalid browser state');
+      const publicFlow = marker.admission === 'public';
+      if (publicFlow) {
+        flowOrigin = cfg.PUBLIC_BETA_URL || cfg.WEB_URL;
+        if (cfg.PUBLIC_BETA_ENABLED !== 'true')
+          throw new Error('Public beta disabled');
+      }
+      let access: { sub: string; email: string } = publicFlow
+        ? { sub: 'public', email: 'public@greenci.invalid' }
+        : await (options.verifyAccess ?? verifyBetaAccess)(
+            c.req.header('Cf-Access-Jwt-Assertion') ??
+              getCookie(c, 'CF_Authorization') ??
+              '',
+            { team: cfg.BETA_ACCESS_TEAM, audience: cfg.BETA_ACCESS_AUD },
+          );
       const raw = await c.env.DB.prepare(
-        'UPDATE beta_oauth_states SET used=1 WHERE state_hash=? AND browser_hash=? AND access_sub=? AND email=? AND expires_at>? AND used=0 RETURNING invite_id,access_sub,email,verifier',
+        'UPDATE beta_oauth_states SET used=1 WHERE state_hash=? AND browser_hash=? AND access_sub=? AND email=? AND expires_at>? AND used=0 RETURNING invite_id,access_sub,email,verifier,admission',
       )
         .bind(
           await digest(query.state),
@@ -155,19 +166,31 @@ export function inviteRoutes(
         )
         .first();
       stage = 'state';
-      const state = stateSchema.parse(raw),
-        invite = inviteSchema.parse(
-          await c.env.DB.prepare('SELECT * FROM beta_invites WHERE id=?')
-            .bind(state.invite_id)
-            .first(),
-        );
-      if (!freshInvite(invite)) throw new Error('Not invited');
+      const state = stateSchema.parse(raw);
+      let invite = publicFlow
+        ? null
+        : inviteSchema.parse(
+            await c.env.DB.prepare('SELECT * FROM beta_invites WHERE id=?')
+              .bind(state.invite_id)
+              .first(),
+          );
+      if (invite && !freshInvite(invite)) throw new Error('Not invited');
       stage = 'exchange';
-      const result = await client(c.env).exchange(query.code, state.verifier);
+      const gh = new GitHubInviteClient(
+        { ...cfg, WEB_URL: flowOrigin },
+        options.transport,
+      );
+      const result = await gh.exchange(query.code, state.verifier);
       stage = 'identity';
       const identity = identitySchema.parse(
-        await client(c.env).get('/user', result.access_token),
+        await gh.get('/user', result.access_token),
       );
+      if (publicFlow) {
+        const admission = await publicAdmission(c.env, identity);
+        invite = admission.invite;
+        access = admission.access;
+      }
+      if (!invite) throw new Error('Admission unavailable');
       if (
         identity.login.toLowerCase() !== invite.login.toLowerCase() ||
         (invite.github_id && invite.github_id !== String(identity.id))
@@ -210,14 +233,15 @@ export function inviteRoutes(
           'INSERT OR IGNORE INTO memberships (id,user_id,org_id,role,created_at,updated_at) VALUES (?,?,?,?,?,?)',
         ).bind(`${userId}:${orgId}`, userId, orgId, 'owner', at, at),
         c.env.DB.prepare(
-          'INSERT OR IGNORE INTO beta_identities (user_id,invite_id,github_id,login,access_sub,email) VALUES (?,?,?,?,?,?)',
+          'INSERT OR IGNORE INTO beta_identities (user_id,invite_id,github_id,login,access_sub,email,admission) VALUES (?,?,?,?,?,?,?)',
         ).bind(
           userId,
           invite.id,
           String(identity.id),
           identity.login,
           access.sub,
-          state.email,
+          access.email,
+          state.admission,
         ),
       ]);
       const bound = await invitedIdentity(c.env, userId);
@@ -248,14 +272,14 @@ export function inviteRoutes(
         maxAge: 3600,
       });
       deleteCookie(c, 'greenci_oauth', { path: '/' });
-      return c.redirect(`${cfg.WEB_URL}/beta?connected=1`);
+      return c.redirect(`${flowOrigin}/beta?connected=1`);
     } catch (error) {
       console.warn('Beta OAuth rejected', {
         stage,
         reason: error instanceof GitHubOAuthError ? error.reason : 'rejected',
       });
       deleteCookie(c, 'greenci_oauth', { path: '/' });
-      return c.redirect(`${cfg.WEB_URL}/beta?error=signin`);
+      return c.redirect(`${flowOrigin}/beta?error=signin`);
     }
   });
   app.use('/v1/invite/*', async (c, next) => {

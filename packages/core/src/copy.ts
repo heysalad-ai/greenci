@@ -38,6 +38,8 @@ export const copy = {
       'Up to five repositories and two repair starts per workspace in 24 hours.',
     quota:
       'The beta allows two repair starts per workspace in 24 hours. Try again later.',
+    publicCapacity:
+      'The public beta has reached its repair limit for the last 24 hours. Try again later.',
   },
   dashboardRepair: {
     title: 'Start a repair',

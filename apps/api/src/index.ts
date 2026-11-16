@@ -35,6 +35,9 @@ app.use('*', async (c, next) => {
       ![
         new URL(config.WEB_URL).origin,
         new URL(config.API_URL).origin,
+        ...(config.PUBLIC_BETA_ENABLED === 'true'
+          ? [config.PUBLIC_BETA_URL]
+          : []),
       ].includes(origin)
     )
       return c.json({ error: 'Origin is not allowed' }, 403);

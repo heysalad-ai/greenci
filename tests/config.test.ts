@@ -1,6 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { loadConfig, validateBindings } from '../packages/core/src/config.js';
 describe('Cloudflare configuration', () => {
+  it('keeps public admission opt-in and requires a separate dev origin', () => {
+    expect(loadConfig({}).PUBLIC_BETA_ENABLED).toBe('false');
+    const base = {
+      PUBLIC_BETA_ENABLED: 'true',
+      INVITE_BETA_ENABLED: 'true',
+      PUBLIC_BETA_URL: 'https://public.example',
+    };
+    expect(loadConfig(base).PUBLIC_BETA_URL).toBe('https://public.example');
+    for (const extra of [
+      { PUBLIC_BETA_URL: 'http://localhost:3000' },
+      { PUBLIC_BETA_URL: 'https://public.example/path' },
+      { PUBLIC_BETA_URL: 'https://user:pass@public.example' },
+      { INVITE_BETA_ENABLED: 'false' },
+      { APP_ENV: 'prod' },
+    ])
+      expect(() => loadConfig({ ...base, ...extra })).toThrow(
+        'Public beta requires',
+      );
+  });
   it('allows explicit email-disabled private dev beta only', () => {
     const env = {
       APP_ENV: 'dev',

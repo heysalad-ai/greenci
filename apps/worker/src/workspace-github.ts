@@ -25,11 +25,21 @@ export async function workspaceGithub(
   )
     throw new Error('Invite beta disabled');
   const row = await env.DB.prepare(
-    'SELECT c.installation_id,i.revoked,i.expires_at FROM beta_connections c JOIN beta_identities b ON b.user_id=c.user_id JOIN beta_invites i ON i.id=b.invite_id WHERE c.org_id=? AND c.repo=?',
+    'SELECT c.installation_id,b.admission,i.revoked,i.expires_at FROM beta_connections c JOIN beta_identities b ON b.user_id=c.user_id JOIN beta_invites i ON i.id=b.invite_id WHERE c.org_id=? AND c.repo=?',
   )
     .bind(orgId, repo)
-    .first<{ installation_id: string; revoked: number; expires_at: string }>();
-  if (!row || row.revoked || Date.parse(row.expires_at) <= Date.now())
+    .first<{
+      installation_id: string;
+      admission: string;
+      revoked: number;
+      expires_at: string;
+    }>();
+  if (
+    !row ||
+    row.revoked ||
+    Date.parse(row.expires_at) <= Date.now() ||
+    (row.admission === 'public' && cfg.PUBLIC_BETA_ENABLED !== 'true')
+  )
     throw new Error('Connection unavailable');
   if (cfg.GITHUB_MODE === 'mock')
     return new MockGitHubClient(cfg.MOCK_GITHUB_URL);
