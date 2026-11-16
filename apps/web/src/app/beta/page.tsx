@@ -233,8 +233,16 @@ export default function BetaPage() {
                 className={styles.connection}
                 aria-labelledby="github-link-title"
               >
-                <h2 id="github-link-title">{copy.emailAuth.link}</h2>
-                <p>{copy.emailAuth.linkDetail}</p>
+                <h2 id="github-link-title">
+                  {me.githubConnected
+                    ? copy.emailAuth.reconnect
+                    : copy.emailAuth.link}
+                </h2>
+                <p>
+                  {me.githubConnected
+                    ? copy.emailAuth.reconnectDetail
+                    : copy.emailAuth.linkDetail}
+                </p>
                 <Button
                   disabled={busy}
                   onClick={() =>
@@ -253,7 +261,9 @@ export default function BetaPage() {
                   }
                 >
                   <GitHubIcon />
-                  {copy.emailAuth.link}
+                  {me.githubConnected
+                    ? copy.emailAuth.reconnect
+                    : copy.emailAuth.link}
                 </Button>
               </section>
             )}

@@ -12,6 +12,9 @@ export const copy = {
     link: 'Connect GitHub',
     linkDetail:
       'Your email account is ready. Connect GitHub to choose repositories and request repairs.',
+    reconnect: 'Reconnect GitHub',
+    reconnectDetail:
+      'Your GitHub account remains linked. Reconnect to refresh repository access. Existing connected repositories are available on the repair dashboard.',
     linked: 'GitHub connected',
     subject: 'Your GreenCI sign-in code',
     emailIntro: 'Use this code to sign up or sign in to the GreenCI dev beta:',

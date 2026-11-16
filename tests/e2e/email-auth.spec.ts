@@ -139,3 +139,53 @@ test('email request errors retain recovery and do not hide GitHub sign-in', asyn
     page.getByRole('button', { name: 'Continue with GitHub', exact: true }),
   ).toBeEnabled();
 });
+
+test('returning email users retain their GitHub workspace and get a separate reconnect action', async ({
+  page,
+}) => {
+  await page.route('**/api/beta-mode', (r) =>
+    r.fulfill({ json: { publicSignup: true, emailSignup: true } }),
+  );
+  await page.route('**/api/client/invite/me', (r) =>
+    r.fulfill({
+      json: {
+        csrf: 'fixture-csrf',
+        orgId: 'invite-42',
+        login: 'linked-tester',
+        email: 'qa@example.com',
+        admin: false,
+        githubConnected: true,
+        githubAuthorized: false,
+        installUrl: null,
+      },
+    }),
+  );
+  let freshLinkRequested = false,
+    reauthorized = false;
+  await page.route('**/api/client/email/github', (r) => {
+    freshLinkRequested = true;
+    return r.fulfill({ status: 403, json: { error: 'must not relink' } });
+  });
+  await page.route('**/api/client/invite/public/start', (r) => {
+    reauthorized = true;
+    return r.fulfill({ status: 503, json: { error: 'provider fixture' } });
+  });
+  await page.goto('/beta');
+  await expect(page.getByText(copy.emailAuth.reconnectDetail)).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: copy.inviteBeta.dashboard }).first(),
+  ).toHaveAttribute('href', '/app/audit');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: '.data/email-auth/review/returning-linked-mobile.png',
+    fullPage: true,
+  });
+  await page
+    .getByRole('button', { name: copy.emailAuth.reconnect, exact: true })
+    .click();
+  await expect(page.getByRole('main').getByRole('alert')).toHaveText(
+    copy.publicBeta.unavailable,
+  );
+  expect(reauthorized).toBe(true);
+  expect(freshLinkRequested).toBe(false);
+});
