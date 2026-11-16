@@ -15,6 +15,7 @@ describe('Cloudflare configuration', () => {
       { PUBLIC_BETA_URL: 'https://user:pass@public.example' },
       { INVITE_BETA_ENABLED: 'false' },
       { APP_ENV: 'prod' },
+      { APP_ENV: 'dev', PUBLIC_BETA_URL: 'http://public.example' },
     ])
       expect(() => loadConfig({ ...base, ...extra })).toThrow(
         'Public beta requires',
