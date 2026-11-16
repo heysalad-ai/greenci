@@ -18,6 +18,8 @@ async function proxy(
     `https://api/${target}${new URL(request.url).search}`,
     {
       method: request.method,
+      // OAuth redirects and cookies must reach the browser, not be followed here.
+      redirect: 'manual',
       headers: Object.fromEntries(request.headers),
       ...(!['GET', 'HEAD'].includes(request.method)
         ? { body: await request.arrayBuffer() }

@@ -130,3 +130,7 @@ Use signed Cloudflare Access identity plus a privately issued email/login-bound 
 ## Explicit Cloudflare account for deployment smoke
 
 The existing remote-service-binding smoke command failed after a second Cloudflare account became available: Wrangler could not choose an account in non-interactive mode. Read the already configured public account identifier from the API's committed JSONC, validate its format and carry it into the loopback smoke configuration. The corrected dev probe returns successful API/web health and landing responses, then shuts down. No public endpoint, Access-policy change or secret retrieval is involved.
+
+## Preserve API redirects at the web proxy
+
+The browser must receive OAuth callback redirects together with the API's session or cookie-deletion headers. Use manual redirect handling on the web-to-API service binding instead of following those redirects server-side. A Workers-backed regression test checks success and failure redirects and cookie preservation, with a loopback redirect destination that returns 404 to reproduce the original failure. Access verification, browser-bound state, PKCE and invitation checks remain in the API.
