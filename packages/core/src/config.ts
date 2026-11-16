@@ -27,6 +27,7 @@ export const configSchema = z.object({
   BETA_ACCESS_AUD: z.string().default(''),
   BETA_OWNER_EMAIL: z.string().default(''),
   BETA_OWNER_LOGIN: z.string().default(''),
+  DEV_OWNER_DAILY_REPAIRS: z.coerce.number().int().min(2).max(10).default(2),
   OPENAI_CYBER_PROGRAM: z
     .enum(['', 'daybreak_blue', 'daybreak_red'])
     .default(''),
@@ -46,6 +47,19 @@ export const configSchema = z.object({
   RESEND_API_KEY: z.string().default(''),
 });
 export type Config = z.infer<typeof configSchema>;
+export function dailyRepairLimit(
+  config: Pick<
+    Config,
+    'APP_ENV' | 'BETA_OWNER_LOGIN' | 'DEV_OWNER_DAILY_REPAIRS'
+  >,
+  login: string,
+) {
+  return config.APP_ENV === 'dev' &&
+    config.BETA_OWNER_LOGIN &&
+    login.toLowerCase() === config.BETA_OWNER_LOGIN.toLowerCase()
+    ? config.DEV_OWNER_DAILY_REPAIRS
+    : 2;
+}
 export function loadConfig(env: Record<string, unknown>): Config {
   const result = configSchema.safeParse(env);
   if (!result.success)

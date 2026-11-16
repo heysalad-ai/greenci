@@ -1,6 +1,7 @@
 export {
   loadConfig,
   configSchema,
+  dailyRepairLimit,
   validateBindings,
   type Config,
 } from './config.js';

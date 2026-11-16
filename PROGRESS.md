@@ -222,3 +222,7 @@ Implemented passwordless email signup/login alongside GitHub behind opt-in dev f
 ## 2026-11-16 — Windows email acceptance completed; repair demo preparation
 
 Verified live Windows signup, explicit GitHub linking, signout, signed-out reload and returning email login. The stored email account identifier and linked workspace are unchanged. The dashboard restores the existing greenci-starter connection. Clarified the returning-user reconnect prompt without changing permissions or authentication. Lint/typecheck, 139 tests and 20 browser journeys pass; the Worker bundle builds. Existing repair PR #1 remains draft and unmerged. Pixel camera preview works and COM13 parent identity matches the GreenCI pad; camera reframing remains a physical demo gate. This is an operator-controlled login test, not independent external acceptance.
+
+### Dev live-run pad and narrated demo — in progress
+
+Added a bounded display-only Wi-Fi phase mirror, stale watchdog, owner-only device status and heartbeat-backed shared badge. Software gates passed before physical OTA/capture; one expiring owner filming allowance preserves customer admission limits. See docs/device-live-run.md.

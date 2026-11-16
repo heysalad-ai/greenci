@@ -44,6 +44,7 @@ Object.assign(source.env.dev.vars, {
   BETA_ACCESS_AUD: audience,
   BETA_OWNER_EMAIL: ownerEmail,
   BETA_OWNER_LOGIN: 'chilu18',
+  DEV_OWNER_DAILY_REPAIRS: '3',
   AGENT_PROVIDER: 'openai',
   OPENAI_AGENT_MODEL: 'gpt-6-sol',
   DECISIONS_PROVIDER: 'responses',

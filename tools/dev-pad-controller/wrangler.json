@@ -1,0 +1,29 @@
+{
+  "name": "greenci-api",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-16",
+  "workers_dev": false,
+  "preview_urls": false,
+  "env": {
+    "dev": {
+      "name": "greenci-api-dev",
+      "secrets": {
+        "required": ["OPENAI_API_KEY"]
+      },
+      "services": [
+        {
+          "binding": "DEVICE_SERVICE",
+          "service": "greenci-device-relay-dev"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "greenci-dev",
+          "database_id": "0a86beee-5572-4196-a05a-f48506639f38"
+        }
+      ]
+    }
+  },
+  "account_id": "67a17ada4efeee4480283035cc0c5f90"
+}

@@ -22,7 +22,7 @@
     "github:verify": "node scripts/not-ready.mjs github:verify M7",
     "build:workers": "pnpm --filter @greenci/web build:worker && pnpm --filter @greenci/api build && pnpm --filter @greenci/sandbox build",
     "db:migrate": "wrangler d1 migrations apply greenci-local --local --config apps/api/wrangler.jsonc --persist-to .data/wrangler",
-    "test:core": "vitest run tests/core.test.ts tests/config.test.ts tests/audit-dashboard.test.ts tests/github-audit.test.ts --coverage --coverage.include=packages/core/src/** --coverage.thresholds.branches=100 --coverage.thresholds.lines=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100",
+    "test:core": "vitest run tests/core.test.ts tests/config.test.ts tests/audit-dashboard.test.ts tests/github-audit.test.ts tests/dev-owner-budget.test.ts --coverage --coverage.include=packages/core/src/** --coverage.thresholds.branches=100 --coverage.thresholds.lines=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100",
     "greenci": "tsx packages/cli/src/main.ts",
     "build:preview": "node scripts/screens.mjs && node scripts/assets.mjs && tsx scripts/public-preview.mts",
     "beta:setup": "tsx scripts/beta-setup.mts",

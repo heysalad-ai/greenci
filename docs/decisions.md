@@ -158,3 +158,12 @@ The user explicitly requested signup for anyone and authorised the dev-only real
 GitHub actions share one `GitHubIcon` component using the unmodified mark path from https://github.com/primer/octicons/blob/main/icons/mark-github-16.svg (MIT; see packages/ui/third-party/octicons-LICENSE). Sign-in, repository access and draft PR links retain visible labels; decorative SVGs stay hidden from assistive technology. Repair-dashboard navigation uses the existing wrench and secondary button classes on both signed-out and signed-in beta views. No authentication, permissions or repair behavior changes.
 
 Email identity in the dev beta uses eight-digit one-time codes instead of passwords: the same flow registers and signs in after proving inbox control, with no stored password or reset channel. Codes are SHA-256 hashed with a random challenge ID, browser-bound, consumed with a conditional D1 update, expire after ten minutes, and allow five attempts. Sends are limited by hashed edge address and normalised-email windows. Cloudflare Email Sending was already enabled on the account; a new sender is restricted to no-reply@email.dev.greenci.dev. The native structured send binding follows https://developers.cloudflare.com/email-service/api/send-emails/workers-api/ and is added only to the dev candidate. Local tests use a delivery spy/local outbox; no hosted code is returned, logged or put in URLs. Email and GitHub identities link only through explicit browser-bound OAuth while the email session is current. Unlinked email accounts have no repository credentials or operator privileges; linked email logins reuse the existing GitHub workspace and refresh GitHub consent when needed.
+
+# Dev live-run pad mirror
+
+Use the existing authenticated Wi-Fi relay for display-only run phases, with a
+45-second stale watchdog and no repair/merge dispatch on the pad. A loopback-only
+operator preview reads actual dev snapshots and uses the existing server-side
+OpenAI binding for narration. Scope the single physical pad to the named dev
+owner and permit one additional expiring owner filming start without resetting
+history or raising customer limits. Physical acceptance remains separate.
