@@ -16,7 +16,11 @@
       "workers_dev": false,
       "preview_urls": false,
       "routes": [{ "pattern": "app.greenci.dev", "custom_domain": true }],
-      "vars": { "APP_ENV": "dev", "PUBLIC_BETA_FRONTEND": "true" },
+      "vars": {
+        "APP_ENV": "dev",
+        "PUBLIC_BETA_FRONTEND": "true",
+        "EMAIL_AUTH_FRONTEND": "true",
+      },
       "services": [
         { "binding": "API", "service": "greenci-api-dev" },
         {

@@ -32,9 +32,10 @@ export type Key = 'command' | 'diagnose' | 'repair' | 'verify';
 export function Icon({
   name,
 }: {
-  name: Key | 'check' | 'cross' | 'clock' | 'spinner';
+  name: Key | 'mail' | 'check' | 'cross' | 'clock' | 'spinner';
 }) {
   const paths = {
+    mail: 'M3 5h18v14H3V5Zm0 0 9 7 9-7',
     command: 'm5 6 6 6-6 6M13 18h6',
     diagnose: 'm21 21-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
     repair:

@@ -107,3 +107,10 @@
 .page header > a:first-child {
   flex-shrink: 0;
 }
+
+.email {
+  display: grid;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--space-6);
+}

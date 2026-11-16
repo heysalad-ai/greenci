@@ -5,12 +5,16 @@ import Link from 'next/link';
 import { copy } from '@greenci/core';
 import { Button, GitHubIcon, Icon, Logo } from '@greenci/ui';
 import styles from './beta.module.css';
+import EmailSignIn from './email-sign-in';
 const base = copy.inviteBeta;
 const meSchema = z.object({
   csrf: z.string(),
   orgId: z.string(),
   login: z.string(),
   admin: z.boolean(),
+  email: z.string().nullable().optional(),
+  githubConnected: z.boolean().default(true),
+  githubAuthorized: z.boolean().default(true),
   installUrl: z.url().nullable(),
 });
 const reposSchema = z.object({
@@ -34,6 +38,7 @@ const invitesSchema = z.object({
   ),
 });
 export default function BetaPage() {
+  const [emailEnabled, setEmailEnabled] = useState(false);
   const [mode, setMode] = useState<
     'loading' | 'invite' | 'public' | 'unavailable'
   >('loading');
@@ -61,10 +66,14 @@ export default function BetaPage() {
         fetch('/api/client/invite/me', { cache: 'no-store' }),
       ]);
       if (!configuration.ok) throw new Error();
-      const { publicSignup } = z
-        .object({ publicSignup: z.boolean() })
+      const { publicSignup, emailSignup } = z
+        .object({
+          publicSignup: z.boolean(),
+          emailSignup: z.boolean().default(false),
+        })
         .parse(await configuration.json());
       setMode(publicSignup ? 'public' : 'invite');
+      setEmailEnabled(emailSignup && publicSignup);
       const feedback = publicSignup ? copy.publicBeta : base;
       if (new URLSearchParams(window.location.search).has('error'))
         setError(feedback.failed);
@@ -83,8 +92,12 @@ export default function BetaPage() {
   useEffect(() => {
     void load();
   }, [load]);
-  async function post(path: string, body: unknown) {
-    const response = await fetch(`/api/client/invite/${path}`, {
+  async function post(
+    path: string,
+    body: unknown,
+    scope: 'invite' | 'email' = 'invite',
+  ) {
+    const response = await fetch(`/api/client/${scope}/${path}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -155,6 +168,7 @@ export default function BetaPage() {
           <Button onClick={() => void load()}>{copy.publicBeta.retry}</Button>
         ) : !me ? (
           <>
+            {emailEnabled && <EmailSignIn onSignedIn={() => void load()} />}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -211,9 +225,39 @@ export default function BetaPage() {
         ) : (
           <>
             <p>
-              {c.signedIn}: <strong>{me.login}</strong>
+              {me.email ? copy.emailAuth.signedIn : c.signedIn}:{' '}
+              <strong>{me.email || me.login}</strong>
             </p>
-            {!me.admin && (
+            {!me.admin && !me.githubAuthorized && (
+              <section
+                className={styles.connection}
+                aria-labelledby="github-link-title"
+              >
+                <h2 id="github-link-title">{copy.emailAuth.link}</h2>
+                <p>{copy.emailAuth.linkDetail}</p>
+                <Button
+                  disabled={busy}
+                  onClick={() =>
+                    void action(async () => {
+                      const result = z
+                        .object({ url: z.url() })
+                        .parse(
+                          await post(
+                            me.githubConnected ? 'public/start' : 'github',
+                            {},
+                            me.githubConnected ? 'invite' : 'email',
+                          ),
+                        );
+                      window.location.assign(result.url);
+                    })
+                  }
+                >
+                  <GitHubIcon />
+                  {copy.emailAuth.link}
+                </Button>
+              </section>
+            )}
+            {!me.admin && me.githubAuthorized && (
               <section
                 className={styles.connection}
                 aria-labelledby="connect-title"
