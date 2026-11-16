@@ -34,9 +34,13 @@ pnpm exec wrangler deploy --config apps/web/wrangler.public-beta.jsonc --env dev
 
 Verify anonymous public signup and documentation render, while operator/API requests still redirect to Access. Exercise a fresh GitHub callback and repository discovery. A genuinely independent account must install on a selected supported repository, connect to its isolated workspace, request one real OpenAI repair and inspect original-test verification plus the App-authored draft PR. Verify cross-workspace denial and revocation, including subsequent background phases. Leave the PR unmerged. Keep private identity/evidence records outside source control. An owner, fixture, template or successful callback alone does not satisfy this acceptance.
 
-## Marketing entry after acceptance
+## Current dev status
 
-Only after the public app has passed hosted sign-in/repair acceptance, build the static marketing site with `GREENCI_PUBLIC_BETA_LINK=true pnpm build:preview`, inspect the banner and its pinned `https://app.greenci.dev/beta` link, then deploy `apps/web/wrangler.preview.jsonc --env dev`. The default preview build keeps its existing preview notice and no external beta link. This changes only a static link; it grants no repository access.
+Public GitHub signup, repository connection and a real OpenAI repair through an App-authored draft PR have passed on dev using the operator's account in public-customer mode. The original tests and workflows are unchanged and both GitHub test checks pass on [starter PR #1](https://github.com/heysalad-ai/greenci-starter/pull/1), which remains draft and unmerged. Operator/API Access is preserved. This verifies the customer path, not a genuinely independent tester; that acceptance requirement above remains open. Final hosted sign-out/re-entry and revocation checks are also unverified after browser suspension interrupted the UI walk-through.
+
+## Marketing entry after functional acceptance
+
+After the hosted public sign-in/connection/repair path passes, build the static marketing site with `GREENCI_PUBLIC_BETA_LINK=true pnpm build:preview`, inspect the banner and its pinned `https://app.greenci.dev/beta` link, then deploy `apps/web/wrangler.preview.jsonc --env dev`. The default preview build keeps its existing preview notice and no external beta link. This changes only a static link; it grants no repository access. The user explicitly requested public dev signup without nominating a tester; publishing the link does not mark independent external acceptance complete.
 
 ## Stop and rollback
 
