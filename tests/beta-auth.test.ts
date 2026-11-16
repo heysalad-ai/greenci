@@ -184,3 +184,20 @@ it('validates a signed session with the default fetch transport in Workers', asy
     await runtime.dispose();
   }
 });
+
+it('verifies an invited Access identity without applying the single-owner email filter', async () => {
+  const { team, audience } = settings;
+  const identity = await verifyBetaAccess(
+    await sign({ email: 'outside@example.com' }),
+    { team, audience },
+    fetchKeys,
+  );
+  expect(identity.email).toBe('outside@example.com');
+  await expect(
+    verifyBetaAccess(
+      await sign({ aud: ['other'] }),
+      { team, audience },
+      fetchKeys,
+    ),
+  ).rejects.toThrow('audience mismatch');
+});

@@ -40,3 +40,4 @@ test-results/
 apps/web/public/fonts/
 
 /apps/api/wrangler.beta.generated.jsonc
+/apps/api/wrangler.public-beta.generated.jsonc

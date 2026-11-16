@@ -1,12 +1,21 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { parse } from 'jsonc-parser';
 const environment = process.argv[2];
 if (!['dev', 'staging', 'production'].includes(environment))
   throw new Error('Explicit environment required');
 const suffix = { dev: 'dev', staging: 'staging', production: 'prod' }[
   environment
 ];
+const accountId = parse(
+  await readFile(
+    new URL('../apps/api/wrangler.jsonc', import.meta.url),
+    'utf8',
+  ),
+).account_id;
+if (typeof accountId !== 'string' || !/^[a-f0-9]{32}$/.test(accountId))
+  throw new Error('An explicit Cloudflare account is required');
 await mkdir('.data/smoke', { recursive: true });
 await writeFile(
   '.data/smoke/index.mjs',
@@ -16,6 +25,7 @@ await writeFile(
   '.data/smoke/wrangler.jsonc',
   JSON.stringify({
     name: 'greenci-private-smoke',
+    account_id: accountId,
     main: 'index.mjs',
     compatibility_date: '2026-11-06',
     workers_dev: false,

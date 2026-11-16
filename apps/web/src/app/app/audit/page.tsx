@@ -1,12 +1,13 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { copy, auditDashboardSchema, type AuditDashboard } from '@greenci/core';
-import { Banner, Button, StatusChip } from '@greenci/ui';
+import { Banner, Button, GitHubIcon, StatusChip } from '@greenci/ui';
 import { SideNav, TopBar } from '../shell';
 import shell from '../app.module.css';
 import styles from './audit.module.css';
 import StartRepair from './start-repair';
 import { sessionResponseSchema } from '@greenci/client';
+import { z } from 'zod';
 const c = copy.auditDashboard;
 type Filter = 'all' | 'original' | 'failing' | 'security';
 export default function AuditPage() {
@@ -46,6 +47,15 @@ export default function AuditPage() {
   async function signIn() {
     setLoading(true);
     try {
+      const modeResponse = await fetch('/api/beta-mode', { cache: 'no-store' });
+      if (!modeResponse.ok) throw new Error();
+      if (
+        z.object({ publicSignup: z.boolean() }).parse(await modeResponse.json())
+          .publicSignup
+      ) {
+        window.location.assign('/beta');
+        return;
+      }
       const response = await fetch('/api/client/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,9 +137,9 @@ export default function AuditPage() {
             </Banner>
           )}
           {!loading && !data && !auth && !error && <p>{c.empty}</p>}
+          {!loading && !auth && !error && <StartRepair />}
           {data && (
             <>
-              <StartRepair />
               <div className={styles.snapshot}>
                 <strong>{c.snapshot}</strong>
                 <time dateTime={data.observedAt}>
@@ -189,6 +199,7 @@ export default function AuditPage() {
                           target="_blank"
                           rel="noreferrer"
                         >
+                          <GitHubIcon />
                           {c.review} #{r.pr.number}
                         </a>
                       )}

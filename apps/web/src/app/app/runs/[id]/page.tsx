@@ -7,6 +7,7 @@ import { copy, type Action, type Run } from '@greenci/core';
 import {
   ActionKey,
   Button,
+  GitHubIcon,
   Icon,
   Mascot,
   StatusChip,
@@ -500,6 +501,7 @@ export default function RunPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
+                  <GitHubIcon />
                   {copy.viewPr} #{run.prNumber}
                 </a>
               )}

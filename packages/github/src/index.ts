@@ -250,3 +250,10 @@ export async function verifyWebhook(
 }
 
 export { GitHubAppClient, appJwt } from './app.js';
+export {
+  GitHubInviteClient,
+  GitHubOAuthError,
+  identitySchema,
+  installationSchema,
+  connectedRepoSchema,
+} from './invite.js';

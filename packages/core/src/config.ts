@@ -1,6 +1,14 @@
 import { z } from 'zod';
 export const configSchema = z.object({
   SCAFFOLD_ONLY: z.enum(['true', 'false']).default('false'),
+  INVITE_BETA_ENABLED: z.enum(['true', 'false']).default('false'),
+  PUBLIC_BETA_ENABLED: z.enum(['true', 'false']).default('false'),
+  PUBLIC_BETA_URL: z.string().default(''),
+  EMAIL_AUTH_ENABLED: z.enum(['true', 'false']).default('false'),
+  EMAIL_AUTH_FROM: z.email().default('no-reply@email.dev.greenci.dev'),
+  GITHUB_CLIENT_ID: z.string().default(''),
+  GITHUB_CLIENT_SECRET: z.string().default(''),
+  GITHUB_APP_SLUG: z.string().default(''),
   BETA_ENABLED: z.enum(['true', 'false']).default('false'),
   APP_ENV: z.enum(['local', 'dev', 'staging', 'prod']).default('local'),
   GITHUB_MODE: z.enum(['mock', 'app']).default('mock'),
@@ -45,6 +53,25 @@ export function loadConfig(env: Record<string, unknown>): Config {
       `Invalid configuration fields: ${result.error.issues.map((i) => i.path.join('.')).join(', ')}`,
     );
   const config = result.data;
+  if (config.PUBLIC_BETA_ENABLED === 'true') {
+    const publicUrl = z.url().safeParse(config.PUBLIC_BETA_URL);
+    if (
+      !['local', 'dev'].includes(config.APP_ENV) ||
+      config.INVITE_BETA_ENABLED !== 'true' ||
+      !publicUrl.success ||
+      new URL(publicUrl.data).origin !== publicUrl.data ||
+      (config.APP_ENV !== 'local' && !publicUrl.data.startsWith('https://')) ||
+      publicUrl.data === new URL(config.WEB_URL).origin
+    )
+      throw new Error(
+        'Public beta requires a separate dev origin and invite beta infrastructure',
+      );
+  }
+  if (
+    config.EMAIL_AUTH_ENABLED === 'true' &&
+    config.PUBLIC_BETA_ENABLED !== 'true'
+  )
+    throw new Error('Email authentication requires the dev public beta');
   config.OPENAI_AGENT_MODEL = config.OPENAI_AGENT_MODEL || config.OPENAI_MODEL;
   if (config.APP_ENV !== 'local' && config.SANDBOX === 'none')
     throw new Error('SANDBOX=none is permitted only locally');

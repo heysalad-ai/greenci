@@ -3,6 +3,9 @@
   margin: auto;
   padding: var(--space-6);
 }
+.reading {
+  max-width: 70ch;
+}
 .header {
   display: flex;
   align-items: center;

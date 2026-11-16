@@ -166,3 +166,59 @@ Added private owner/org-scoped audit snapshots, `/app/audit` with searchable inv
 Added owner/tenant/CSRF-protected dev repair starts, pinned-commit/profile/access preflight, duplicate-key recovery and a unique active-org admission constraint. The durable engine runs Diagnose/Repair/Verify automatically for this explicit request while retaining protected-path/risk approvals and draft-only PR gates. Repo-level automatic settings and App scope are unchanged. The UI selects connected eligible repositories and polls real run records independently of audit snapshots. Hosted support is bounded to the reviewed dependency-free source-test profile; unsupported repo profiles are visibly unavailable.
 
 Validation: 98 unit/integration tests, 100% core coverage, 12 browser journeys, lint, typecheck and all 20 builds passed. A real owner-initiated dashboard repair completed on dev and opened an App-authored unmerged draft PR with both GitHub test checks passing. Access redirects and authenticated live result rendering were verified. Private acceptance evidence remains ignored; no App permission or repository-scope expansion occurred.
+
+## Invite-only external-user dev beta (2026-11-15)
+
+Implemented signed-Access plus invited GitHub OAuth/PKCE onboarding, hashed expiring invitations, revocation, isolated tester workspaces and user-authorised repository connection. The durable repair engine resolves installation credentials from each saved connection and rechecks actor write access. Invited users cannot access owner/operator/device/admin/rule/streaming controls. Admission is capped at five repositories, one active repair and two repair starts per rolling 24 hours; source-only draft and verification guards remain. Existing owner onboarding is preserved.
+
+Offline tests exercise sign-in/replay/account/tenant/installation/permission/revocation boundaries and a local Workflow through draft creation for an invited workspace. Browser journeys cover invitation errors, connection and operator controls. Hosted external acceptance is pending OAuth App/secret setup, exact Access admission and external-user consent; no external live success is claimed.
+
+Dev code deployment applied migration 0006 and updated only the existing API/web Workers. The hosted owner session recovery and invitation-operator view were observed successfully; anonymous entry/API requests still redirect to Access. External sign-in remains deliberately unconfigured without the OAuth client secret; GitHub registration changes and an external acceptance run remain pending. Final local gate: 107 tests, 100% core coverage, types/lint, 20 builds and 14 browser journeys; the final UI spacing pass additionally reran the two affected journeys. No external invites/admissions, App permission changes, merges or staging/production deployments occurred.
+
+## Dev beta activation and launch candidate (2026-11-15)
+
+After user passkey verification, the GitHub App's homepage/callback/post-install URLs were updated to the beta domain. The operator explicitly approved public App installation availability; GitHub confirmed it. Repository permissions, SSL/webhook settings, application Access and deployment environment were preserved. A new OAuth secret was prepared through GitHub's native UI without exposing its value; the final encrypted Cloudflare entry remains a required human handoff. Real external acceptance remains pending.
+
+Fixed the deployment smoke account ambiguity and verified dev API/web health and landing through the existing authenticated remote service bindings. Public site 200 and anonymous beta/API Access redirects 302 remain observed. See docs/launch-readiness.md for the external acceptance and public-deployment gates. No merge, production deployment, Access admission, social publication or external invitation occurred.
+
+## OAuth callback redirect repair (2026-11-16)
+
+The operator stored GITHUB_CLIENT_SECRET as an encrypted dev Worker secret; both Cloudflare's binding type and Wrangler's secret-name inventory confirmed it. An owner-started hosted OpenAI source repair completed verification and opened an unmerged draft PR. Fresh GitHub authorization then exposed a callback 404: the web service-binding proxy followed the API redirect instead of returning the redirect and session cookie to the browser. Added manual redirect handling and a Workers-backed regression test that reproduces both success/error callback failures as 404 before the fix. Hosted sign-in acceptance is still pending a fresh callback after dev deployment; no external-user acceptance or production readiness is claimed.
+
+The fresh hosted callback passed Access/state validation but then failed at token exchange. Reproduced and corrected the default native-fetch invocation in the actual Workers runtime, covering token exchange and identity lookup with fixture outbound responses. Added safe stage/provider-error diagnostics and tests that exclude provider-controlled descriptions and token values. Hosted acceptance continues after the dev API update.
+
+Hosted owner acceptance now passes on dev: a fresh GitHub authorization returns to GreenCI with a signed-in invited session, and repository discovery lists the existing selected practice repository. The OAuth binding remains an encrypted Worker secret and anonymous beta entry still redirects to Access (302). Final validation: lint, type checks, 114 tests, 20 builds and 14 browser journeys passed. The previously verified owner repair remains an unmerged draft PR. This does not establish independent external-user acceptance or production readiness.
+
+## Public self-service admission candidate (2026-11-16)
+
+Added opt-in public GitHub admission on a separately configured dev origin, without invitation codes or Cloudflare Access identity in that flow. Existing private invitations retain Access binding; public signup cannot silently convert them. Stable GitHub IDs preserve public-account revocation, short-lived browser state and PKCE remain mandatory, and public disablement invalidates sessions and background phases. Additive migration 0007 bounds outstanding public OAuth states and public repair admissions across workspaces; existing five-repository/two-repair workspace limits remain. Local gates pass: lint, types, 123 tests and 20 builds. This backend candidate is not deployed or publicly enabled; UI, release configuration and independent external acceptance remain in progress.
+
+## Public self-service onboarding candidate (2026-11-16)
+
+Added a separate public frontend mode with direct GitHub sign-in, explicit source-only repair scope, OpenAI data-use disclosure, capacity feedback, support and practice-template links. Public root and legacy onboarding route to the signup page; private invitation/operator behavior remains. Configuration failures hide signup and offer retry. No public deployment or Access change has been performed.
+
+Validation: lint, typecheck, 129 unit/integration tests, all 20 builds and 17 browser journeys passed. Six desktop/mobile/focus/capacity/docs captures were inspected. The independent UI finish review returned `ship` for this bounded UI scope; the documenter found no design-system changes needed. Detector tooling was unavailable, and fixture evidence does not establish hosted public sign-in or independent customer repair acceptance.
+
+## Dev deployment preparation and marketing entry (2026-11-16)
+
+Reviewed admission/onboarding/rollout implementation PRs #10–#12 were merged into the existing beta feature branch with passing GitHub CI; main remains unchanged. Applied additive dev migration 0007 and deployed the reviewed API with public admission disabled, version `70383c7a-52b3-4d32-a347-06f77df45fcb`. Authenticated API/web health and landing smoke passed; anonymous operator/API requests still redirect to Access. The public app is not deployed.
+
+Prepared an opt-in static marketing notice linking only to the pinned public beta entry. Default preview behavior remains unchanged; the link variant must not publish before hosted acceptance. Both preview builds passed and desktop/390px mobile renders were inspected without overflow. The scoped independent finish review returned `ship`. GitHub physical authentication, public callback setup, credential replacement/retirement verification and a real independent external repair remain unverified release gates.
+
+## Hosted public-customer signup and real repair (2026-11-16)
+
+After the user completed GitHub authentication and retired the exposed unused credential, saved the additive public callback/setup URLs and the explicitly approved starter-only installation expansion. Enabled public admission only on dev. Public GitHub signup, selected repository discovery/connection and a real OpenAI dashboard repair succeeded in a customer workspace. Starter draft PR #1 is App-authored, changes one source line, retains original tests/workflows and has both GitHub test checks passing. It remains draft and unmerged. Anonymous operator/API requests still redirect to Access; the public session received 404 for a known operator-workspace run.
+
+The account used belongs to the operator; independent external-user acceptance remains unverified. Browser suspension prevented the final hosted sign-out/re-entry and revocation walk-through. Removed the leftover practice-only workspace label; the public homepage link is prepared for the user-authorised dev release, without claiming production readiness or independent acceptance. Private runtime evidence remains ignored.
+
+## 2026-11-16 — consistent GitHub and repair actions
+
+Added a shared official GitHub mark to sign-in, repository connection/access and draft-PR links, retaining visible accessible labels. Both beta dashboard links now use the existing secondary button and Repair wrench; the header wraps on narrow screens. Preserved approved reference assets, authentication, permissions and repair behavior. Lint, typecheck, 129 tests and 17 browser journeys pass; Next/OpenNext Worker built during E2E. Desktop/mobile signed-out and signed-in fixtures inspected. Both dev frontend deployments completed and hosted controls were visually verified; anonymous protected web/API requests still redirect to Access. No API or staging/production deployment. See docs/fidelity/action-icons.md.
+
+## 2026-11-16 — dev email sign-up and login
+
+Implemented passwordless email signup/login alongside GitHub behind opt-in dev flags. Codes are browser-bound, hashed, single-use, ten-minute and five-attempt limited; sends are rate-limited by edge address and normalised email. Email users receive isolated workspaces and must explicitly authorise GitHub before repository connection. Linking checks the original email session, never matches by email, and invalidates the old unlinked session. Returning email users can reconnect expired GitHub consent. Tests: 139 unit/integration tests and 19 browser journeys pass; pure core coverage is 100%. Lint/typecheck pass and Next/OpenNext Worker build and API deployment dry-run passed. Hosted dev/Windows acceptance is pending; see docs/email-auth-acceptance.md.
+
+## 2026-11-16 — Windows email acceptance completed; repair demo preparation
+
+Verified live Windows signup, explicit GitHub linking, signout, signed-out reload and returning email login. The stored email account identifier and linked workspace are unchanged. The dashboard restores the existing greenci-starter connection. Clarified the returning-user reconnect prompt without changing permissions or authentication. Lint/typecheck, 139 tests and 20 browser journeys pass; the Worker bundle builds. Existing repair PR #1 remains draft and unmerged. Pixel camera preview works and COM13 parent identity matches the GreenCI pad; camera reframing remains a physical demo gate. This is an operator-controlled login test, not independent external acceptance.

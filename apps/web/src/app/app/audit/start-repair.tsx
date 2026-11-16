@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { z } from 'zod';
 import { copy, runSchema, type Run } from '@greenci/core';
-import { Button, StatusChip } from '@greenci/ui';
+import { Button, GitHubIcon, StatusChip } from '@greenci/ui';
 import { toneFor } from '../run-view';
 import styles from './audit.module.css';
 const c = copy.dashboardRepair;
@@ -92,7 +92,9 @@ export default function StartRepair() {
           .safeParse(await response.json());
         throw new Error(
           body.success &&
-            Object.values(c).some((value) => value === body.data.error)
+            [...Object.values(c), ...Object.values(copy.inviteBeta)].some(
+              (value) => value === body.data.error,
+            )
             ? body.data.error
             : c.failed,
         );
@@ -215,6 +217,7 @@ export default function StartRepair() {
                   target="_blank"
                   rel="noreferrer"
                 >
+                  <GitHubIcon />
                   {c.draft}
                 </a>
               )}

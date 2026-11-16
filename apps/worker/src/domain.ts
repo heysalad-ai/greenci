@@ -1,3 +1,4 @@
+import { runGithub } from './workspace-github.js';
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers';
 import {
   actionSchema,
@@ -221,7 +222,7 @@ export async function domainWorkflow(
           async () => {
             const current = (await repository.get(id)).run;
             if (current.state !== 'diagnosing') return current;
-            const github = githubFor(env),
+            const github = await runGithub(env, run),
               checks = await github.checks(run.repo, run.headSha),
               files: Record<string, string> = {};
             for (const file of (await github.tree(run.repo, run.headSha)).slice(
@@ -339,7 +340,7 @@ export async function domainWorkflow(
           async () => {
             const current = (await repository.get(id)).run;
             if (current.state !== 'repairing') return current;
-            const github = githubFor(env),
+            const github = await runGithub(env, run),
               files: Record<string, string> = {};
             const tree = await github.tree(run.repo, run.headSha);
             if (tree.length > 2000)
@@ -489,7 +490,7 @@ export async function domainWorkflow(
           async () => {
             const current = (await repository.get(id)).run;
             if (current.state !== 'verifying') return current;
-            const github = githubFor(env),
+            const github = await runGithub(env, run),
               sha = await (
                 await env.ARTIFACTS.get(`${id}/fix-${run.attempts}.sha`)
               )?.text();
@@ -584,7 +585,7 @@ export async function domainWorkflow(
             const current = (await repository.get(id)).run;
             if (current.state === 'pr_open') return current;
             if (!run.fixBranch) throw new Error('Missing fix branch');
-            const github = githubFor(env),
+            const github = await runGithub(env, run),
               checks = await github.checks(run.repo, run.fixBranch);
             const pr = await github.openPr(
               run.repo,

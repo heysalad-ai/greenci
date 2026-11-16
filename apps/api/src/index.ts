@@ -4,6 +4,8 @@ import { localEmailSchema, eventSchema } from '@greenci/db';
 import { sendLocalEmail } from '@greenci/email';
 import domainRoutes, { processWebhook } from './domain.js';
 import betaRoutes from './beta.js';
+import inviteRoutes from './invite.js';
+import emailRoutes from './email-auth.js';
 import type { ApiEnv } from './env.js';
 export { OrgRoom, DeckSession } from './rooms.js';
 export { RunWorkflow } from '@greenci/worker';
@@ -34,6 +36,9 @@ app.use('*', async (c, next) => {
       ![
         new URL(config.WEB_URL).origin,
         new URL(config.API_URL).origin,
+        ...(config.PUBLIC_BETA_ENABLED === 'true'
+          ? [config.PUBLIC_BETA_URL]
+          : []),
       ].includes(origin)
     )
       return c.json({ error: 'Origin is not allowed' }, 403);
@@ -288,6 +293,8 @@ for (const path of ['/live', '/events'])
     );
   });
 app.route('/', betaRoutes);
+app.route('/', emailRoutes);
+app.route('/', inviteRoutes);
 app.route('/', domainRoutes);
 app.doc('/openapi.json', {
   openapi: '3.1.0',

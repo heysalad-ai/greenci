@@ -122,3 +122,39 @@ The first audit dashboard extends the existing GreenCI shell rather than changin
 ## Dashboard-started durable repairs
 
 An explicit owner action creates a single per-run automatic pipeline, rather than enabling unattended repository automation. Existing App allowlists, isolated no-internet sandbox policy, source/test guards and verification-before-draft gates remain authoritative. A D1 unique active-org constraint limits concurrent starts, while stable request IDs recover interrupted initialization without resetting history. Live run records are separate from imported audit evidence. Profile eligibility is explicit: only dependency-free original Node tests are currently supported, and visibility in an account audit does not grant repair access. Cloudflare Workflow instance creation/status behavior follows the official Workers API documentation: https://developers.cloudflare.com/workflows/build/workers-api/.
+
+## Invited dev workspaces and ephemeral GitHub authorization
+
+Use signed Cloudflare Access identity plus a privately issued email/login-bound invitation, then the GitHub App web authorization flow with PKCE and a browser-bound single-use state. The GitHub user token is server-only, short-lived and used to discover the intersection of user/App installations and writable repositories; no refresh token is retained. Actual repair phases resolve a restricted single-repository installation client from a durable connection and recheck actor permission. This preserves the existing App credentials/owner path while removing global installation assumptions for invited jobs. Invited workspaces use polling so every read rechecks revocation. Database constraints/trigger enforce admission capacity. See GitHub's [user-token and PKCE guide](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app) and [installation endpoints](https://docs.github.com/en/rest/apps/installations). Hosted external consent/acceptance is a separate gate from offline fixture success.
+
+## Explicit Cloudflare account for deployment smoke
+
+The existing remote-service-binding smoke command failed after a second Cloudflare account became available: Wrangler could not choose an account in non-interactive mode. Read the already configured public account identifier from the API's committed JSONC, validate its format and carry it into the loopback smoke configuration. The corrected dev probe returns successful API/web health and landing responses, then shuts down. No public endpoint, Access-policy change or secret retrieval is involved.
+
+## Preserve API redirects at the web proxy
+
+The browser must receive OAuth callback redirects together with the API's session or cookie-deletion headers. Use manual redirect handling on the web-to-API service binding instead of following those redirects server-side. A Workers-backed regression test checks success and failure redirects and cookie preservation, with a loopback redirect destination that returns 404 to reproduce the original failure. Access verification, browser-bound state, PKCE and invitation checks remain in the API.
+
+## Workers-safe OAuth transport and bounded diagnostics
+
+Call global fetch through a wrapper, as the installation client already does, rather than storing the Workers native function as a client method. A bundled Worker with a fixture outbound service reproduces the token exchange failure with the old default and passes exchange plus identity lookup after the change. Callback rejection logs contain only a fixed stage and allowlisted provider reason; raw error text, provider bodies, authorization codes, tokens and request headers are excluded. Provider error responses are rejected even if they also contain a token field.
+
+## Separate public admission from operator Access
+
+Public self-service uses GitHub identity plus the existing browser-bound single-use PKCE flow on a separately pinned dev origin. It reuses tenant-isolated connection/repair machinery while recording admission mode, so public disablement and revocation also stop background GitHub phases. Private Access-bound identities are not silently upgraded. Public repair capacity is capped transactionally at twenty admitted starts across all public accounts per rolling day, in addition to existing workspace caps; outstanding public OAuth state is capped independently. This is a constrained beta candidate, not permission to expose the operator host or deploy production. The schema, admission logic and security fixtures form one coherent review chunk slightly above the usual 500-line target.
+
+## Public customer entry without exposing operator Access
+
+A frontend-only public mode presents GitHub signup on a separate customer origin while preserving the private invitation and operator UI on the existing beta host. Public root and legacy onboarding redirect to the same signup entry. Startup failures hide the signup action rather than guessing a mode. Existing brand tokens and components remain authoritative; data use, retained artifacts, actual repair-profile limits and support are visible before consent. Browser fixtures prove UI states, not real external acceptance.
+
+## Gate the marketing signup link on hosted acceptance
+
+The existing static public site gains an opt-in notice linking to the pinned customer app URL. The default build stays a preview. This keeps discoverability prepared without claiming that signup is open before the separate app and GitHub callback have passed hosted verification. It adds no service binding, account capability, new component or design token.
+
+## Public dev availability and acceptance evidence
+
+The user explicitly requested signup for anyone and authorised the dev-only real repair. Public customer-mode OAuth, repository connection and a real draft repair are now observed with the operator's account. This permits the requested functional beta entry and marketing link while preserving independent external-user acceptance as an unfulfilled evidence requirement. Do not present owner-run, fixture or UI-review evidence as an independent tester, and do not promote dev availability to production readiness. The default workspace label is generic because real customer sessions must not be labelled as practice data.
+
+GitHub actions share one `GitHubIcon` component using the unmodified mark path from https://github.com/primer/octicons/blob/main/icons/mark-github-16.svg (MIT; see packages/ui/third-party/octicons-LICENSE). Sign-in, repository access and draft PR links retain visible labels; decorative SVGs stay hidden from assistive technology. Repair-dashboard navigation uses the existing wrench and secondary button classes on both signed-out and signed-in beta views. No authentication, permissions or repair behavior changes.
+
+Email identity in the dev beta uses eight-digit one-time codes instead of passwords: the same flow registers and signs in after proving inbox control, with no stored password or reset channel. Codes are SHA-256 hashed with a random challenge ID, browser-bound, consumed with a conditional D1 update, expire after ten minutes, and allow five attempts. Sends are limited by hashed edge address and normalised-email windows. Cloudflare Email Sending was already enabled on the account; a new sender is restricted to no-reply@email.dev.greenci.dev. The native structured send binding follows https://developers.cloudflare.com/email-service/api/send-emails/workers-api/ and is added only to the dev candidate. Local tests use a delivery spy/local outbox; no hosted code is returned, logged or put in URLs. Email and GitHub identities link only through explicit browser-bound OAuth while the email session is current. Unlinked email accounts have no repository credentials or operator privileges; linked email logins reuse the existing GitHub workspace and refresh GitHub consent when needed.

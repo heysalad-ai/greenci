@@ -12,13 +12,12 @@ const claimsSchema = z.object({
 /** Verify the signed assertion, never a caller-supplied email header. */
 export async function verifyBetaAccess(
   token: string,
-  settings: { team: string; audience: string; email: string },
+  settings: { team: string; audience: string; email?: string },
   transport: typeof fetch = (input, init) => globalThis.fetch(input, init),
 ) {
   if (
     !/^[a-z0-9-]+$/.test(settings.team) ||
     !settings.audience ||
-    !settings.email ||
     token.length > 16_000
   )
     throw new Error('Private beta Access configuration is incomplete');
@@ -40,7 +39,10 @@ export async function verifyBetaAccess(
     throw new Error(
       'Access identity not admitted: Access assertion expired or not yet valid',
     );
-  if (claims.email.toLowerCase() !== settings.email.toLowerCase())
+  if (
+    settings.email !== undefined &&
+    claims.email.toLowerCase() !== settings.email.toLowerCase()
+  )
     throw new Error('Access identity not admitted: Access owner mismatch');
   const response = await transport(`${issuer}/cdn-cgi/access/certs`, {
     redirect: 'manual',

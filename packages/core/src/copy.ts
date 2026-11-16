@@ -1,4 +1,97 @@
 export const copy = {
+  emailAuth: {
+    title: 'Sign up or sign in with email',
+    detail: 'We’ll email you a one-time code. No password needed.',
+    email: 'Email address',
+    send: 'Email me a code',
+    code: 'Eight-digit code',
+    verify: 'Verify and continue',
+    sent: 'Check your inbox. Enter the code here within ten minutes.',
+    change: 'Use a different email',
+    signedIn: 'Signed in with email',
+    link: 'Connect GitHub',
+    linkDetail:
+      'Your email account is ready. Connect GitHub to choose repositories and request repairs.',
+    reconnect: 'Reconnect GitHub',
+    reconnectDetail:
+      'Your GitHub account remains linked. Reconnect to refresh repository access. Existing connected repositories are available on the repair dashboard.',
+    linked: 'GitHub connected',
+    subject: 'Your GreenCI sign-in code',
+    emailIntro: 'Use this code to sign up or sign in to the GreenCI dev beta:',
+    emailExpiry:
+      'This code expires in ten minutes. Enter it only on app.greenci.dev. If you did not request it, ignore this email.',
+    failed: 'That code could not be verified. Check it or request a new code.',
+    invalidEmail: 'Enter a valid email address.',
+    unavailable:
+      'Email sign-in is unavailable. Retry later or continue with GitHub.',
+    rate: 'Too many sign-in requests. Wait fifteen minutes and try again.',
+    working: 'Working…',
+  },
+  publicBeta: {
+    title: 'Try GreenCI',
+    intro:
+      'Sign in with email or GitHub, connect a repository and request a repair. Review the verified change in a draft pull request. Nothing merges automatically.',
+    profile:
+      'This beta supports source fixes with dependency-free Node test.mjs tests. Dependency and workflow repairs are not supported. When you request a repair, repository source and check logs are sent to OpenAI.',
+    limits:
+      'Up to five repositories and two repair starts per workspace in 24 hours. The public beta accepts twenty repair starts in total per 24 hours.',
+    failed: 'This step could not complete. Retry it or sign in again.',
+    busy: 'The beta is busy. Retry sign-in in a moment.',
+    unavailable: 'Sign-in is temporarily unavailable. Retry in a moment.',
+    retry: 'Retry sign-in',
+    install: 'Install GreenCI on selected repositories',
+    dataLink: 'Beta limits and data use',
+    support: 'Contact the beta team on GitHub',
+    supportUrl: 'https://github.com/heysalad-ai/greenci/issues/new/choose',
+    manageAccess: 'Manage GitHub App access',
+    manageAccessUrl: 'https://github.com/settings/installations',
+    template: 'Create a practice repository',
+    templateUrl: 'https://github.com/heysalad-ai/greenci-starter/generate',
+    templateDetail:
+      'Need a supported repository? Create your own copy of the practice template, then connect it.',
+  },
+  inviteBeta: {
+    title: 'Join the GreenCI dev beta',
+    intro:
+      'Use your invitation and GitHub account to connect a repository. Repairs open draft PRs for your review. Nothing merges automatically.',
+    code: 'Invitation code',
+    signIn: 'Continue with GitHub',
+    signedIn: 'GitHub connected',
+    loading: 'Working…',
+    failed:
+      'This step could not complete. Check your invitation, sign in again or retry.',
+    unavailable:
+      'GitHub beta sign-in is not configured yet. Ask the beta operator to finish setup.',
+    connectTitle: 'Connect a repository',
+    install: 'Install GreenCI Dev on selected repositories',
+    refresh: 'Refresh GitHub repositories',
+    repo: 'Repository',
+    connect: 'Connect repository',
+    connected:
+      'Repository connected. Check its repair eligibility on the dashboard.',
+    dashboard: 'Open repair dashboard',
+    logout: 'Sign out',
+    profile:
+      'This beta supports source fixes with dependency-free test.mjs tests. Dependencies and workflows need a separate reviewed profile. Code and check logs are sent to the configured OpenAI provider during a requested repair.',
+    empty:
+      'No writable installed repositories found. Install the App on a selected repository, then refresh. An organisation owner may need to approve installation.',
+    admin: 'Invite a beta tester',
+    email: 'Access email',
+    login: 'GitHub username',
+    create: 'Create seven-day invitation',
+    invitation:
+      'Share this code privately after admitting the same email through Access. It expires in seven days.',
+    revoke: 'Revoke invitation',
+    invites: 'Invitations',
+    revoked: 'Revoked',
+    active: 'Active',
+    limits:
+      'Up to five repositories and two repair starts per workspace in 24 hours.',
+    quota:
+      'The beta allows two repair starts per workspace in 24 hours. Try again later.',
+    publicCapacity:
+      'The public beta has reached its repair limit for the last 24 hours. Try again later.',
+  },
   dashboardRepair: {
     title: 'Start a repair',
     repo: 'Connected repository',
@@ -23,8 +116,7 @@ export const copy = {
     stale:
       'The default commit changed. Refresh connected repos before starting.',
     busy: 'A repair is already active in this workspace. Review it before starting another.',
-    queued:
-      'Repair accepted. You can close this page; the run continues in dev.',
+    queued: 'Repair accepted. You can close this page; the run continues.',
     failed:
       'The repair could not start. Review the run or retry the same request.',
   },
@@ -212,6 +304,10 @@ export const copy = {
   },
   publicPreview: {
     title: 'GreenCI public preview',
+    betaNotice:
+      'The software beta is open for supported GitHub repositories. Review every repair in a draft PR.',
+    betaOpen: 'Try the software beta',
+    betaUrl: 'https://app.greenci.dev/beta',
     notice:
       'Public preview. Explore the design; GitHub connections, repairs and orders are not available here.',
     open: 'View product preview',
@@ -268,12 +364,17 @@ export const copy = {
       {
         id: 'safety',
         title: 'You stay the reviewer.',
-        body: 'GreenCI writes to its own greenci/* branches. It never merges a pull request, pushes to main, or reads secrets. Protected changes pause for your approval.',
+        body: 'GreenCI writes to its own greenci/* branches. It never merges a pull request or pushes to main. Verification runs before a draft PR opens. Protected changes pause for your approval.',
       },
       {
         id: 'progress',
         title: 'Current preview',
-        body: 'The local practice journey works with example repositories. The hosted preview is not connected to your GitHub repositories yet. Prices, dates and quotes remain placeholders.',
+        body: 'The beta connects selected GitHub repositories and runs source repairs with dependency-free Node tests. Dependencies, workflows and other build systems need a separate repair profile.',
+      },
+      {
+        id: 'public-beta',
+        title: 'Beta limits and data use',
+        body: 'Email sign-in uses a ten-minute, single-use code and stores your verified email address in Cloudflare. Connecting GitHub is a separate consent step; accounts are never linked just because emails match. GreenCI reads checks and source from repositories you select, then writes a repair branch and draft pull request. Requested repairs send source and check logs to OpenAI. Run records, logs and diffs are stored in Cloudflare for review. Automatic artifact deletion is not enabled in this beta. Request deletion or support through the GreenCI GitHub issues page without posting private code, logs or credentials. Removing the GitHub App installation stops its repository access. Signing out removes this browser’s GreenCI session and the short-lived GitHub user token; it does not delete run records or stop an already running repair.',
       },
     ],
   },
@@ -299,7 +400,7 @@ export const copy = {
   practiceDetail: 'Has one failing test, on purpose',
   practiceTitle: 'Your practice repo is red. Press Diagnose.',
   practiceStart: 'Start the practice run',
-  previewNotConnected: 'This preview is not connected to GitHub yet.',
+  previewNotConnected: 'Your session is unavailable. Sign in to continue.',
   working: 'Working…',
   dashboard: 'Your builds',
   empty: 'All green. Nothing to fix.',
@@ -355,7 +456,7 @@ export const copy = {
       rules: 'Rules',
       settings: 'Settings',
     },
-    org: 'Practice workspace',
+    org: 'Your workspace',
     runTitle: (check: string, branch: string) => `${check} failed on ${branch}`,
     navLabel: 'Main',
     greetingRed: (n: number) =>
