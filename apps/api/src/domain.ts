@@ -59,10 +59,15 @@ app.use('/v1/*', async (c, next) => {
   const user = await session(c.req.raw, c.env);
   if (!user) return c.json({ error: copy.api.signIn }, 401);
   if (user.userId.startsWith('github:') || user.userId.startsWith('email:')) {
-    const allowed =
+    let allowed =
       /^\/v1\/(audit(?:\/(?:options|repairs))?|runs(?:\/[^/]+(?:\/(?:events|decisions|diff|actions))?)?|repos)$/.test(
         c.req.path,
       );
+    if (
+      /^\/v1\/device\/(status|command|release)$/.test(c.req.path) &&
+      (await ownsDevPad(c.env, loadConfig(c.env), user))
+    )
+      allowed = true;
     if (!allowed) return c.notFound();
     c.header('Cache-Control', 'private, no-store');
   }
