@@ -146,3 +146,7 @@ Public self-service uses GitHub identity plus the existing browser-bound single-
 ## Public customer entry without exposing operator Access
 
 A frontend-only public mode presents GitHub signup on a separate customer origin while preserving the private invitation and operator UI on the existing beta host. Public root and legacy onboarding redirect to the same signup entry. Startup failures hide the signup action rather than guessing a mode. Existing brand tokens and components remain authoritative; data use, retained artifacts, actual repair-profile limits and support are visible before consent. Browser fixtures prove UI states, not real external acceptance.
+
+## Gate the marketing signup link on hosted acceptance
+
+The existing static public site gains an opt-in notice linking to the pinned customer app URL. The default build stays a preview. This keeps discoverability prepared without claiming that signup is open before the separate app and GitHub callback have passed hosted verification. It adds no service binding, account capability, new component or design token.
