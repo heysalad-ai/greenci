@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Logo } from '@greenci/ui';
+import { GitHubIcon, Logo } from '@greenci/ui';
 import { copy } from '@greenci/core';
 import styles from '../software.module.css';
 export default function Docs() {
@@ -16,12 +16,16 @@ export default function Docs() {
         ))}
       </div>
       <p>
-        <a href={copy.publicBeta.manageAccessUrl}>
+        <a className="gc-inline-link" href={copy.publicBeta.manageAccessUrl}>
+          <GitHubIcon />
           {copy.publicBeta.manageAccess}
         </a>
       </p>
       <p>
-        <a href={copy.publicBeta.supportUrl}>{copy.publicBeta.support}</a>
+        <a className="gc-inline-link" href={copy.publicBeta.supportUrl}>
+          <GitHubIcon />
+          {copy.publicBeta.support}
+        </a>
       </p>
       <Link href="/start">{copy.deckless}</Link>
     </main>

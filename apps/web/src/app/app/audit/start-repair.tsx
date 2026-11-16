@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { z } from 'zod';
 import { copy, runSchema, type Run } from '@greenci/core';
-import { Button, StatusChip } from '@greenci/ui';
+import { Button, GitHubIcon, StatusChip } from '@greenci/ui';
 import { toneFor } from '../run-view';
 import styles from './audit.module.css';
 const c = copy.dashboardRepair;
@@ -217,6 +217,7 @@ export default function StartRepair() {
                   target="_blank"
                   rel="noreferrer"
                 >
+                  <GitHubIcon />
                   {c.draft}
                 </a>
               )}

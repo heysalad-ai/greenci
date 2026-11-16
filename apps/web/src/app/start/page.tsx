@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { sessionResponseSchema } from '@greenci/client';
 import { copy } from '@greenci/core';
-import { Button, Logo, Mascot } from '@greenci/ui';
+import { Button, GitHubIcon, Icon, Logo, Mascot } from '@greenci/ui';
 import styles from '../app/app.module.css';
 
 type Step = 1 | 2 | 3 | 4;
@@ -148,6 +148,7 @@ function Start() {
                 </div>
                 <div className={styles.stepActions}>
                   <Button disabled={busy} onClick={() => void connect()}>
+                    {busy ? <Icon name="spinner" /> : <GitHubIcon />}
                     {busy ? copy.working : copy.connectGithub}
                   </Button>
                 </div>

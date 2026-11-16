@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { copy, auditDashboardSchema, type AuditDashboard } from '@greenci/core';
-import { Banner, Button, StatusChip } from '@greenci/ui';
+import { Banner, Button, GitHubIcon, StatusChip } from '@greenci/ui';
 import { SideNav, TopBar } from '../shell';
 import shell from '../app.module.css';
 import styles from './audit.module.css';
@@ -199,6 +199,7 @@ export default function AuditPage() {
                           target="_blank"
                           rel="noreferrer"
                         >
+                          <GitHubIcon />
                           {c.review} #{r.pr.number}
                         </a>
                       )}
