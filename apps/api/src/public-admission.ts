@@ -3,6 +3,22 @@ import { identitySchema } from '@greenci/github';
 import type { ApiEnv } from './env.js';
 import { digest, inviteSchema } from './invite-auth.js';
 
+export async function admitPublicSignIn(env: ApiEnv, address: string) {
+  if (!address || address === 'unknown' || address.length > 64)
+    throw new Error('Missing edge identity');
+  const key = await digest(`${Math.floor(Date.now() / 300000)}:${address}`);
+  await env.DB.prepare('DELETE FROM public_auth_rate WHERE expires_at<?')
+    .bind(new Date().toISOString())
+    .run();
+  const result = await env.DB.prepare(
+    'INSERT INTO public_auth_rate VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET attempts=attempts+1 RETURNING attempts',
+  )
+    .bind(key, new Date(Date.now() + 3600000).toISOString())
+    .first<{ attempts: number }>();
+  if (!result || result.attempts > 10)
+    throw new Error('Public sign-in rate limit');
+}
+
 /** Stable GitHub IDs preserve revocation across repeated public sign-ins. */
 export async function publicAdmission(
   env: ApiEnv,

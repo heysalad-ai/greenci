@@ -1,6 +1,7 @@
 -- Public GitHub admission is opt-in and distinct from Access-bound invitations.
 ALTER TABLE beta_identities ADD COLUMN admission TEXT NOT NULL DEFAULT 'invite' CHECK(admission IN ('invite','public'));
 ALTER TABLE beta_oauth_states ADD COLUMN admission TEXT NOT NULL DEFAULT 'invite' CHECK(admission IN ('invite','public'));
+CREATE TABLE public_auth_rate (key TEXT PRIMARY KEY,attempts INTEGER NOT NULL,expires_at TEXT NOT NULL);
 -- Bound outstanding public authentication work independently of repair capacity.
 CREATE TRIGGER public_oauth_capacity BEFORE INSERT ON beta_oauth_states
 WHEN NEW.admission='public' AND (

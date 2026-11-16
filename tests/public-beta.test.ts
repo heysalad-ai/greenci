@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { inviteRoutes } from '../apps/api/src/invite.js';
 import { session } from '../apps/api/src/session.js';
 import { workspaceGithub } from '../apps/worker/src/workspace-github.js';
+import { admitPublicSignIn } from '../apps/api/src/public-admission.js';
 import type { ApiEnv } from '../apps/api/src/env.js';
 import type { RunEnv } from '../apps/worker/src/domain.js';
 
@@ -81,6 +82,20 @@ beforeAll(async () => {
   } as unknown as ApiEnv;
 });
 afterAll(() => mf?.dispose());
+it('bounds concurrent sign-in attempts per client without storing its address', async () => {
+  const attempts = await Promise.allSettled(
+    Array.from({ length: 11 }, () => admitPublicSignIn(env, '198.51.100.42')),
+  );
+  expect(attempts.filter((x) => x.status === 'fulfilled')).toHaveLength(10);
+  expect(attempts.filter((x) => x.status === 'rejected')).toHaveLength(1);
+  await expect(
+    admitPublicSignIn(env, '198.51.100.43'),
+  ).resolves.toBeUndefined();
+  const rows = await env.DB.prepare('SELECT key FROM public_auth_rate').all<{
+    key: string;
+  }>();
+  expect(rows.results.every((x) => /^[a-f0-9]{64}$/.test(x.key))).toBe(true);
+});
 async function start() {
   const response = await request('public/start', {});
   expect(response.status).toBe(200);

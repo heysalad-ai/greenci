@@ -20,7 +20,12 @@ async function proxy(
       method: request.method,
       // OAuth redirects and cookies must reach the browser, not be followed here.
       redirect: 'manual',
-      headers: Object.fromEntries(request.headers),
+      headers: {
+        ...Object.fromEntries(request.headers),
+        // Derived at the edge; overwrite any browser-supplied internal header.
+        'X-GreenCI-Client-IP':
+          request.headers.get('CF-Connecting-IP') ?? 'unknown',
+      },
       ...(!['GET', 'HEAD'].includes(request.method)
         ? { body: await request.arrayBuffer() }
         : {}),

@@ -18,7 +18,7 @@ import {
 } from './invite-auth.js';
 import type { ApiEnv } from './env.js';
 import { beginAuthorization } from './oauth-start.js';
-import { publicAdmission } from './public-admission.js';
+import { publicAdmission, admitPublicSignIn } from './public-admission.js';
 const authSchema = z.object({ token: z.string(), expires: z.number() });
 const stateSchema = z.object({
   invite_id: z.string(),
@@ -105,6 +105,11 @@ export function inviteRoutes(
       z.object({})
         .strict()
         .parse(await c.req.json());
+      await admitPublicSignIn(
+        c.env,
+        c.req.header('X-GreenCI-Client-IP') ??
+          (cfg.APP_ENV === 'local' ? 'local' : 'unknown'),
+      );
       return await beginAuthorization(
         c,
         'public',
