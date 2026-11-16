@@ -1,5 +1,20 @@
 import { z } from 'zod';
 import type { Config } from '@greenci/core';
+const oauthFailureSchema = z.enum([
+  'incorrect_client_credentials',
+  'bad_verification_code',
+  'redirect_uri_mismatch',
+  'unverified_user_email',
+]);
+export class GitHubOAuthError extends Error {
+  constructor(
+    readonly reason:
+      z.infer<typeof oauthFailureSchema> | 'invalid_response' | 'unavailable',
+  ) {
+    super('GitHub authorization unavailable');
+    this.name = 'GitHubOAuthError';
+  }
+}
 export const identitySchema = z.object({
   id: z.number().int().positive(),
   login: z.string().regex(/^[a-z\d-]{1,39}$/i),
@@ -24,7 +39,8 @@ export class GitHubInviteClient {
       Config,
       'GITHUB_CLIENT_ID' | 'GITHUB_CLIENT_SECRET' | 'WEB_URL'
     >,
-    private transport: typeof fetch = fetch,
+    private transport: typeof fetch = (input, init) =>
+      globalThis.fetch(input, init),
   ) {}
   async exchange(code: string, verifier: string) {
     const response = await this.transport(
@@ -46,13 +62,23 @@ export class GitHubInviteClient {
         }),
       },
     );
-    if (!response.ok) throw new Error('GitHub authorization unavailable');
-    return z
+    if (!response.ok) throw new GitHubOAuthError('unavailable');
+    const body: unknown = await response.json();
+    const failed = z.object({ error: z.unknown() }).safeParse(body);
+    if (failed.success) {
+      const reason = oauthFailureSchema.safeParse(failed.data.error);
+      throw new GitHubOAuthError(
+        reason.success ? reason.data : 'invalid_response',
+      );
+    }
+    const result = z
       .object({
         access_token: z.string().min(1),
         expires_in: z.number().positive().optional(),
       })
-      .parse(await response.json());
+      .safeParse(body);
+    if (!result.success) throw new GitHubOAuthError('invalid_response');
+    return result.data;
   }
   async get(path: string, token: string) {
     if (

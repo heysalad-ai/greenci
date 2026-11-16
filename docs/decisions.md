@@ -134,3 +134,7 @@ The existing remote-service-binding smoke command failed after a second Cloudfla
 ## Preserve API redirects at the web proxy
 
 The browser must receive OAuth callback redirects together with the API's session or cookie-deletion headers. Use manual redirect handling on the web-to-API service binding instead of following those redirects server-side. A Workers-backed regression test checks success and failure redirects and cookie preservation, with a loopback redirect destination that returns 404 to reproduce the original failure. Access verification, browser-bound state, PKCE and invitation checks remain in the API.
+
+## Workers-safe OAuth transport and bounded diagnostics
+
+Call global fetch through a wrapper, as the installation client already does, rather than storing the Workers native function as a client method. A bundled Worker with a fixture outbound service reproduces the token exchange failure with the old default and passes exchange plus identity lookup after the change. Callback rejection logs contain only a fixed stage and allowlisted provider reason; raw error text, provider bodies, authorization codes, tokens and request headers are excluded. Provider error responses are rejected even if they also contain a token field.
